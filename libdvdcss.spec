@@ -1,6 +1,6 @@
 %define name 	libdvdcss
 %define version	1.2.5
-%define release	2
+%define release	1
 
 %define major  	2
 %define libname %{name}%{major}
@@ -11,7 +11,7 @@
 # some mdk macros that do not exist in rh
 %define configure2_5x CFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=/usr
 %define make %__make
-%define makeinstall_std make DESTDIR="$RPM_BUILD_ROOT" install
+%define makeinstall_std %__make DESTDIR="$RPM_BUILD_ROOT" install
 # adjust define for Redhat.
 %endif
 
