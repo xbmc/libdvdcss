@@ -2,7 +2,7 @@
  * ioctl.h: DVD ioctl replacement function
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: ioctl.h,v 1.10 2002/10/19 09:53:33 gbazin Exp $
+ * $Id: ioctl.h,v 1.11 2002/11/15 18:39:08 jlj Exp $
  *
  * Authors: Samuel Hocevar <sam@zoy.org>
  *
@@ -195,8 +195,8 @@ typedef union dvd_authinfo dvd_authinfo;
 #define DVD_BUS_KEY_LENGTH              (8 + sizeof(DVD_COPY_PROTECT_KEY))
 #define DVD_TITLE_KEY_LENGTH            (8 + sizeof(DVD_COPY_PROTECT_KEY))
 #define DVD_DISK_KEY_LENGTH             (2048 + sizeof(DVD_COPY_PROTECT_KEY))
+#define DVD_RPC_KEY_LENGTH              (sizeof(DVD_RPC_KEY) + sizeof(DVD_COPY_PROTECT_KEY))
 #define DVD_ASF_LENGTH                  (sizeof(DVD_ASF) + sizeof(DVD_COPY_PROTECT_KEY))
-#define DVD_REGION_LENGTH               (sizeof(DVD_REGION))
 
 #define DVD_COPYRIGHT_MASK              0x00000040
 #define DVD_NOT_COPYRIGHTED             0x00000000
@@ -271,12 +271,15 @@ typedef struct _DVD_ASF
     UCHAR Reserved1:7;
 } DVD_ASF, * PDVD_ASF;
 
-typedef struct _DVD_REGION {
-  UCHAR  CopySystem;
-  UCHAR  RegionData;
-  UCHAR  SystemRegion;
-  UCHAR  ResetCount;
-} DVD_REGION, *PDVD_REGION;
+typedef struct _DVD_RPC_KEY
+{
+    UCHAR UserResetsAvailable:3;
+    UCHAR ManufacturerResetsAvailable:3;
+    UCHAR TypeCode:2;
+    UCHAR RegionMask;
+    UCHAR RpcScheme;
+    UCHAR Reserved2[1];
+} DVD_RPC_KEY, * PDVD_RPC_KEY;
 
 typedef struct _SCSI_PASS_THROUGH_DIRECT
 {
