@@ -5,7 +5,7 @@
  *          Håkan Hjort <d95hjort@dtek.chalmers.se>
  *
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: libdvdcss.c,v 1.28 2003/01/28 00:41:10 sam Exp $
+ * $Id: libdvdcss.c,v 1.29 2003/01/29 22:59:35 massiot Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -110,7 +110,7 @@
 #   include <unistd.h>
 #endif
 
-#ifdef __MINGW_H
+#ifdef HAVE_LIMITS_H
 #   include <limits.h>
 #endif
 
