@@ -2,7 +2,7 @@
  * css.c: Functions for DVD authentication and descrambling
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: css.c,v 1.18 2002/10/18 18:48:58 sam Exp $
+ * $Id: css.c,v 1.19 2002/11/14 12:38:57 gbazin Exp $
  *
  * Author: Stéphane Borel <stef@via.ecp.fr>
  *         Håkan Hjort <d95hjort@dtek.chalmers.se>
@@ -77,6 +77,21 @@ int _dvdcss_test( dvdcss_t dvdcss )
     int i_ret, i_copyright;
 
     i_ret = ioctl_ReadCopyright( dvdcss->i_fd, 0 /* i_layer */, &i_copyright );
+
+#ifdef WIN32
+    if( i_ret < 0 )
+    {
+        /* Maybe we didn't have enough priviledges to read the copyright
+         * (see ioctl_ReadCopyright comments).
+         * Apparently, on unencrypted DVDs _dvdcss_disckey() always fails, so
+         * we can check this as a work-around. */
+        i_ret = 0;
+        if( _dvdcss_disckey( dvdcss ) < 0 )
+            i_copyright = 0;
+        else
+            i_copyright = 1;
+    }
+#endif
 
     if( i_ret < 0 )
     {
