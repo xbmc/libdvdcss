@@ -2,7 +2,7 @@
  * css.c: Functions for DVD authentication and descrambling
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: css.c,v 1.12 2002/08/09 14:10:43 sam Exp $
+ * $Id: css.c,v 1.13 2002/08/09 22:03:34 sam Exp $
  *
  * Author: Stéphane Borel <stef@via.ecp.fr>
  *         Håkan Hjort <d95hjort@dtek.chalmers.se>
@@ -436,6 +436,7 @@ int _dvdcss_disckey( dvdcss_handle dvdcss )
  *****************************************************************************/
 int _dvdcss_titlekey( dvdcss_handle dvdcss, int i_pos, dvd_key_t p_title_key )
 {
+    static u8 p_garbage[ 2048 ];          /* static because we never read it */
     u8  p_key[KEY_SIZE];
     int i, i_ret = 0;
 
@@ -521,11 +522,12 @@ int _dvdcss_titlekey( dvdcss_handle dvdcss, int i_pos, dvd_key_t p_title_key )
         }
 
         /* The title key request failed */
-        _dvdcss_debug( dvdcss, "reopening disc and cracking title key" );
+        _dvdcss_debug( dvdcss, "resetting drive and cracking title key" );
 
-        /* Close and reopen everything */
-        _dvdcss_close( dvdcss );
-        _dvdcss_open( dvdcss );
+        /* Read an unscrambled sector and reset the drive */
+        _dvdcss_seek( dvdcss, 0 );
+        _dvdcss_read( dvdcss, p_garbage, 1 );
+        _dvdcss_seek( dvdcss, 0 );
         _dvdcss_disckey( dvdcss );
 
         /* Fallback */
