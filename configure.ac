@@ -27,6 +27,7 @@ case x"${target_os}" in
     ;;
   x*cygwin*)
     AC_DEFINE(SYS_CYGWIN, 1, Have a Cygwin system.)
+    AC_DEFINE(WIN32, 1, Using Win32.)
     ;;
   xbeos*)
     AC_DEFINE(SYS_BEOS, 1, Have a BeOS system.)
@@ -46,8 +47,15 @@ dnl  default is no
 CAN_BUILD_LIBDVDCSS=0
 
 dnl  for windoze
-AC_CHECK_HEADERS(winioctl.h,[
-  CAN_BUILD_LIBDVDCSS=1
+AC_CHECK_HEADERS(windows.h,[
+  AC_CHECK_HEADERS(direct.h,,,[
+  #include <windows.h>
+  ])
+  AC_CHECK_HEADERS(winioctl.h,[
+    CAN_BUILD_LIBDVDCSS=1
+  ],,[
+  #include <windows.h>
+  ])
 ])
 
 dnl  for Un*x and BeOS

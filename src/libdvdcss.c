@@ -5,7 +5,7 @@
  *          Håkan Hjort <d95hjort@dtek.chalmers.se>
  *
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: libdvdcss.c,v 1.24 2002/12/11 13:12:10 sam Exp $
+ * $Id: libdvdcss.c,v 1.25 2002/12/19 12:37:30 sam Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -110,7 +110,7 @@
 #   include <limits.h>
 #endif
 
-#ifdef WIN32
+#ifdef HAVE_DIRECT_H
 #   include <direct.h>
 #endif
 
@@ -361,7 +361,7 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
 
         /* We have a disc name or ID, we can create the cache dir */
         i = sprintf( dvdcss->psz_cachefile, "%s", psz_cache );
-#ifndef WIN32
+#if !defined( WIN32 ) || defined( SYS_CYGWIN )
         i_ret = mkdir( dvdcss->psz_cachefile, 0755 );
 #else
         i_ret = mkdir( dvdcss->psz_cachefile );
@@ -374,7 +374,7 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
         }
 
         i += sprintf( dvdcss->psz_cachefile + i, "/%s/", psz_data );
-#ifndef WIN32
+#if !defined( WIN32 ) || defined( SYS_CYGWIN )
         i_ret = mkdir( dvdcss->psz_cachefile, 0755 );
 #else
         i_ret = mkdir( dvdcss->psz_cachefile );

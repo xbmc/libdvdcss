@@ -2,7 +2,7 @@
  * device.h: DVD device access
  *****************************************************************************
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: device.h,v 1.6 2002/12/05 10:24:42 sam Exp $
+ * $Id: device.h,v 1.7 2002/12/19 12:37:30 sam Exp $
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -26,14 +26,14 @@
 /*****************************************************************************
  * iovec structure: vectored data entry
  *****************************************************************************/
-#if defined( WIN32 )
+#if defined( WIN32 ) && !defined( SYS_CYGWIN )
 #   include <io.h>                                                 /* read() */
 #else
 #   include <sys/types.h>
 #   include <sys/uio.h>                                      /* struct iovec */
 #endif
 
-#if defined( WIN32 )
+#if defined( WIN32 ) && !defined( SYS_CYGWIN )
 struct iovec
 {
     void *iov_base;     /* Pointer to data. */
