@@ -38,7 +38,12 @@ then
 fi
 
 aclocal${amvers} || exit 1
-libtoolize --force --copy || exit 1
+if libtoolize --version >/dev/null 2>&1
+then
+  libtoolize --force --copy || exit 1
+else
+  glibtoolize --force --copy || exit 1
+fi
 autoheader || exit 1
 #add --include-deps if you want to bootstrap with any other compiler than gcc
 #automake${amvers} --add-missing --copy --include-deps || exit 1
