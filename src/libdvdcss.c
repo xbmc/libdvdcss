@@ -373,6 +373,25 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
         }
     }
 
+    /* If the cache is enabled, write the cache directory tag */
+    if( psz_cache )
+    {
+        char *psz_tag = "Signature: 8a477f597d28d172789f06886806bc55\r\n"
+            "# This file is a cache directory tag created by libdvdcss.\r\n"
+            "# For information about cache directory tags, see:\r\n"
+            "#   http://www.brynosaurus.com/cachedir/\r\n";
+        unsigned char psz_tagfile[PATH_MAX+1+12+1];
+        int i_fd;
+
+        sprintf( psz_tagfile, "%s/CACHEDIR.TAG", psz_cache );
+        i_fd = open( psz_tagfile, O_RDWR|O_CREAT|O_EXCL, 0644 );
+        if( i_fd >= 0 )
+        {
+            write( i_fd, psz_tag, strlen(psz_tag) );
+            close( i_fd );
+        }
+    }
+
     /* If the cache is enabled, extract a unique disc ID */
     if( psz_cache )
     {
@@ -445,7 +464,7 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
         {
             if( psz_serial[i] < '0' || psz_serial[i] > '9' )
             {
-                char psz_tmp[16 + 1];
+                unsigned char psz_tmp[16 + 1];
                 sprintf( psz_tmp,
                          "%.2x%.2x%.2x%.2x%.2x%.2x%.2x%.2x",
                          psz_serial[0], psz_serial[1], psz_serial[2],
