@@ -25,6 +25,7 @@ case x"${target_os}" in
     ;;
   xbeos*)
     AC_DEFINE(SYS_BEOS, 1, Have a BeOS system.)
+    SYS_BEOS=1
     ;;
   x*)
     ;;
@@ -81,7 +82,6 @@ AC_CHECK_HEADERS(sys/ioctl.h,[
   AC_EGREP_HEADER(dvd_struct,dvd.h,[
     AC_DEFINE(DVD_STRUCT_IN_DVD_H, 1,
               Define if <dvd.h> defines DVD_STRUCT.)
-    EXTRA_LIB="${EXTRA_LIB} -ldvd"
     LINUX_DVD_STRUCT=1
   ],[
     dnl
@@ -90,7 +90,7 @@ AC_CHECK_HEADERS(sys/ioctl.h,[
     AC_CHECK_HEADERS(/sys/dev/scsi/scsi_ioctl.h,[
       AC_DEFINE(DVD_STRUCT_IN_BSDI_DVDIOCTL_DVD_H, 1,
                 Define if <extras/BSDI_dvdioctl/dvd.h> defines DVD_STRUCT.)
-      EXTRA_SOURCES="${EXTRA_SOURCES} bsdi_ioctl.c"
+      SYS_BSDI=1
       LINUX_DVD_STRUCT=1
     ])
   ])
@@ -136,8 +136,8 @@ AC_CHECK_HEADERS(sys/ioctl.h,[
 
 CFLAGS="-D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -DDVDCSS_DIST $CFLAGS"
 
-AC_SUBST(EXTRA_LIB)
-AC_SUBST(EXTRA_SOURCES)
+AM_CONDITIONAL(SYS_BSDI, test "x$SYS_BSDI" = "x1")
+AM_CONDITIONAL(SYS_BEOS, test "x$SYS_BEOS" = "x1")
 
 AC_OUTPUT([Makefile src/Makefile src/dvdcss/Makefile test/Makefile debian/Makefile doc/Makefile])
 

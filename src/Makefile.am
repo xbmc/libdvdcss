@@ -2,12 +2,29 @@ SUBDIRS = dvdcss
 
 lib_LTLIBRARIES = libdvdcss.la
 
-libdvdcss_la_SOURCES = libdvdcss.c device.c error.c css.c ioctl.c
+libdvdcss_la_SOURCES = \
+	libdvdcss.c libdvdcss.h \
+	device.c device.h \
+	css.c css.h csstables.h \
+	ioctl.c ioctl.h \
+	error.c \
+	common.h \
+	$(bsdi_sources)
 
-EXTRA_libdvdcss_la_SOURCES = bsdi_ioctl.c
-libdvdcss_la_DEPENDENCIES = @EXTRA_SOURCES@
+EXTRA_libdvdcss_la_SOURCES = \
+	$(bsdi_extras)
 
-libdvdcss_la_LIBADD = @EXTRA_SOURCES@ @EXTRA_LIB@
-libdvdcss_la_LDFLAGS = -version-info 2:2:0 -no-undefined
+libdvdcss_la_LIBADD = $(bsdi_libadd)
+libdvdcss_la_LDFLAGS = -version-info 2:2:0 $(beos_ldflags)
 
-noinst_HEADERS = csstables.h ioctl.h device.h common.h css.h libdvdcss.h bsdi_dvd.h
+bsdi_extras = bsdi_ioctl.c bsdi_dvd.h
+
+if SYS_BSDI
+bsdi_sources = $(bsdi_extras)
+bsdi_libadd = -ldvd
+endif
+
+if SYS_BEOS
+beos_ldflags = -no-undefined
+endif
+
