@@ -5,7 +5,7 @@
  *          Håkan Hjort <d95hjort@dtek.chalmers.se>
  *
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: libdvdcss.c,v 1.29 2003/01/29 22:59:35 massiot Exp $
+ * $Id: libdvdcss.c,v 1.30 2003/03/22 16:37:37 gbazin Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -398,7 +398,7 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
             goto nocache;
         }
 
-        i += sprintf( dvdcss->psz_cachefile + i, "/%s/", psz_data );
+        i += sprintf( dvdcss->psz_cachefile + i, "/%s", psz_data );
 #if !defined( WIN32 ) || defined( SYS_CYGWIN )
         i_ret = mkdir( dvdcss->psz_cachefile, 0755 );
 #else
@@ -410,6 +410,7 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
             dvdcss->psz_cachefile[0] = '\0';
             goto nocache;
         }
+        i += sprintf( dvdcss->psz_cachefile + i, "/");
 
         /* Pointer to the filename we will use. */
         dvdcss->psz_block = dvdcss->psz_cachefile + i;
