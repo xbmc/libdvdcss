@@ -2,6 +2,11 @@
 # ChangeLog for libdvdcss #
 #=========================#
 
+1.2.6
+Mon, Mar 10 2003 18:33:25 +0100
+
+  * Fixed MAX_PATH on Darwin, Solaris and Win32.
+
 1.2.5
 Tue, 28 Jan 2003 01:24:15 +0100
 

@@ -1,5 +1,5 @@
 %define name 	libdvdcss
-%define version	1.2.5
+%define version	1.2.6
 %define release	1
 
 %define major  	2
@@ -103,6 +103,10 @@ rm -rf %buildroot
 %{_includedir}/*
 
 %changelog
+* Mon Mar 10 2003 Alexis de Lattre <alexis@videolan.org> 1.2.6-1
+- new upstream release
+- small bug fixes
+
 * Tue Jan 28 2003 Samuel Hocevar <sam@zoy.org> 1.2.5-1
 - new upstream release
 - improved robustness in case of read errors
