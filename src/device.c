@@ -2,7 +2,7 @@
  * device.h: DVD device access
  *****************************************************************************
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: device.c,v 1.13 2002/12/19 15:36:04 sam Exp $
+ * $Id: device.c,v 1.14 2002/12/19 16:50:50 sam Exp $
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -426,12 +426,20 @@ static int libc_seek( dvdcss_t dvdcss, int i_blocks )
 {
     off_t   i_seek;
 
+    if( dvdcss->i_pos == i_blocks )
+    {
+        /* We are already in position */
+        return i_blocks;
+    }
+
     i_seek = lseek( dvdcss->i_read_fd,
                     (off_t)i_blocks * (off_t)DVDCSS_BLOCK_SIZE, SEEK_SET );
 
     if( i_seek < 0 )
     {
         _dvdcss_error( dvdcss, "seek error" );
+        dvdcss->i_pos = -1;
+        return i_seek;
     }
 
     dvdcss->i_pos = i_seek / DVDCSS_BLOCK_SIZE;
@@ -448,6 +456,12 @@ static int win2k_seek( dvdcss_t dvdcss, int i_blocks )
 #   define INVALID_SET_FILE_POINTER ((DWORD)-1)
 #endif
 
+    if( dvdcss->i_pos == i_blocks )
+    {
+        /* We are already in position */
+        return i_blocks;
+    }
+
     li_seek.QuadPart = (LONGLONG)i_blocks * DVDCSS_BLOCK_SIZE;
 
     li_seek.LowPart = SetFilePointer( (HANDLE) dvdcss->i_fd,
@@ -456,7 +470,8 @@ static int win2k_seek( dvdcss_t dvdcss, int i_blocks )
     if( (li_seek.LowPart == INVALID_SET_FILE_POINTER)
         && GetLastError() != NO_ERROR)
     {
-        li_seek.QuadPart = -DVDCSS_BLOCK_SIZE;
+        dvdcss->i_pos = -1;
+        return -1;
     }
 
     dvdcss->i_pos = li_seek.QuadPart / DVDCSS_BLOCK_SIZE;
@@ -470,12 +485,19 @@ static int aspi_seek( dvdcss_t dvdcss, int i_blocks )
     char sz_buf[ DVDCSS_BLOCK_SIZE ];
     struct w32_aspidev *fd = (struct w32_aspidev *) dvdcss->i_fd;
 
+    if( dvdcss->i_pos == i_blocks )
+    {
+        /* We are already in position */
+        return i_blocks;
+    }
+
     i_old_blocks = fd->i_blocks;
     fd->i_blocks = i_blocks;
 
     if( aspi_read_internal( dvdcss->i_fd, sz_buf, 1 ) == -1 )
     {
         fd->i_blocks = i_old_blocks;
+        dvdcss->i_pos = -1;
         return -1;
     }
 
@@ -493,7 +515,6 @@ static int aspi_seek( dvdcss_t dvdcss, int i_blocks )
 static int libc_read ( dvdcss_t dvdcss, void *p_buffer, int i_blocks )
 {
     off_t i_ret;
-    int   i_read;
 
     i_ret = read( dvdcss->i_read_fd, p_buffer,
                   (off_t)i_blocks * DVDCSS_BLOCK_SIZE );
@@ -501,19 +522,28 @@ static int libc_read ( dvdcss_t dvdcss, void *p_buffer, int i_blocks )
     if( i_ret < 0 )
     {
         _dvdcss_error( dvdcss, "read error" );
+        dvdcss->i_pos = -1;
         return i_ret;
     }
 
     /* Handle partial reads */
     if( i_ret != (off_t)i_blocks * DVDCSS_BLOCK_SIZE )
     {
-        /* TODO */
+        int i_seek;
+
+        dvdcss->i_pos = -1;
+        i_seek = libc_seek( dvdcss, i_ret / DVDCSS_BLOCK_SIZE );
+        if( i_seek < 0 )
+        {
+            return i_seek;
+        }
+
+        /* We have to return now so that i_pos isn't clobbered */
+        return i_ret / DVDCSS_BLOCK_SIZE;
     }
 
-    i_read = i_ret / DVDCSS_BLOCK_SIZE;
-    dvdcss->i_pos += i_read;
-
-    return i_read;
+    dvdcss->i_pos += i_ret / DVDCSS_BLOCK_SIZE;
+    return i_ret / DVDCSS_BLOCK_SIZE;
 }
 
 #if defined( WIN32 )
@@ -525,6 +555,7 @@ static int win2k_read ( dvdcss_t dvdcss, void *p_buffer, int i_blocks )
               i_blocks * DVDCSS_BLOCK_SIZE,
               (LPDWORD)&i_bytes, NULL ) )
     {
+        dvdcss->i_pos = -1;
         return -1;
     }
 
@@ -538,6 +569,7 @@ static int aspi_read ( dvdcss_t dvdcss, void *p_buffer, int i_blocks )
 
     if( i_read < 0 )
     {
+        dvdcss->i_pos = -1;
         return i_read;
     }
 
@@ -576,6 +608,7 @@ static int libc_readv ( dvdcss_t dvdcss, struct iovec *p_iovec, int i_blocks )
              * We won't even bother returning the reads that went ok,
              * and as in the posix spec the file postition is left
              * unspecified after a failure */
+            dvdcss->i_pos = -1;
             return -1;
         }
 
@@ -585,7 +618,16 @@ static int libc_readv ( dvdcss_t dvdcss, struct iovec *p_iovec, int i_blocks )
         {
             /* We reached the end of the file or a signal interrupted
              * the read. Return a partial read. */
-            /* XXX: handle this partial read correctly */
+            int i_seek;
+
+            dvdcss->i_pos = -1;
+            i_seek = libc_seek( dvdcss, i_total / DVDCSS_BLOCK_SIZE );
+            if( i_seek < 0 )
+            {
+                return i_seek;
+            }
+
+            /* We have to return now so that i_pos isn't clobbered */
             return i_total / DVDCSS_BLOCK_SIZE;
         }
     }
@@ -597,6 +639,7 @@ static int libc_readv ( dvdcss_t dvdcss, struct iovec *p_iovec, int i_blocks )
 
     if( i_read < 0 )
     {
+        dvdcss->i_pos = -1;
         return i_read;
     }
 
@@ -628,6 +671,7 @@ static int win_readv ( dvdcss_t dvdcss, struct iovec *p_iovec, int i_blocks )
         if( !dvdcss->p_readv_buffer )
         {
             _dvdcss_error( dvdcss, " failed (readv)" );
+            dvdcss->i_pos = -1;
             return -1;
         }
     }
@@ -650,6 +694,7 @@ static int win_readv ( dvdcss_t dvdcss, struct iovec *p_iovec, int i_blocks )
             /* The read failed... too bad.
              * As in the posix spec the file postition is left
              * unspecified after a failure */
+            dvdcss->i_pos = -1;
             return -1;
         }
         i_blocks_read = i_bytes / DVDCSS_BLOCK_SIZE;
@@ -662,6 +707,7 @@ static int win_readv ( dvdcss_t dvdcss, struct iovec *p_iovec, int i_blocks )
         if( i_blocks_read < 0 )
         {
             /* See above */
+            dvdcss->i_pos = -1;
             return -1;
         }
     }
