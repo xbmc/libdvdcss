@@ -33,6 +33,7 @@ N: Jon Lech Johansen
 E: jon-vl@nanocrew.net
 C: jlj
 D: Win32 port
+D: Fixes to the Darwin port
 
 N: Markus Kuespert
 E: ltlBeBoy@beosmail.com

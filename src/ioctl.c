@@ -2,7 +2,7 @@
  * ioctl.c: DVD ioctl replacement function
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: ioctl.c,v 1.16 2002/10/29 18:51:37 gbazin Exp $
+ * $Id: ioctl.c,v 1.17 2002/11/13 22:45:05 jlj Exp $
  *
  * Authors: Markus Kuespert <ltlBeBoy@beosmail.com>
  *          Samuel Hocevar <sam@zoy.org>
@@ -277,8 +277,10 @@ int ioctl_ReadCopyright( int i_fd, int i_layer, int *pi_copyright )
                 i_ret = 0;
             }
             else
+            {
                 *pi_copyright = ((key->KeyFlags & DVD_SECTOR_PROTECT_MASK) ==
                                  DVD_SECTOR_PROTECTED) ? 0 : 1;
+            }
         }
     }
     else
@@ -1584,10 +1586,6 @@ int ioctl_ReportRPC( int i_fd, int *p_type, int *p_mask, int *p_scheme )
     *p_mask = auth_info.lrpcs.region_mask;
     *p_scheme = auth_info.lrpcs.rpc_scheme;
 
-#elif defined( HAVE_LINUX_DVD_STRUCT )
-    /* FIXME: OpenBSD doesn't know this */
-    i_ret = -1;
-
 #elif defined( HAVE_BSD_DVD_STRUCT )
     struct dvd_authinfo auth_info;
 
@@ -1892,10 +1890,10 @@ static int WinSendSSC( int i_fd, struct SRB_ExecSCSICmd *p_ssc )
 
 #if defined( __QNXNTO__ )
 /*****************************************************************************
- * QNXInitCPT: initialize a ssc structure for the win32 aspi layer
+ * QNXInitCPT: initialize a CPT structure for QNX Neutrino
  *****************************************************************************
- * This function initializes a ssc raw device command structure for future
- * use, either a read command or a write command.
+ * This function initializes a cpt command structure for future use,
+ * either a read command or a write command.
  *****************************************************************************/
 static void QNXInitCPT( CAM_PASS_THRU * p_cpt, int i_type )
 {
