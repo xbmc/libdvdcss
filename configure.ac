@@ -198,7 +198,6 @@ AM_CONDITIONAL(LATEX, test "${LATEX}" != "no")
 
 AC_OUTPUT([
   Makefile
-  autotools/Makefile
   debian/Makefile
   doc/Makefile
   src/Makefile
