@@ -32,21 +32,25 @@ Building libdvdcss for Win32
 
 You have two alternatives to build libdvdcss for Win32:
 
-- natively on Windows, using MSYS+MINGW (www.mingw.org):
+- natively on Windows, using MSYS + MINGW (www.mingw.org):
 
  (MSYS is a minimal build environnement to compile unixish projects under
   windoze. It provides all the common unix tools like sh, gmake...)
 
- You need to download and install MSYS-1.0.5 (version 1.0.6 doesn't seem to
- work as well) and MINGW.
- http://prdownloads.sourceforge.net/mingw/msys-1.0.5-i686-bin.tar.gz
+ You will need to download and install the latest MSYS (version 1.0.7 as
+ of now) and MINGW.
+ The installation is really easy. Begin with the MSYS auto-installer and once
+ this is done, extract MINGW into c:\msys\1.0\mingw. You also have to remember
+ to remove the make utility included with MINGW as it conflicts with the one
+ from MSYS (just rename or remove c:\msys\1.0\mingw\bin\make.exe).
+
+ http://www.mingw.org/download.shtml
+ http://prdownloads.sourceforge.net/mingw/MSYS-1.0.7-i686-2002.04.24-1.exe
  http://prdownloads.sourceforge.net/mingw/MinGW-1.1.tar.gz
 
  To build libdvdcss you just have to run the following commands:
-
-  MAKE=gmake ./configure
-
-  MAKE=gmake gmake
+  ./configure
+  make
 
 - or on Linux, using the mingw32 cross-compiler:
 
