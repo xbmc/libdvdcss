@@ -146,7 +146,7 @@ package installed.
 
 * Sun Apr 07 2002 Yves Duret <yduret@mandrakesoft.com> 1.1.1-2plf
 - major version is 2 (aka guillaume sux).
-- spec clean up: do not rm in %prep, %%buildroot, %%makeinstall_std, %%provides %%version-%%release
+- spec clean up: do not rm in %%prep, %%buildroot, %%makeinstall_std, %%provides %%version-%%release
 - added doc in devel
 - sync with cvs's one (%%description,%%files, conflicts).
 - fix url
