@@ -12,6 +12,8 @@ AC_C_CONST
 AC_C_INLINE
 AC_TYPE_SIZE_T
 
+AC_CHECK_HEADERS(unistd.h)
+
 if test -r extras/libdvdcss/csskeys.h
 then
   AC_DEFINE(HAVE_CSSKEYS, 1, css decryption with player keys)
