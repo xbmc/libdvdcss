@@ -2,7 +2,7 @@
  * css.c: Functions for DVD authentification and unscrambling
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: css.c,v 1.2 2002/01/20 17:04:54 hjort Exp $
+ * $Id: css.c,v 1.3 2002/02/25 18:21:57 hjort Exp $
  *
  * Author: Stéphane Borel <stef@via.ecp.fr>
  *         Håkan Hjort <d95hjort@dtek.chalmers.se>
@@ -57,12 +57,12 @@
 static int  CSSAuth      ( dvdcss_handle dvdcss );
 static int  CSSGetASF    ( dvdcss_handle dvdcss );
 static void CSSCryptKey  ( int i_key_type, int i_varient,
-                           u8 const * p_challenge, u8* p_key );
-static void CSSDecryptKey( u8* p_crypted, u8* p_key, u8 );
-static int  CSSDiscCrack ( dvdcss_handle dvdcss, u8 * p_disc_key );
-static int  CSSTitleCrack( int i_start, unsigned char * p_crypted,
-                           unsigned char * p_decrypted,
-                           dvd_key_t * p_sector_key, dvd_key_t * p_key );
+                           u8 const *p_challenge, u8 *p_key );
+static void CSSDecryptKey( u8 *p_crypted, u8 const *p_key, u8 );
+static int  CSSDiscCrack ( dvdcss_handle dvdcss, u8 *p_disc_key );
+static int  CSSTitleCrack( int i_start, unsigned char *p_crypted,
+                           unsigned char *p_decrypted,
+                           u8 *p_sector_key, u8 *p_key );
 
 /*****************************************************************************
  * CSSTest : check if the disc is encrypted or not
@@ -108,12 +108,6 @@ static int CSSAuth( dvdcss_handle dvdcss )
     int       i_ret = -1;
     int       i;
 
-    /* So this isn't really necessary except for debuging. */ 
-    if( CSSGetASF( dvdcss ) < 0 )
-    {
-        _dvdcss_error( dvdcss, "fatal error in CSSAuth" );
-    }
-
     _dvdcss_debug( dvdcss, "requesting AGID" );
     i_ret = ioctl_ReportAgid( dvdcss->i_fd, &dvdcss->css.i_agid );
 
@@ -121,7 +115,7 @@ static int CSSAuth( dvdcss_handle dvdcss )
        by invalidating the corresponding AGID'.  As long as we haven't got
        an AGID, invalidate one (in sequence) and try again. */
     for( i = 0; i_ret == -1 && i < 4 ; ++i )
-      {
+    {
         _dvdcss_debug( dvdcss, "ioctl_ReportAgid failed" );
         
         sprintf( psz_warning, "invalidating AGID %d", i );
@@ -158,7 +152,7 @@ static int CSSAuth( dvdcss_handle dvdcss )
 
     /* Send challenge to LU */
     if( ioctl_SendChallenge( dvdcss->i_fd,
-			     &dvdcss->css.i_agid, p_buffer ) < 0 )
+                             &dvdcss->css.i_agid, p_buffer ) < 0 )
     {
         _dvdcss_error( dvdcss, "ioctl_SendChallenge failed" );
         ioctl_InvalidateAgid( dvdcss->i_fd, &dvdcss->css.i_agid );
@@ -244,7 +238,7 @@ static int CSSAuth( dvdcss_handle dvdcss )
 
 /*****************************************************************************
  * CSSPrintKey : debug function that dumps a key value 
- *****************************************************************************/static void CSSPrintKey( dvdcss_handle dvdcss, u8* data )
+ *****************************************************************************/static void CSSPrintKey( dvdcss_handle dvdcss, u8 *data )
 {
     char psz_output[80];
 
@@ -416,8 +410,8 @@ int CSSGetTitleKey( dvdcss_handle dvdcss, int i_pos )
                 {
                     i = CSSTitleCrack( 0,  &p_buf[0x80],
                             &p_buf[0x80 - ( i_best_plen / i_best_p) *i_best_p],
-                            (dvd_key_t*)&p_buf[0x54],
-                            &p_key );
+                            &p_buf[0x54],
+                            p_key );
                     b_stop_scanning = ( i >= 0 );
                 }
             }
@@ -497,18 +491,18 @@ int CSSGetTitleKey( dvdcss_handle dvdcss, int i_pos )
  * sec : sector to descramble
  * key : title key for this sector
  *****************************************************************************/
-int CSSDescrambleSector( dvd_key_t p_key, u8* p_sec )
+int CSSDescrambleSector( dvd_key_t p_key, u8 *p_sec )
 {
     unsigned int    i_t1, i_t2, i_t3, i_t4, i_t5, i_t6;
-    u8*             p_end = p_sec + 0x800;
+    u8 *            p_end = p_sec + 0x800;
 
     /* PES_scrambling_control */
     if( p_sec[0x14] & 0x30)
     {
-        i_t1 = ((p_key)[0] ^ p_sec[0x54]) | 0x100;
-        i_t2 = (p_key)[1] ^ p_sec[0x55];
-        i_t3 = (((p_key)[2]) | ((p_key)[3] << 8) |
-               ((p_key)[4] << 16)) ^ ((p_sec[0x56]) |
+        i_t1 = (p_key[0] ^ p_sec[0x54]) | 0x100;
+        i_t2 = p_key[1] ^ p_sec[0x55];
+        i_t3 = (p_key[2] | (p_key[3] << 8) |
+               (p_key[4] << 16)) ^ (p_sec[0x56] |
                (p_sec[0x57] << 8) | (p_sec[0x58] << 16));
         i_t4 = i_t3 & 7;
         i_t3 = i_t3 * 2 + 8 - i_t4;
@@ -526,7 +520,7 @@ int CSSDescrambleSector( dvd_key_t p_key, u8* p_sec )
             i_t3 = (i_t3 << 8 ) | i_t6;
             i_t6 = p_css_tab4[i_t6];
             i_t5 += i_t6 + i_t4;
-            *p_sec = p_css_tab1[*p_sec] ^( i_t5 & 0xff );
+            *p_sec = p_css_tab1[*p_sec] ^ ( i_t5 & 0xff );
             p_sec++;
             i_t5 >>= 8;
         }
@@ -576,7 +570,7 @@ static int CSSGetASF( dvdcss_handle dvdcss )
  * i_varient : between 0 and 31.
  *****************************************************************************/
 static void CSSCryptKey( int i_key_type, int i_varient,
-                         u8 const * p_challenge, u8* p_key )
+                         u8 const *p_challenge, u8 *p_key )
 {
     /* Permutation table for challenge */
     u8      pp_perm_challenge[3][10] =
@@ -778,11 +772,13 @@ static void CSSCryptKey( int i_key_type, int i_varient,
 /*****************************************************************************
  * CSSDecryptKey: decrypt p_crypted with p_key.
  *****************************************************************************
+ * The player keys and the resulting disc key are only used as KEKs 
+ * (key encryption keys).
  * Decryption is slightly dependant on the type of key:
  *  -for disc key, invert is 0x00,
  *  -for title key, invert if 0xff. 
  *****************************************************************************/
-static void CSSDecryptKey( u8* p_crypted, u8* p_key, u8 invert )
+static void CSSDecryptKey( u8 *p_crypted, u8 const *p_key, u8 invert )
 {
     unsigned int    i_lfsr1_lo;
     unsigned int    i_lfsr1_hi;
@@ -849,7 +845,7 @@ static void CSSDecryptKey( u8* p_crypted, u8* p_key, u8 invert )
 /*
  * Simple function to test if a candidate key produces the given hash
  */
-static int investigate( unsigned char* hash, unsigned char *ckey )
+static int investigate( unsigned char *hash, unsigned char *ckey )
 {
     unsigned char key[5];
     unsigned char pkey[5];
@@ -862,7 +858,7 @@ static int investigate( unsigned char* hash, unsigned char *ckey )
     return memcmp( key, pkey, 5 );
 }
 
-static int CSSDiscCrack( dvdcss_handle dvdcss, u8 * p_disc_key )
+static int CSSDiscCrack( dvdcss_handle dvdcss, u8 *p_disc_key )
 {
     unsigned char B[5] = { 0,0,0,0,0 }; /* Second Stage of mangle cipher */
     unsigned char C[5] = { 0,0,0,0,0 }; /* Output Stage of mangle cipher
@@ -1066,10 +1062,10 @@ end:
  * chosen to crack title key instead of decrypting it with the disc key.
  *****************************************************************************/
 static int CSSTitleCrack( int i_start,
-                          unsigned char * p_crypted,
-                          unsigned char * p_decrypted,
-                          dvd_key_t * p_sector_key,
-                          dvd_key_t * p_key )
+                          unsigned char *p_crypted,
+                          unsigned char *p_decrypted,
+                          u8 *p_sector_seed,
+                          u8 *p_key )
 {
     unsigned char p_buffer[10];
     unsigned int i_t1, i_t2, i_t3, i_t4, i_t5, i_t6;
@@ -1151,7 +1147,7 @@ static int CSSTitleCrack( int i_start,
                  * search for byte shifted in */
                 for( j = 0 ; j < 256 ; j++ )
                 {
-                    i_t3 = ( i_t3 & 0x1ffff) | ( j << 17 );
+                    i_t3 = ( i_t3 & 0x1ffff ) | ( j << 17 );
                     i_t6 = ((((((( i_t3 >> 3 ) ^ i_t3 ) >> 1 ) ^
                                    i_t3 ) >> 8 ) ^ i_t3 ) >> 5 ) & 0xff;
                     if( i_t6 == i_t1 )
@@ -1167,11 +1163,11 @@ static int CSSTitleCrack( int i_start,
                 if( ( ( i_t4 + i_t5 ) * 2 + 8 - ( (i_t4 + i_t5 ) & 7 ) )
                                                                       == i_t3 )
                 {
-                    (*p_key)[0] = i_try>>8;
-                    (*p_key)[1] = i_try & 0xFF;
-                    (*p_key)[2] = ( ( i_t4 + i_t5 ) >> 0) & 0xFF;
-                    (*p_key)[3] = ( ( i_t4 + i_t5 ) >> 8) & 0xFF;
-                    (*p_key)[4] = ( ( i_t4 + i_t5 ) >> 16) & 0xFF;
+                    p_key[0] = i_try>>8;
+                    p_key[1] = i_try & 0xFF;
+                    p_key[2] = ( ( i_t4 + i_t5 ) >> 0 ) & 0xFF;
+                    p_key[3] = ( ( i_t4 + i_t5 ) >> 8 ) & 0xFF;
+                    p_key[4] = ( ( i_t4 + i_t5 ) >> 16 ) & 0xFF;
                     i_exit = i_try + 1;
                 }
             }
@@ -1180,11 +1176,11 @@ static int CSSTitleCrack( int i_start,
 
     if( i_exit >= 0 )
     {
-        (*p_key)[0] ^= (*p_sector_key)[0];
-        (*p_key)[1] ^= (*p_sector_key)[1];
-        (*p_key)[2] ^= (*p_sector_key)[2];
-        (*p_key)[3] ^= (*p_sector_key)[3];
-        (*p_key)[4] ^= (*p_sector_key)[4];
+        p_key[0] ^= p_sector_seed[0];
+        p_key[1] ^= p_sector_seed[1];
+        p_key[2] ^= p_sector_seed[2];
+        p_key[3] ^= p_sector_seed[3];
+        p_key[4] ^= p_sector_seed[4];
     }
 
     return i_exit;
