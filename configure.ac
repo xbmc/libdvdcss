@@ -149,7 +149,32 @@ AC_CHECK_HEADERS(sys/ioctl.h,[
   fi
 ])
 
-CFLAGS="-Wall ${CFLAGS}"
+dnl
+dnl  Check for available warning flags
+dnl
+CFLAGS_save="${CFLAGS}"
+
+AC_CACHE_CHECK([if \$CC accepts -Wall],
+    [ac_cv_c_Wall],
+    [CFLAGS="-Wall ${CFLAGS_save}"
+     AC_TRY_COMPILE([],,ac_cv_c_Wall=yes, ac_cv_c_Wall=no)])
+if test "x${ac_cv_c_Wall}" != "xno"; then
+    CFLAGS_save="-Wall ${CFLAGS_save}"
+fi
+
+AC_CACHE_CHECK([if \$CC accepts -Wsign-compare],
+    [ac_cv_c_Wsign_compare],
+    [CFLAGS="-Wsign-compare ${CFLAGS_save}"
+     AC_TRY_COMPILE([],,ac_cv_c_Wsign_compare=yes, ac_cv_c_Wsign_compare=no)])
+if test "x${ac_cv_c_Wsign_compare}" != "xno"; then
+    CFLAGS_save="-Wsign-compare ${CFLAGS_save}"
+fi
+
+CFLAGS="${CFLAGS_save}"
+
+dnl
+dnl  Use 64 bits offsets
+dnl
 CFLAGS="-D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -DDVDCSS_DIST ${CFLAGS}"
 
 AM_CONDITIONAL(SYS_BSDI, test "x$SYS_BSDI" = "x1")

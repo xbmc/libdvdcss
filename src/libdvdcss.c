@@ -5,7 +5,7 @@
  *          Håkan Hjort <d95hjort@dtek.chalmers.se>
  *
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: libdvdcss.c,v 1.25 2002/12/19 12:37:30 sam Exp $
+ * $Id: libdvdcss.c,v 1.26 2002/12/19 15:44:30 sam Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -350,7 +350,7 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
                 if( psz_data[i] < '0' || psz_data[i] > '9' )
                 {
                     sprintf( psz_data,
-                             "%0.2X%0.2X%0.2X%0.2X%0.2X%0.2X%0.2X%0.2X",
+                             "%.2X%.2X%.2X%.2X%.2X%.2X%.2X%.2X",
                              psz_data[0], psz_data[1], psz_data[2],
                              psz_data[3], psz_data[4], psz_data[5],
                              psz_data[6], psz_data[7] );

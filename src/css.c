@@ -2,7 +2,7 @@
  * css.c: Functions for DVD authentication and descrambling
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: css.c,v 1.22 2002/12/06 00:16:57 babal Exp $
+ * $Id: css.c,v 1.23 2002/12/19 15:44:30 sam Exp $
  *
  * Author: Stéphane Borel <stef@via.ecp.fr>
  *         Håkan Hjort <d95hjort@dtek.chalmers.se>
@@ -42,6 +42,9 @@
 #include <sys/stat.h>
 #ifdef HAVE_SYS_PARAM_H
 #   include <sys/param.h>
+#endif
+#ifdef HAVE_UNISTD_H
+#   include <unistd.h>
 #endif
 #include <fcntl.h>
 
@@ -287,7 +290,6 @@ static void PrintKey( dvdcss_t dvdcss, char *prefix, uint8_t const *data )
  *****************************************************************************/
 int _dvdcss_title ( dvdcss_t dvdcss, int i_block )
 {
-    char *       psz_cachefile = NULL;
     dvd_title_t *p_title;
     dvd_title_t *p_newtitle;
     dvd_key_t    p_title_key;
@@ -319,7 +321,7 @@ int _dvdcss_title ( dvdcss_t dvdcss, int i_block )
     if( dvdcss->psz_cachefile[0] )
     {
         /* XXX: be careful, we use sprintf and not snprintf */
-        sprintf( dvdcss->psz_block, "%0.10x", i_block );
+        sprintf( dvdcss->psz_block, "%.10x", i_block );
         i_fd = open( dvdcss->psz_cachefile, O_RDONLY );
         b_cache = 1;
 
@@ -959,7 +961,7 @@ static int DecryptDiscKey( uint8_t const *p_struct_disckey,
                            dvd_key_t p_disc_key )
 {
     uint8_t p_verify[KEY_SIZE];
-    int i, n = 0;
+    unsigned int i, n = 0;
 
     static const dvd_key_t player_keys[] =
     {
