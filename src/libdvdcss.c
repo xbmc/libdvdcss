@@ -2,7 +2,7 @@
  * libdvdcss.c: DVD reading library.
  *****************************************************************************
  * Copyright (C) 1998-2001 VideoLAN
- * $Id: libdvdcss.c,v 1.8 2002/05/16 12:10:29 hjort Exp $
+ * $Id: libdvdcss.c,v 1.9 2002/05/16 20:40:54 hjort Exp $
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -71,6 +71,7 @@ struct iovec
 /*****************************************************************************
  * Local prototypes
  *****************************************************************************/
+static int _dvdcss_use_ioctls ( dvdcss_handle dvdcss );
 static int _dvdcss_open  ( dvdcss_handle, char *psz_target );
 static int _dvdcss_close ( dvdcss_handle );
 static int _dvdcss_readv ( dvdcss_handle, struct iovec *p_iovec, int i_blocks );
@@ -219,19 +220,22 @@ extern dvdcss_handle dvdcss_open ( char *psz_target )
         free( dvdcss );
         return NULL;
     }
+    
+    dvdcss->b_encrypted = 1; /* Assume the worst */
+    dvdcss->b_ioctls = _dvdcss_use_ioctls( dvdcss );
 
-    i_ret = CSSTest( dvdcss );
-    if( i_ret < 0 )
+    if( dvdcss->b_ioctls )
     {
-        _dvdcss_error( dvdcss, "CSS test failed" );
-        /* Disable the CSS ioctls and hope that it works? */
-        dvdcss->b_ioctls = 0;
-        dvdcss->b_encrypted = 1;
-    }
-    else
-    {
-        dvdcss->b_ioctls = 1;
-        dvdcss->b_encrypted = i_ret;
+        i_ret = CSSTest( dvdcss );
+	if( i_ret < 0 )
+	{
+	    /* Disable the CSS ioctls and hope that it works? */
+	    dvdcss->b_ioctls = 0;
+	}
+	else
+	{
+	    dvdcss->b_encrypted = i_ret;
+	}
     }
 
     /* If disc is CSS protected and the ioctls work, authenticate the drive */
@@ -500,6 +504,54 @@ extern int dvdcss_close ( dvdcss_handle dvdcss )
 }
 
 /* Following functions are local */
+
+static int _dvdcss_use_ioctls( dvdcss_handle dvdcss )
+{
+#if defined( WIN32 )
+    /* Some one need to implement this for Windows */
+    if( WIN2K )
+    {
+	return 1;	
+    }
+    else
+    {
+	return 1;	
+    }
+#else
+    struct stat fileinfo;
+    int ret;
+
+    ret = fstat( dvdcss->i_fd, &fileinfo );
+    if( ret < 0 )
+    {
+	return 1;  /* What to do?  Be conservative and try to use the ioctsl */
+    }
+    
+    /* Complete this list and check that we test for the right things 
+     * (I've assumed for all OSs that 'r', (raw) device, are char devices
+     *  and those that don't contain/use an 'r' in the name are block devices)
+     *
+     * Linux    needs a block device
+     * Solaris  needs a char device
+     * Darwin   needs a char device 
+     * OpenBSD  needs a char device
+     * NetBSD   needs a char device
+     * FreeBSD  can use either the block or the char device
+     * BSD/OS   can use either the block or the char device
+     */
+    
+    /* Check if this is a block/char device */
+    if( S_ISBLK( fileinfo.st_mode ) || 
+	S_ISCHR( fileinfo.st_mode ) )
+    {
+	return 1;
+    }
+    else
+    {
+	return 0;
+    }
+#endif
+}
 
 static int _dvdcss_open ( dvdcss_handle dvdcss, char *psz_target )
 {
