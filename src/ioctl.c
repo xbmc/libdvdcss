@@ -2,7 +2,7 @@
  * ioctl.c: DVD ioctl replacement function
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: ioctl.c,v 1.4 2002/04/03 23:02:20 jlj Exp $
+ * $Id: ioctl.c,v 1.5 2002/04/04 01:26:54 sam Exp $
  *
  * Authors: Markus Kuespert <ltlBeBoy@beosmail.com>
  *          Samuel Hocevar <sam@zoy.org>
@@ -249,8 +249,7 @@ int ioctl_ReadCopyright( int i_fd, int i_layer, int *pi_copyright )
     i_ret = 0;
 
 #else
-    /* DVD ioctls unavailable - do as if the ioctl failed */
-    i_ret = -1;
+#   error "DVD ioctls are unavailable on this system"
 
 #endif
     return i_ret;
@@ -405,8 +404,7 @@ int ioctl_ReadDiscKey( int i_fd, int *pi_agid, u8 *p_key )
     }
 
 #else
-    /* DVD ioctls unavailable - do as if the ioctl failed */
-    i_ret = -1;
+#   error "DVD ioctls are unavailable on this system"
 
 #endif
     return i_ret;
@@ -553,8 +551,7 @@ int ioctl_ReadTitleKey( int i_fd, int *pi_agid, int i_pos, u8 *p_key )
     }
 
 #else
-    /* DVD ioctls unavailable - do as if the ioctl failed */
-    i_ret = -1;
+#   error "DVD ioctls are unavailable on this system"
 
 #endif
 
@@ -667,8 +664,7 @@ int ioctl_ReportAgid( int i_fd, int *pi_agid )
     }
 
 #else
-    /* DVD ioctls unavailable - do as if the ioctl failed */
-    i_ret = -1;
+#   error "DVD ioctls are unavailable on this system"
 
 #endif
     return i_ret;
@@ -790,8 +786,7 @@ int ioctl_ReportChallenge( int i_fd, int *pi_agid, u8 *p_challenge )
     }
 
 #else
-    /* DVD ioctls unavailable - do as if the ioctl failed */
-    i_ret = -1;
+#   error "DVD ioctls are unavailable on this system"
 
 #endif
     return i_ret;
@@ -914,8 +909,7 @@ int ioctl_ReportASF( int i_fd, int *pi_remove_me, int *pi_asf )
     }
 
 #else
-    /* DVD ioctls unavailable - do as if the ioctl failed */
-    i_ret = -1;
+#   error "DVD ioctls are unavailable on this system"
 
 #endif
     return i_ret;
@@ -1032,8 +1026,7 @@ int ioctl_ReportKey1( int i_fd, int *pi_agid, u8 *p_key )
     }
 
 #else
-    /* DVD ioctls unavailable - do as if the ioctl failed */
-    i_ret = -1;
+#   error "DVD ioctls are unavailable on this system"
 
 #endif
     return i_ret;
@@ -1134,8 +1127,7 @@ int ioctl_InvalidateAgid( int i_fd, int *pi_agid )
     }
 
 #else
-    /* DVD ioctls unavailable - do as if the ioctl failed */
-    i_ret = -1;
+#   error "DVD ioctls are unavailable on this system"
 
 #endif
     return i_ret;
@@ -1256,8 +1248,7 @@ int ioctl_SendChallenge( int i_fd, int *pi_agid, u8 *p_challenge )
     }
 
 #else
-    /* DVD ioctls unavailable - do as if the ioctl failed */
-    return -1;
+#   error "DVD ioctls are unavailable on this system"
 
 #endif
     return i_ret;
@@ -1378,8 +1369,7 @@ int ioctl_SendKey2( int i_fd, int *pi_agid, u8 *p_key )
     }
 
 #else
-    /* DVD ioctls unavailable - do as if the ioctl failed */
-    i_ret = -1;
+#   error "DVD ioctls are unavailable on this system"
 
 #endif
     return i_ret;
@@ -1487,8 +1477,7 @@ int ioctl_ReportRPC( int i_fd, int *p_type, int *p_mask, int *p_scheme )
     }
 
 #else
-    /* DVD ioctls unavailable - do as if the ioctl failed */
-    i_ret = -1;
+#   error "DVD ioctls are unavailable on this system"
 
 #endif
     return i_ret;

@@ -20,14 +20,13 @@ dnl
 dnl  Check the operating system
 dnl
 case x"${target_os}" in
-  x)
-    SYS=unknown
-    ;;
   xdarwin*)
-    SYS=darwin
+    CFLAGS="${CFLAGS} -no-cpp-precomp"
+    ;;
+  xbeos*)
+    AC_DEFINE(SYS_BEOS, 1, Have a BeOS system.)
     ;;
   x*)
-    SYS=${target_os}
     ;;
 esac
 
@@ -163,11 +162,6 @@ AC_CHECK_HEADERS(sys/ioctl.h,[
 ])
 
 CFLAGS="-D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -DDVDCSS_DIST $CFLAGS"
-
-if test x$SYS = xdarwin
-then
-  CFLAGS="${CFLAGS} -no-cpp-precomp"
-fi
 
 AC_SUBST(EXTRA_SRC)
 AC_SUBST(EXTRA_LIB)

@@ -45,6 +45,9 @@
 /* Version number of package */
 #undef VERSION
 
+/* Have a BeOS system. */
+#undef SYS_BEOS
+
 /* Define if <sys/types.h> defines boolean_t. */
 #undef BOOLEAN_T_IN_SYS_TYPES_H
 

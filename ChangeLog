@@ -4,7 +4,8 @@
 
 HEAD
 
-  * Nothing yet.
+  * ./configure.in: BeOS bug fix. I'm so lame.
+  * ./src/ioctl.c: refuse to build if DVD ioctls weren't found.
 
 1.1.0
 Wed,  3 Apr 2002 18:26:23 +0200
