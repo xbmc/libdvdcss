@@ -2,7 +2,7 @@
  * ioctl.c: DVD ioctl replacement function
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: ioctl.c,v 1.22 2002/12/05 10:24:42 sam Exp $
+ * $Id: ioctl.c,v 1.23 2003/01/16 22:58:29 sam Exp $
  *
  * Authors: Markus Kuespert <ltlBeBoy@beosmail.com>
  *          Samuel Hocevar <sam@zoy.org>
@@ -1258,7 +1258,7 @@ int ioctl_SendChallenge( int i_fd, int *pi_agid, uint8_t *p_challenge )
 
     memcpy( auth_info.hsc.chal, p_challenge, DVD_CHALLENGE_SIZE );
 
-    return ioctl( i_fd, DVD_AUTH, &auth_info );
+    i_ret = ioctl( i_fd, DVD_AUTH, &auth_info );
 
 #elif defined( HAVE_BSD_DVD_STRUCT )
     struct dvd_authinfo auth_info;
@@ -1269,7 +1269,7 @@ int ioctl_SendChallenge( int i_fd, int *pi_agid, uint8_t *p_challenge )
 
     memcpy( auth_info.keychal, p_challenge, DVD_CHALLENGE_SIZE );
 
-    return ioctl( i_fd, DVDIOCSENDKEY, &auth_info );
+    i_ret = ioctl( i_fd, DVDIOCSENDKEY, &auth_info );
 
 #elif defined( SYS_BEOS )
     INIT_RDC( GPCMD_SEND_KEY, 16 );
@@ -1279,7 +1279,7 @@ int ioctl_SendChallenge( int i_fd, int *pi_agid, uint8_t *p_challenge )
     p_buffer[ 1 ] = 0xe;
     memcpy( p_buffer + 4, p_challenge, DVD_CHALLENGE_SIZE );
 
-    return ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
+    i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
 
 #elif defined( HPUX_SCTL_IO )
     INIT_SCTL_IO( GPCMD_SEND_KEY, 16 );
@@ -1289,7 +1289,7 @@ int ioctl_SendChallenge( int i_fd, int *pi_agid, uint8_t *p_challenge )
     p_buffer[ 1 ] = 0xe;
     memcpy( p_buffer + 4, p_challenge, DVD_CHALLENGE_SIZE );
 
-    return ioctl( i_fd, SIOC_IO, &sctl_io );
+    i_ret = ioctl( i_fd, SIOC_IO, &sctl_io );
 
 #elif defined( SOLARIS_USCSI )
     INIT_USCSI( GPCMD_SEND_KEY, 16 );
@@ -1304,7 +1304,7 @@ int ioctl_SendChallenge( int i_fd, int *pi_agid, uint8_t *p_challenge )
         return -1;
     }
 
-    return 0;
+    i_ret = 0;
 
 #elif defined( DARWIN_DVD_IOCTL )
     INIT_DVDIOCTL( dk_dvd_send_key_t, DVDChallengeKeyInfo,
@@ -1334,8 +1334,8 @@ int ioctl_SendChallenge( int i_fd, int *pi_agid, uint8_t *p_challenge )
 
         memcpy( key->KeyData, p_challenge, DVD_CHALLENGE_SIZE );
 
-        return DeviceIoControl( (HANDLE) i_fd, IOCTL_DVD_SEND_KEY, key,
-                key->KeyLength, key, key->KeyLength, &tmp, NULL ) ? 0 : -1;
+        i_ret = DeviceIoControl( (HANDLE) i_fd, IOCTL_DVD_SEND_KEY, key,
+                 key->KeyLength, key, key->KeyLength, &tmp, NULL ) ? 0 : -1;
     }
     else
     {
@@ -1346,7 +1346,7 @@ int ioctl_SendChallenge( int i_fd, int *pi_agid, uint8_t *p_challenge )
         p_buffer[ 1 ] = 0xe;
         memcpy( p_buffer + 4, p_challenge, DVD_CHALLENGE_SIZE );
 
-        return WinSendSSC( i_fd, &ssc );
+        i_ret = WinSendSSC( i_fd, &ssc );
     }
 
 #elif defined( __QNXNTO__ )
@@ -1368,9 +1368,9 @@ int ioctl_SendChallenge( int i_fd, int *pi_agid, uint8_t *p_challenge )
     p_buffer[ 1 ] = 0xe;
     memcpy( p_buffer + 4, p_challenge, DVD_CHALLENGE_SIZE );
 
-    return DosDevIOCtl(i_fd, IOCTL_CDROMDISK, CDROMDISK_EXECMD,
-                       &sdc, sizeof(sdc), &ulParamLen,
-                       p_buffer, sizeof(p_buffer), &ulDataLen);
+    i_ret = DosDevIOCtl( i_fd, IOCTL_CDROMDISK, CDROMDISK_EXECMD,
+                         &sdc, sizeof(sdc), &ulParamLen,
+                         p_buffer, sizeof(p_buffer), &ulDataLen );
 
 #else
 #   error "DVD ioctls are unavailable on this system"
@@ -1395,7 +1395,7 @@ int ioctl_SendKey2( int i_fd, int *pi_agid, uint8_t *p_key )
 
     memcpy( auth_info.hsk.key, p_key, DVD_KEY_SIZE );
 
-    return ioctl( i_fd, DVD_AUTH, &auth_info );
+    i_ret = ioctl( i_fd, DVD_AUTH, &auth_info );
 
 #elif defined( HAVE_BSD_DVD_STRUCT )
     struct dvd_authinfo auth_info;
@@ -1406,7 +1406,7 @@ int ioctl_SendKey2( int i_fd, int *pi_agid, uint8_t *p_key )
 
     memcpy( auth_info.keychal, p_key, DVD_KEY_SIZE );
 
-    return ioctl( i_fd, DVDIOCSENDKEY, &auth_info );
+    i_ret = ioctl( i_fd, DVDIOCSENDKEY, &auth_info );
 
 #elif defined( SYS_BEOS )
     INIT_RDC( GPCMD_SEND_KEY, 12 );
@@ -1416,7 +1416,7 @@ int ioctl_SendKey2( int i_fd, int *pi_agid, uint8_t *p_key )
     p_buffer[ 1 ] = 0xa;
     memcpy( p_buffer + 4, p_key, DVD_KEY_SIZE );
 
-    return ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
+    i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
 
 #elif defined( HPUX_SCTL_IO )
     INIT_SCTL_IO( GPCMD_SEND_KEY, 12 );
@@ -1426,7 +1426,7 @@ int ioctl_SendKey2( int i_fd, int *pi_agid, uint8_t *p_key )
     p_buffer[ 1 ] = 0xa;
     memcpy( p_buffer + 4, p_key, DVD_KEY_SIZE );
 
-    return ioctl( i_fd, SIOC_IO, &sctl_io );
+    i_ret = ioctl( i_fd, SIOC_IO, &sctl_io );
 
 #elif defined( SOLARIS_USCSI )
     INIT_USCSI( GPCMD_SEND_KEY, 12 );
@@ -1441,7 +1441,7 @@ int ioctl_SendKey2( int i_fd, int *pi_agid, uint8_t *p_key )
         return -1;
     }
 
-    return 0;
+    i_ret = 0;
 
 #elif defined( DARWIN_DVD_IOCTL )
     INIT_DVDIOCTL( dk_dvd_send_key_t, DVDKey2Info,
@@ -1471,8 +1471,8 @@ int ioctl_SendKey2( int i_fd, int *pi_agid, uint8_t *p_key )
 
         memcpy( key->KeyData, p_key, DVD_KEY_SIZE );
 
-        return DeviceIoControl( (HANDLE) i_fd, IOCTL_DVD_SEND_KEY, key,
-                key->KeyLength, key, key->KeyLength, &tmp, NULL ) ? 0 : -1;
+        i_ret = DeviceIoControl( (HANDLE) i_fd, IOCTL_DVD_SEND_KEY, key,
+                 key->KeyLength, key, key->KeyLength, &tmp, NULL ) ? 0 : -1;
     }
     else
     {
@@ -1483,7 +1483,7 @@ int ioctl_SendKey2( int i_fd, int *pi_agid, uint8_t *p_key )
         p_buffer[ 1 ] = 0xa;
         memcpy( p_buffer + 4, p_key, DVD_KEY_SIZE );
 
-        return WinSendSSC( i_fd, &ssc );
+        i_ret = WinSendSSC( i_fd, &ssc );
     }
 
 #elif defined( __QNXNTO__ )
@@ -1505,9 +1505,9 @@ int ioctl_SendKey2( int i_fd, int *pi_agid, uint8_t *p_key )
     p_buffer[ 1 ] = 0xa;
     memcpy( p_buffer + 4, p_key, DVD_KEY_SIZE );
 
-    return DosDevIOCtl(i_fd, IOCTL_CDROMDISK, CDROMDISK_EXECMD,
-                       &sdc, sizeof(sdc), &ulParamLen,
-                       p_buffer, sizeof(p_buffer), &ulDataLen);
+    i_ret = DosDevIOCtl( i_fd, IOCTL_CDROMDISK, CDROMDISK_EXECMD,
+                         &sdc, sizeof(sdc), &ulParamLen,
+                         p_buffer, sizeof(p_buffer), &ulDataLen );
 
 #else
 #   error "DVD ioctls are unavailable on this system"
@@ -1685,7 +1685,7 @@ int ioctl_SendRPC( int i_fd, int i_pdrc )
     auth_info.type = DVD_HOST_SEND_RPC_STATE;
     auth_info.hrpcs.pdrc = i_pdrc;
 
-    return ioctl( i_fd, DVD_AUTH, &auth_info );
+    i_ret = ioctl( i_fd, DVD_AUTH, &auth_info );
 
 #elif defined( HAVE_LINUX_DVD_STRUCT )
     /* FIXME: OpenBSD doesn't know this */
@@ -1698,7 +1698,7 @@ int ioctl_SendRPC( int i_fd, int i_pdrc )
     auth_info.format = DVD_SEND_RPC;
     auth_info.region = i_pdrc;
 
-    return ioctl( i_fd, DVDIOCSENDKEY, &auth_info );
+    i_ret = ioctl( i_fd, DVDIOCSENDKEY, &auth_info );
 
 #elif defined( SYS_BEOS )
     INIT_RDC( GPCMD_SEND_KEY, 8 );
@@ -1708,7 +1708,7 @@ int ioctl_SendRPC( int i_fd, int i_pdrc )
     p_buffer[ 1 ] = 6;
     p_buffer[ 4 ] = i_pdrc;
 
-    return ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
+    i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
 
 #elif defined( HPUX_SCTL_IO )
     INIT_SCTL_IO( GPCMD_SEND_KEY, 8 );
@@ -1718,7 +1718,7 @@ int ioctl_SendRPC( int i_fd, int i_pdrc )
     p_buffer[ 1 ] = 6;
     p_buffer[ 4 ] = i_pdrc;
 
-    return ioctl( i_fd, SIOC_IO, &sctl_io );
+    i_ret = ioctl( i_fd, SIOC_IO, &sctl_io );
 
 #elif defined( SOLARIS_USCSI )
     INIT_USCSI( GPCMD_SEND_KEY, 8 );
@@ -1742,7 +1742,7 @@ int ioctl_SendRPC( int i_fd, int i_pdrc )
     dvd.keyClass = kDVDKeyClassCSS_CPPM_CPRM;
     dvdbs.driveRegion = i_pdrc;
 
-    return ioctl( i_fd, DKIOCDVDSENDKEY, &dvd );
+    i_ret = ioctl( i_fd, DKIOCDVDSENDKEY, &dvd );
 
 #elif defined( WIN32 )
     if( WIN2K ) /* NT/2k/XP */
@@ -1754,7 +1754,7 @@ int ioctl_SendRPC( int i_fd, int i_pdrc )
         p_buffer[ 1 ] = 6;
         p_buffer[ 4 ] = i_pdrc;
 
-        return SEND_SPTD( i_fd, &sptd, &tmp );
+        i_ret = SEND_SPTD( i_fd, &sptd, &tmp );
     }
     else
     {
@@ -1765,7 +1765,7 @@ int ioctl_SendRPC( int i_fd, int i_pdrc )
         p_buffer[ 1 ] = 6;
         p_buffer[ 4 ] = i_pdrc;
 
-        return WinSendSSC( i_fd, &ssc );
+        i_ret = WinSendSSC( i_fd, &ssc );
     }
 
 #elif defined( __QNXNTO__ )
@@ -1777,7 +1777,7 @@ int ioctl_SendRPC( int i_fd, int i_pdrc )
     p_buffer[ 1 ] = 6;
     p_buffer[ 4 ] = i_pdrc;
 
-    return devctl(i_fd, DCMD_CAM_PASS_THRU, p_cpt, structSize, NULL);
+    i_ret = devctl(i_fd, DCMD_CAM_PASS_THRU, p_cpt, structSize, NULL);
 
 #elif defined( SYS_OS2 )
     INIT_SSC( GPCMD_SEND_KEY, 8 );
@@ -1787,9 +1787,9 @@ int ioctl_SendRPC( int i_fd, int i_pdrc )
     p_buffer[ 1 ] = 6;
     p_buffer[ 4 ] = i_pdrc;
 
-    return DosDevIOCtl(i_fd, IOCTL_CDROMDISK, CDROMDISK_EXECMD,
-                       &sdc, sizeof(sdc), &ulParamLen,
-                       p_buffer, sizeof(p_buffer), &ulDataLen);
+    i_ret = DosDevIOCtl( i_fd, IOCTL_CDROMDISK, CDROMDISK_EXECMD,
+                         &sdc, sizeof(sdc), &ulParamLen,
+                         p_buffer, sizeof(p_buffer), &ulDataLen );
 
 #else
 #   error "DVD ioctls are unavailable on this system"

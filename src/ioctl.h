@@ -2,7 +2,7 @@
  * ioctl.h: DVD ioctl replacement function
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: ioctl.h,v 1.13 2002/12/05 10:24:42 sam Exp $
+ * $Id: ioctl.h,v 1.14 2003/01/16 22:58:29 sam Exp $
  *
  * Authors: Samuel Hocevar <sam@zoy.org>
  *
@@ -44,7 +44,7 @@ int ioctl_SendRPC           ( int, int );
 #if defined( SYS_BEOS )
 #define INIT_RDC( TYPE, SIZE ) \
     raw_device_command rdc; \
-    uint8_t p_buffer[ (SIZE) ]; \
+    uint8_t p_buffer[ (SIZE)+1 ]; \
     memset( &rdc, 0, sizeof( raw_device_command ) ); \
     rdc.data = (char *)p_buffer; \
     rdc.data_length = (SIZE); \
@@ -57,7 +57,7 @@ int ioctl_SendRPC           ( int, int );
 #if defined( HPUX_SCTL_IO )
 #define INIT_SCTL_IO( TYPE, SIZE ) \
     struct sctl_io sctl_io; \
-    uint8_t p_buffer[ (SIZE) ]; \
+    uint8_t p_buffer[ (SIZE)+1 ]; \
     memset( &sctl_io, 0, sizeof( sctl_io ) ); \
     sctl_io.data = (void *)p_buffer; \
     sctl_io.data_length = (SIZE); \
@@ -73,10 +73,10 @@ int ioctl_SendRPC           ( int, int );
 #define INIT_USCSI( TYPE, SIZE ) \
     struct uscsi_cmd sc; \
     union scsi_cdb rs_cdb; \
-    uint8_t p_buffer[ (SIZE) ]; \
+    uint8_t p_buffer[ (SIZE)+1 ]; \
     memset( &sc, 0, sizeof( struct uscsi_cmd ) ); \
     sc.uscsi_cdb = (caddr_t)&rs_cdb; \
-    sc.uscsi_bufaddr = p_buffer; \
+    sc.uscsi_bufaddr = (caddr_t)p_buffer; \
     sc.uscsi_buflen = (SIZE); \
     SolarisInitUSCSI( &sc, (TYPE) );
 #endif
@@ -115,7 +115,7 @@ int ioctl_SendRPC           ( int, int );
                       (TMP), NULL ) ? 0 : -1)
 #define INIT_SSC( TYPE, SIZE ) \
     struct SRB_ExecSCSICmd ssc; \
-    uint8_t p_buffer[ (SIZE) ]; \
+    uint8_t p_buffer[ (SIZE)+1 ]; \
     memset( &ssc, 0, sizeof( struct SRB_ExecSCSICmd ) ); \
     ssc.SRB_BufPointer = (char *)p_buffer; \
     ssc.SRB_BufLen = (SIZE); \
@@ -144,7 +144,7 @@ int ioctl_SendRPC           ( int, int );
 #if defined( SYS_OS2 )
 #define INIT_SSC( TYPE, SIZE ) \
     struct OS2_ExecSCSICmd sdc; \
-    uint8_t p_buffer[ (SIZE) ]; \
+    uint8_t p_buffer[ (SIZE)+1 ]; \
     unsigned long ulParamLen; \
     unsigned long ulDataLen; \
     memset( &sdc, 0, sizeof( OS2_ExecSCSICmd ) ); \
