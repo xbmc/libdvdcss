@@ -3,10 +3,12 @@
 #=========================#
 
 1.2.3
-**
+Fri, 11 Oct 2002 12:03:58 +0200
 
-  * ./src/Makefile.am: -no-undefined is now only used under BeOS because it
-    causes the Win32 compilation to fail.
+  * ./src/Makefile.am: -no-undefined is not used when using mingw32 because
+    of weird problems with libtool.
+  * ./src/css.c: if the disc key cannot be read, we don't try to crack it but
+    directly fall back to the title method.
   * ./configure.in, src/Makefile.am: used AM_CONDITIONAL to conditionally
     build the BSDi stuff.
   * src/css.c, src/device.c, src/ioctl.[ch]: We don't need to be in

@@ -1,5 +1,5 @@
 %define name 	libdvdcss
-%define version	1.2.2
+%define version	1.2.3
 %define release	1
 
 %define major  	2
@@ -91,6 +91,10 @@ rm -rf %buildroot
 %{_includedir}/*
 
 %changelog
+* Fri Oct 11 2002 Samuel Hocevar <sam@zoy.org> 1.2.3-1
+- new upstream release
+- fix for drives not allowing to read their disc key
+
 * Sat Aug 10 2002 Samuel Hocevar <sam@zoy.org> 1.2.2-1
 - new upstream release
 - even more fixes for the disc/drive region mismatch problem
