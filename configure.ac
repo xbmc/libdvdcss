@@ -3,7 +3,7 @@ AC_INIT(src/libdvdcss.c)
 AC_CANONICAL_SYSTEM
 AC_CONFIG_AUX_DIR(.)
 
-AM_INIT_AUTOMAKE(libdvdcss, 1.2.4)
+AM_INIT_AUTOMAKE(libdvdcss, 1.2.5)
 AM_CONFIG_HEADER(config.h)
 
 AC_PROG_CC
@@ -92,11 +92,12 @@ AC_CHECK_HEADERS(sys/ioctl.h,[
     LINUX_DVD_STRUCT=1
   ])
   dnl
-  dnl BSDI: dvd.h
+  dnl BSDI: dvd.h - may require -ldvd IF a local copy of libdvd is installed
   dnl
   AC_EGREP_HEADER(dvd_struct,dvd.h,[
     AC_DEFINE(DVD_STRUCT_IN_DVD_H, 1,
               Define if <dvd.h> defines DVD_STRUCT.)
+    SYS_BSDI_LIBDVD=1
     LINUX_DVD_STRUCT=1
   ],[
     dnl
@@ -177,8 +178,9 @@ dnl  Use 64 bits offsets
 dnl
 CFLAGS="-D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -DDVDCSS_DIST ${CFLAGS}"
 
-AM_CONDITIONAL(SYS_BSDI, test "x$SYS_BSDI" = "x1")
-AM_CONDITIONAL(SYS_MSVC, test "x$SYS_MSVC" = "x1")
+AM_CONDITIONAL(SYS_BSDI, test "${SYS_BSDI}" = "1")
+AM_CONDITIONAL(SYS_BSDI_LIBDVD, test "${SYS_BSDI_LIBDVD}" = "1")
+AM_CONDITIONAL(SYS_MSVC, test "${SYS_MSVC}" = "1")
 
 AC_OUTPUT([Makefile src/Makefile src/dvdcss/Makefile test/Makefile debian/Makefile doc/Makefile])
 

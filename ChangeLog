@@ -2,8 +2,36 @@
 # ChangeLog for libdvdcss #
 #=========================#
 
-HEAD
+1.2.5
+Tue, 28 Jan 2003 01:24:15 +0100
 
+  * ./configure.ac: BSD/OS compilation fix when a local copy of libdvd is
+    found on the system.
+  * ./test/csstest.c: we align our read buffer in case of raw device access.
+  * ./src/libdvdcss.c: updated documentation about raw devices.
+  * ./src/libdvdcss.c: disabled key cache when reading VOBs.
+  * ./src/ioctl.c, ./src/ioctl.h: removed minor gcc-isms.
+  * ./libdvdcss.spec: macros to fix build on Red Hat systems. Set %define
+    redhat80 to 1.
+  * ./src/device.c: seek() calls don't do anything if we're already at the
+    right position.
+  * ./src/device.c: we now handle partial reads.
+  * ./src/device.c: dvdcss->i_pos now gets updated on each seek and each
+    read. Partial reads are not handled yet, but it's a step.
+  * ./src/bsdi_ioctl.c, ./src/bsdi_dvd.h: updated the bsdi libdvd with
+    Steven M. Schultz's latest changes.
+  * ALL: ported the library build to Cygwin.
+  * ./msvc/*: MS VC++ project files.
+  * ./src/libdvdcss.c: fixed Win32 mkdir() call.
+  * ALL: removed trailing spaces in files.
+  * ALL: moved everything to C99 integer types.
+  * ./bootstrap: we also look for glibtoolize (Closes: #37).
+  * ./src/device.h: FreeBSD compile fix.
+  * ./test/dvd_region.c: enabled set_region.
+  * ./src/css.c, ./src/libdvdcss.c: applied a patch from the MPlayer folks
+    to cache title keys on disk.
+  * ./debian/control: set the package sections to libs and devel instead of
+    graphics.
   * ./src/ioctl.[ch]: Implemented ioctl_SendRPC.
 
 1.2.4

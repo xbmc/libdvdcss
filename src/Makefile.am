@@ -15,12 +15,15 @@ EXTRA_libdvdcss_la_SOURCES = \
 	$(bsdi_extras)
 
 libdvdcss_la_LIBADD = $(bsdi_libadd)
-libdvdcss_la_LDFLAGS = -version-info 2:3:0 $(libtool_flags)
+libdvdcss_la_LDFLAGS = -version-info 2:4:0 $(libtool_flags)
 
 bsdi_extras = bsdi_ioctl.c bsdi_dvd.h
 
 if SYS_BSDI
 bsdi_sources = $(bsdi_extras)
+endif
+
+if SYS_BSDI_LIBDVD
 bsdi_libadd = -ldvd
 endif
 

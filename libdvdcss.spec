@@ -1,5 +1,5 @@
 %define name 	libdvdcss
-%define version	1.2.4
+%define version	1.2.5
 %define release	2
 
 %define major  	2
@@ -91,7 +91,7 @@ rm -rf %buildroot
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc AUTHORS COPYING
+%doc AUTHORS COPYING NEWS
 %{_libdir}/*.so.*
 
 %files -n %{libname}-devel
@@ -103,7 +103,11 @@ rm -rf %buildroot
 %{_includedir}/*
 
 %changelog
-- add more macros to fix RedHat build.
+* Tue Jan 28 2003 Samuel Hocevar <sam@zoy.org> 1.2.5-1
+- new upstream release
+- improved robustness in case of read errors
+- key cache support
+- added more macros to fix RedHat build
 
 * Mon Nov 18 2002 Alexis de Lattre <alexis@videolan.org> 1.2.4-2
 - Changes in .spec file for RedHat and RPM 4.1
@@ -111,10 +115,6 @@ rm -rf %buildroot
 * Thu Nov 14 2002 Alexis de Lattre <alexis@videolan.org> 1.2.4-1
 - new upstream release
 - fixes for Win32
-
-* Sun Oct 13 2002 Samuel Hocevar <sam@zoy.org> 1.2.3-1
-- new upstream release
-- fix for drives not allowing to read their disc key
 
 * Sun Oct 13 2002 Samuel Hocevar <sam@zoy.org> 1.2.3-1
 - new upstream release
