@@ -2,7 +2,7 @@
  * ioctl.h: DVD ioctl replacement function
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: ioctl.h,v 1.1 2001/12/22 00:08:13 sam Exp $
+ * $Id: ioctl.h,v 1.2 2002/02/03 14:54:53 hjort Exp $
  *
  * Authors: Samuel Hocevar <sam@zoy.org>
  *
@@ -158,6 +158,7 @@ typedef union dvd_authinfo dvd_authinfo;
 
 #define DVD_CHALLENGE_KEY_LENGTH        (12 + sizeof(DVD_COPY_PROTECT_KEY))
 #define DVD_BUS_KEY_LENGTH              (8 + sizeof(DVD_COPY_PROTECT_KEY))
+#define DVD_TITLE_KEY_LENGTH            (8 + sizeof(DVD_COPY_PROTECT_KEY))
 #define DVD_DISK_KEY_LENGTH             (2048 + sizeof(DVD_COPY_PROTECT_KEY))
 #define DVD_ASF_LENGTH                  (sizeof(DVD_ASF) + sizeof(DVD_COPY_PROTECT_KEY))
 
