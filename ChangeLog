@@ -4,6 +4,7 @@
 
 HEAD
 
+  * ./src/ioctl.c: OpenBSD compile fix. Thanks to ex0dus on #videolan.
   * ./src/libdvdcss.h: IRIX compile fix by Michael Pruett <michael@68k.org>.
   * ./configure.in: BeOS bug fix. I'm so lame.
   * ./src/ioctl.c: refuse to build if DVD ioctls weren't found.
