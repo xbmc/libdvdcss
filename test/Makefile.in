@@ -80,15 +80,15 @@ RANLIB = @RANLIB@
 STRIP = @STRIP@
 VERSION = @VERSION@
 
-noinst_PROGRAMS = test
+noinst_PROGRAMS = csstest
 
-test_SOURCES = test.c
-test_LDADD = $(top_builddir)/src/libdvdcss.la
-test_CFLAGS = -I../src
+csstest_SOURCES = csstest.c
+csstest_LDADD = $(top_builddir)/src/libdvdcss.la
+csstest_CFLAGS = -I../src
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../src/config.h
 CONFIG_CLEAN_FILES = 
-noinst_PROGRAMS =  test$(EXEEXT)
+noinst_PROGRAMS =  csstest$(EXEEXT)
 PROGRAMS =  $(noinst_PROGRAMS)
 
 
@@ -96,9 +96,9 @@ DEFS = @DEFS@ -I. -I$(srcdir) -I../src
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
-test_OBJECTS =  test.$(OBJEXT)
-test_DEPENDENCIES =  $(top_builddir)/src/libdvdcss.la
-test_LDFLAGS = 
+csstest_OBJECTS =  csstest.$(OBJEXT)
+csstest_DEPENDENCIES =  $(top_builddir)/src/libdvdcss.la
+csstest_LDFLAGS = 
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -111,9 +111,9 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/test.P
-SOURCES = $(test_SOURCES)
-OBJECTS = $(test_OBJECTS)
+DEP_FILES =  .deps/csstest.P
+SOURCES = $(csstest_SOURCES)
+OBJECTS = $(csstest_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -173,9 +173,9 @@ distclean-libtool:
 
 maintainer-clean-libtool:
 
-test$(EXEEXT): $(test_OBJECTS) $(test_DEPENDENCIES)
-	@rm -f test$(EXEEXT)
-	$(LINK) $(test_LDFLAGS) $(test_OBJECTS) $(test_LDADD) $(LIBS)
+csstest$(EXEEXT): $(csstest_OBJECTS) $(csstest_DEPENDENCIES)
+	@rm -f csstest$(EXEEXT)
+	$(LINK) $(csstest_LDFLAGS) $(csstest_OBJECTS) $(csstest_LDADD) $(LIBS)
 
 tags: TAGS
 

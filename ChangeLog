@@ -9,6 +9,8 @@ HEAD
 1.1.0
 Wed,  3 Apr 2002 18:26:23 +0200
 
+  * ./test/csstest.c: renamed test.c to csstest.c.
+  * ./src/ioctl.c: fixed a Darwin typo recently introduced.
   * ./configure.in: Darwin compile fix (added -no-cpp-precomp).
   * ./libdvdcss.spec: updated specfile for RPM generation.
   * ./missing: commited libtool's latest version of this file.

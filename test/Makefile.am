@@ -1,7 +1,7 @@
 
-noinst_PROGRAMS = test
+noinst_PROGRAMS = csstest
 
-test_SOURCES = test.c
-test_LDADD = $(top_builddir)/src/libdvdcss.la
-test_CFLAGS = -I../src
+csstest_SOURCES = csstest.c
+csstest_LDADD = $(top_builddir)/src/libdvdcss.la
+csstest_CFLAGS = -I../src
 
