@@ -16,7 +16,7 @@ export CYGWIN
 amvers="no"
 if automake-1.8 --version >/dev/null 2>&1; then
   amvers="-1.8"
-if automake-1.7 --version >/dev/null 2>&1; then
+elif automake-1.7 --version >/dev/null 2>&1; then
   amvers="-1.7"
 elif automake-1.6 --version >/dev/null 2>&1; then
   amvers="-1.6"
