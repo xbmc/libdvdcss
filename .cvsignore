@@ -1,0 +1,11 @@
+.*
+core
+core.*
+gmon.out
+config.log
+config.cache
+config.status
+Makefile
+Makefile.in
+build-stamp
+stamp-h*

@@ -1,0 +1,81 @@
+/* src/config.h.in.  Generated automatically from configure.in by autoheader 2.13.  */
+
+/* Define to empty if the keyword does not work.  */
+#undef const
+
+/* Define as __inline if that's what the C compiler calls it.  */
+#undef inline
+
+/* Define to `unsigned' if <sys/types.h> doesn't define.  */
+#undef size_t
+
+/* Define if you have the ANSI C header files.  */
+#undef STDC_HEADERS
+
+/* Define if your processor stores words with the most significant
+   byte first (like Motorola and SPARC, unlike Intel and VAX).  */
+#undef WORDS_BIGENDIAN
+
+/* Define if you have the </sys/dev/scsi/scsi_ioctl.h> header file.  */
+#undef HAVE__SYS_DEV_SCSI_SCSI_IOCTL_H
+
+/* Define if you have the <dlfcn.h> header file.  */
+#undef HAVE_DLFCN_H
+
+/* Define if you have the <dvd.h> header file.  */
+#undef HAVE_DVD_H
+
+/* Define if you have the <linux/cdrom.h> header file.  */
+#undef HAVE_LINUX_CDROM_H
+
+/* Define if you have the <sys/cdio.h> header file.  */
+#undef HAVE_SYS_CDIO_H
+
+/* Define if you have the <sys/dvdio.h> header file.  */
+#undef HAVE_SYS_DVDIO_H
+
+/* Define if you have the <sys/ioctl.h> header file.  */
+#undef HAVE_SYS_IOCTL_H
+
+/* Define if you have the <winioctl.h> header file.  */
+#undef HAVE_WINIOCTL_H
+
+/* Name of package */
+#undef PACKAGE
+
+/* Version number of package */
+#undef VERSION
+
+/* css decryption with player keys */
+#undef HAVE_CSSKEYS
+
+/* Define if <sys/cdio.h> defines dvd_struct. */
+#undef DVD_STRUCT_IN_SYS_CDIO_H
+
+/* Define if <sys/dvdio.h> defines dvd_struct. */
+#undef DVD_STRUCT_IN_SYS_DVDIO_H
+
+/* Define if <linux/cdrom.h> defines DVD_STRUCT. */
+#undef DVD_STRUCT_IN_LINUX_CDROM_H
+
+/* Define if <dvd.h> defines DVD_STRUCT. */
+#undef DVD_STRUCT_IN_DVD_H
+
+/* Define if <extras/BSDI_dvdioctl/dvd.h> defines DVD_STRUCT. */
+#undef DVD_STRUCT_IN_BSDI_DVDIOCTL_DVD_H
+
+/* Have userspace SCSI headers. */
+#undef SOLARIS_USCSI
+
+/* Define if <sys/scsi.h> defines sctl_io. */
+#undef HPUX_SCTL_IO
+
+/* Define if Linux-like dvd_struct is defined. */
+#undef HAVE_LINUX_DVD_STRUCT
+
+/* Define if OpenBSD-like dvd_struct is defined. */
+#undef HAVE_OPENBSD_DVD_STRUCT
+
+/* Define if FreeBSD-like dvd_struct is defined. */
+#undef HAVE_BSD_DVD_STRUCT
+

@@ -1,0 +1,6 @@
+libdvdcss (2.0.0-1) unstable; urgency=low
+
+  * First release outside the vlc tree.
+
+ -- Samuel Hocevar <sam@via.ecp.fr>  Fri, 21 Dec 2001 14:11:13 +0100
+

@@ -1,0 +1,134 @@
+AC_INIT(src/libdvdcss.c)
+AM_INIT_AUTOMAKE("dvdcss", 0.2.92)
+AM_CONFIG_HEADER(src/config.h)
+
+AC_CANONICAL_HOST
+AC_PROG_CC
+AC_STDC_HEADERS
+
+AM_PROG_LIBTOOL 
+
+AC_C_BIGENDIAN
+AC_C_CONST
+AC_C_INLINE
+AC_TYPE_SIZE_T
+
+if test -r extras/libdvdcss/csskeys.h
+then
+  AC_DEFINE(HAVE_CSSKEYS, 1, css decryption with player keys)
+fi
+
+dnl
+dnl  libdvdcss: check for DVD ioctls
+dnl
+
+dnl  default is no
+CAN_BUILD_LIBDVDCSS=0
+
+dnl  for windoze
+AC_CHECK_HEADERS(winioctl.h,[
+  CAN_BUILD_LIBDVDCSS=1
+])
+
+dnl  for Un*x and BeOS
+AC_CHECK_HEADERS(sys/ioctl.h,[
+  CAN_BUILD_LIBDVDCSS=1
+  AC_CHECK_HEADERS(sys/cdio.h sys/dvdio.h linux/cdrom.h dvd.h)
+  BSD_DVD_STRUCT=0
+  LINUX_DVD_STRUCT=0
+  OPENBSD_DVD_STRUCT=0
+  dnl
+  dnl Old FreeBSD: sys/cdio.h
+  dnl
+  AC_EGREP_HEADER(dvd_struct,sys/cdio.h,[
+    AC_DEFINE(DVD_STRUCT_IN_SYS_CDIO_H, 1,
+              Define if <sys/cdio.h> defines dvd_struct.)
+    AC_EGREP_HEADER(struct dvd_struct,sys/cdio.h,[
+                    BSD_DVD_STRUCT=1],[LINUX_DVD_STRUCT=1; OPENBSD_DVD_STRUCT=1])
+  ])
+  dnl
+  dnl Newer FreeBSD: sys/dvdio.h
+  dnl
+  AC_EGREP_HEADER(dvd_struct,sys/dvdio.h,[
+    AC_DEFINE(DVD_STRUCT_IN_SYS_DVDIO_H, 1,
+              Define if <sys/dvdio.h> defines dvd_struct.)
+    AC_EGREP_HEADER(struct dvd_struct,sys/dvdio.h,[
+                    BSD_DVD_STRUCT=1],[LINUX_DVD_STRUCT=1])
+  ])
+  dnl
+  dnl Linux: linux/cdrom.h
+  dnl
+  AC_EGREP_HEADER(dvd_struct,linux/cdrom.h,[
+    AC_DEFINE(DVD_STRUCT_IN_LINUX_CDROM_H, 1,
+              Define if <linux/cdrom.h> defines DVD_STRUCT.)
+    LINUX_DVD_STRUCT=1
+  ])
+  dnl
+  dnl BSDI: dvd.h
+  dnl
+  NEED_BSDI_LIBDVD=0
+  AC_EGREP_HEADER(dvd_struct,dvd.h,[
+    AC_DEFINE(DVD_STRUCT_IN_DVD_H, 1,
+              Define if <dvd.h> defines DVD_STRUCT.)
+    EXTRA_LIB="${EXTRA_LIB} -ldvd"
+    LINUX_DVD_STRUCT=1
+  ],[
+    dnl
+    dnl BSDI: /sys/dev/scsi/scsi_ioctl.h, using our own libdvd
+    dnl
+    AC_CHECK_HEADERS(/sys/dev/scsi/scsi_ioctl.h,[
+      NEED_BSDI_LIBDVD=1
+      AC_DEFINE(DVD_STRUCT_IN_BSDI_DVDIOCTL_DVD_H, 1,
+                Define if <extras/BSDI_dvdioctl/dvd.h> defines DVD_STRUCT.)
+      EXTRA_SRC="${EXTRA_SRC} bsdi_ioctl.c"
+      LINUX_DVD_STRUCT=1
+    ])
+  ])
+  dnl
+  dnl Solaris: sys/scsi/scsi_types.h, sys/scsi/impl/uscsi.h
+  dnl
+  AC_CHECK_HEADER(sys/scsi/scsi_types.h,[
+    AC_CHECK_HEADER(sys/scsi/impl/uscsi.h,[
+      AC_DEFINE(SOLARIS_USCSI, 1, Have userspace SCSI headers.)
+    ])
+  ])
+  dnl
+  dnl HP-UX: sys/scsi.h
+  dnl
+  AC_CHECK_HEADER(sys/scsi.h,[
+    AC_EGREP_HEADER(sctl_io,sys/scsi.h,[
+      AC_DEFINE(HPUX_SCTL_IO, 1, Define if <sys/scsi.h> defines sctl_io.)
+    ])
+  ])
+  dnl
+  dnl Final tests to check what was detected
+  dnl
+  if test x$LINUX_DVD_STRUCT = x1; then
+    AC_DEFINE(HAVE_LINUX_DVD_STRUCT, 1, 
+              Define if Linux-like dvd_struct is defined.)
+    if test x$OPENBSD_DVD_STRUCT = x1; then
+      AC_DEFINE(HAVE_OPENBSD_DVD_STRUCT, 1,
+                Define if OpenBSD-like dvd_struct is defined.)
+    fi
+  else
+    if test x$BSD_DVD_STRUCT = x1; then
+      AC_DEFINE(HAVE_BSD_DVD_STRUCT, 1,
+                Define if FreeBSD-like dvd_struct is defined.)
+    fi
+  fi
+])
+
+CFLAGS="-D_LARGEFILE64_SOURCE $CFLAGS"
+
+AC_SUBST(EXTRA_SRC)
+AC_SUBST(EXTRA_LIB)
+
+AC_OUTPUT([Makefile src/Makefile test/Makefile])
+
+cat << EOF
+libdvdcss configuration
+-----------------------
+can be built          : ${CAN_BUILD_LIBDVDCSS}
+need BSDI libdvd      : ${NEED_BSDI_LIBDVD}
+EOF
+

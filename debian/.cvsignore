@@ -1,0 +1,6 @@
+tmp
+libdvdcss*
+delete
+files
+*debhelper
+*substvars
