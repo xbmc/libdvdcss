@@ -107,7 +107,6 @@ package installed.
 * Tue Jul 29 2003 Sam Hocevar <sam@zoy.org> 1.2.8-1
 - new upstream release
 
-%changelog
 * Fri Jun 13 2003 Sam Hocevar <sam@zoy.org> 1.2.7-1
 - new upstream release
 - key cache activated by default
