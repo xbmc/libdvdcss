@@ -1,8 +1,8 @@
 /*****************************************************************************
- * css.c: Functions for DVD authentication and unscrambling
+ * css.c: Functions for DVD authentication and descrambling
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: css.c,v 1.11 2002/07/16 22:47:40 sam Exp $
+ * $Id: css.c,v 1.12 2002/08/09 14:10:43 sam Exp $
  *
  * Author: Stéphane Borel <stef@via.ecp.fr>
  *         Håkan Hjort <d95hjort@dtek.chalmers.se>
@@ -46,32 +46,33 @@
 #include "libdvdcss.h"
 #include "csstables.h"
 #include "ioctl.h"
+#include "device.h"
 
 /*****************************************************************************
  * Local prototypes
  *****************************************************************************/
-static int  CSSGetBusKey ( dvdcss_handle dvdcss );
-static int  CSSGetASF    ( dvdcss_handle dvdcss );
-static void CSSCryptKey  ( int i_key_type, int i_varient,
-                           u8 const *p_challenge, u8 *p_key );
-static void CSSDecryptKey( u8 invert, u8 const *p_key, u8 const *p_crypted, 
-                           u8 *p_result );
-static int  CSSDecryptDiscKey ( u8 const *p_struct_disckey,
-                                dvd_key_t p_disc_key );
-static void CSSDecryptTitleKey( dvd_key_t p_disc_key, dvd_key_t p_titlekey );
-static int  CSSDiscCrack ( dvdcss_handle dvdcss, u8 *p_disc_key );
-static int  CSSRecoverKey( int i_start, 
-                           u8 const *p_crypted, u8 const *p_decrypted, 
-                           u8 const *p_sector_seed, u8 *p_key );
-static int  CSSTitleCrack( dvdcss_handle dvdcss, int i_pos, int i_len, 
-                           dvd_key_t p_titlekey );
-static int  CSSAttackPattern( u8 const p_sec[0x800], int i_pos, u8 *p_key );
-static int  CSSAttackPadding( u8 const p_sec[0x800], int i_pos, u8 *p_key );
+static int  GetBusKey       ( dvdcss_handle );
+static int  GetASF          ( dvdcss_handle );
+
+static void CryptKey        ( int, int, u8 const *, u8 * );
+static void DecryptKey      ( u8, u8 const *, u8 const *, u8 * );
+
+static int  DecryptDiscKey  ( u8 const *, dvd_key_t );
+static int  CrackDiscKey    ( dvdcss_handle, u8 * );
+
+static void DecryptTitleKey ( dvd_key_t, dvd_key_t );
+static int  RecoverTitleKey ( int, u8 const *, u8 const *, u8 const *, u8 * );
+static int  CrackTitleKey   ( dvdcss_handle, int, int, dvd_key_t );
+
+static int  AttackPattern   ( u8 const[], int, u8 * );
+#if 0
+static int  AttackPadding   ( u8 const[], int, u8 * );
+#endif
 
 /*****************************************************************************
- * CSSTest : check if the disc is encrypted or not
+ * _dvdcss_test: check if the disc is encrypted or not
  *****************************************************************************/
-int CSSTest( dvdcss_handle dvdcss )
+int _dvdcss_test( dvdcss_handle dvdcss )
 {
     int i_ret, i_copyright;
 
@@ -97,7 +98,7 @@ int CSSTest( dvdcss_handle dvdcss )
 }
 
 /*****************************************************************************
- * CSSGetBusKey : Go through the CSS Authentication process
+ * GetBusKey : Go through the CSS Authentication process
  *****************************************************************************
  * It simulates the mutual authentication between logical unit and host,
  * and stops when a session key (called bus key) has been established.
@@ -106,15 +107,15 @@ int CSSTest( dvdcss_handle dvdcss )
  * that ASF=1 from the start and then later fail with a 'read of scrambled 
  * block without authentication' error.
  *****************************************************************************/
-static int CSSGetBusKey( dvdcss_handle dvdcss )
+static int GetBusKey( dvdcss_handle dvdcss )
 {
     u8        p_buffer[10];
     u8        p_challenge[2*KEY_SIZE];
     dvd_key_t p_key1;
     dvd_key_t p_key2;
     dvd_key_t p_key_check;
-    u8        i_varient = 0;
-    char      psz_warning[48];
+    u8        i_variant = 0;
+    char      psz_warning[80];
     int       i_ret = -1;
     int       i;
 
@@ -126,17 +127,16 @@ static int CSSGetBusKey( dvdcss_handle dvdcss )
        an AGID, invalidate one (in sequence) and try again. */
     for( i = 0; i_ret == -1 && i < 4 ; ++i )
     {
-        _dvdcss_debug( dvdcss, "ioctl_ReportAgid failed" );
-        
-        sprintf( psz_warning, "invalidating AGID %d", i );
+        sprintf( psz_warning,
+                 "ioctl ReportAgid failed, invalidating AGID %d", i );
         _dvdcss_debug( dvdcss, psz_warning );
-        
+
         /* This is really _not good_, should be handled by the OS.
            Invalidating an AGID could make another process fail some
            where in it's authentication process. */
         dvdcss->css.i_agid = i;
         ioctl_InvalidateAgid( dvdcss->i_fd, &dvdcss->css.i_agid );
-        
+
         _dvdcss_debug( dvdcss, "requesting AGID" );
         i_ret = ioctl_ReportAgid( dvdcss->i_fd, &dvdcss->css.i_agid );
     }
@@ -144,7 +144,7 @@ static int CSSGetBusKey( dvdcss_handle dvdcss )
     /* Unable to authenticate without AGID */
     if( i_ret == -1 )
     {
-        _dvdcss_error( dvdcss, "ioctl_ReportAgid failed, fatal" );
+        _dvdcss_error( dvdcss, "ioctl ReportAgid failed, fatal" );
         return -1;
     }
 
@@ -164,7 +164,7 @@ static int CSSGetBusKey( dvdcss_handle dvdcss )
     if( ioctl_SendChallenge( dvdcss->i_fd,
                              &dvdcss->css.i_agid, p_buffer ) < 0 )
     {
-        _dvdcss_error( dvdcss, "ioctl_SendChallenge failed" );
+        _dvdcss_error( dvdcss, "ioctl SendChallenge failed" );
         ioctl_InvalidateAgid( dvdcss->i_fd, &dvdcss->css.i_agid );
         return -1;
     }
@@ -172,7 +172,7 @@ static int CSSGetBusKey( dvdcss_handle dvdcss )
     /* Get key1 from LU */
     if( ioctl_ReportKey1( dvdcss->i_fd, &dvdcss->css.i_agid, p_buffer ) < 0)
     {
-        _dvdcss_error( dvdcss, "ioctl_ReportKey1 failed" );
+        _dvdcss_error( dvdcss, "ioctl ReportKey1 failed" );
         ioctl_InvalidateAgid( dvdcss->i_fd, &dvdcss->css.i_agid );
         return -1;
     }
@@ -185,14 +185,14 @@ static int CSSGetBusKey( dvdcss_handle dvdcss )
 
     for( i = 0 ; i < 32 ; ++i )
     {
-        CSSCryptKey( 0, i, p_challenge, p_key_check );
+        CryptKey( 0, i, p_challenge, p_key_check );
 
         if( memcmp( p_key_check, p_key1, KEY_SIZE ) == 0 )
         {
             snprintf( psz_warning, sizeof(psz_warning),
-                      "drive authentic, using variant %d", i );
+                      "drive authenticated, using variant %d", i );
             _dvdcss_debug( dvdcss, psz_warning );
-            i_varient = i;
+            i_variant = i;
             break;
         }
     }
@@ -208,7 +208,7 @@ static int CSSGetBusKey( dvdcss_handle dvdcss )
     if( ioctl_ReportChallenge( dvdcss->i_fd, 
                                &dvdcss->css.i_agid, p_buffer ) < 0 )
     {
-        _dvdcss_error( dvdcss, "ioctl_ReportKeyChallenge failed" );
+        _dvdcss_error( dvdcss, "ioctl ReportKeyChallenge failed" );
         ioctl_InvalidateAgid( dvdcss->i_fd, &dvdcss->css.i_agid );
         return -1;
     }
@@ -219,7 +219,7 @@ static int CSSGetBusKey( dvdcss_handle dvdcss )
         p_challenge[i] = p_buffer[9-i];
     }
 
-    CSSCryptKey( 1, i_varient, p_challenge, p_key2 );
+    CryptKey( 1, i_variant, p_challenge, p_key2 );
 
     /* Get key2 from host */
     for( i = 0 ; i < KEY_SIZE ; ++i )
@@ -230,7 +230,7 @@ static int CSSGetBusKey( dvdcss_handle dvdcss )
     /* Send key2 to LU */
     if( ioctl_SendKey2( dvdcss->i_fd, &dvdcss->css.i_agid, p_buffer ) < 0 )
     {
-        _dvdcss_error( dvdcss, "ioctl_SendKey2 failed" );
+        _dvdcss_error( dvdcss, "ioctl SendKey2 failed" );
         ioctl_InvalidateAgid( dvdcss->i_fd, &dvdcss->css.i_agid );
         return -1;
     }
@@ -241,25 +241,108 @@ static int CSSGetBusKey( dvdcss_handle dvdcss )
     memcpy( p_challenge, p_key1, KEY_SIZE );
     memcpy( p_challenge + KEY_SIZE, p_key2, KEY_SIZE );
 
-    CSSCryptKey( 2, i_varient, p_challenge, dvdcss->css.p_bus_key );
+    CryptKey( 2, i_variant, p_challenge, dvdcss->css.p_bus_key );
 
     return 0;
 }
 
 /*****************************************************************************
- * CSSPrintKey : debug function that dumps a key value 
+ * PrintKey : debug function that dumps a key value 
  *****************************************************************************/
-static void CSSPrintKey( dvdcss_handle dvdcss, u8 const *data )
+static void PrintKey( dvdcss_handle dvdcss, char *prefix, u8 const *data )
 {
     char psz_output[80];
 
-    sprintf( psz_output, "the key is %02x %02x %02x %02x %02x",
+    sprintf( psz_output, "%s%02x:%02x:%02x:%02x:%02x", prefix,
              data[0], data[1], data[2], data[3], data[4] );
     _dvdcss_debug( dvdcss, psz_output );
 }
 
 /*****************************************************************************
- * CSSGetDiscKey : get disc key.
+ * _dvdcss_title: crack or decrypt the current title key if needed
+ *****************************************************************************
+ * This function should only be called by dvdcss_seek and should eventually
+ * not be external if possible.
+ *****************************************************************************/
+int _dvdcss_title ( dvdcss_handle dvdcss, int i_block )
+{
+    dvd_title_t *p_title;
+    dvd_title_t *p_newtitle;
+    dvd_key_t    p_title_key;
+    int          i_ret;
+
+    if( ! dvdcss->b_scrambled )
+    {
+        return 0;
+    }
+
+    /* Check if we've already cracked this key */
+    p_title = dvdcss->p_titles;
+    while( p_title != NULL
+            && p_title->p_next != NULL
+            && p_title->p_next->i_startlb <= i_block )
+    {
+        p_title = p_title->p_next;
+    }
+
+    if( p_title != NULL
+         && p_title->i_startlb == i_block )
+    {
+        /* We've already cracked this key, nothing to do */
+        memcpy( dvdcss->css.p_title_key, p_title->p_key, sizeof(dvd_key_t) );
+        return 0;
+    }
+
+    /* Crack or decrypt CSS title key for current VTS */
+    i_ret = _dvdcss_titlekey( dvdcss, i_block, p_title_key );
+
+    if( i_ret < 0 )
+    {
+        _dvdcss_error( dvdcss, "fatal error in vts css key" );
+        return i_ret;
+    }
+    else if( i_ret == 0 )
+    {
+        _dvdcss_debug( dvdcss, "unencrypted title" );
+        /* Still store this in the cache, so we don't need to check again. */
+    }
+
+    /* Find our spot in the list */
+    p_newtitle = NULL;
+    p_title = dvdcss->p_titles;
+    while( ( p_title != NULL ) && ( p_title->i_startlb < i_block ) )
+    {
+        p_newtitle = p_title;
+        p_title = p_title->p_next;
+    }
+
+    /* Save the found title */
+    p_title = p_newtitle;
+
+    /* Write in the new title and its key */
+    p_newtitle = malloc( sizeof( dvd_title_t ) );
+    p_newtitle->i_startlb = i_block;
+    memcpy( p_newtitle->p_key, p_title_key, KEY_SIZE );
+
+    /* Link it at the head of the (possibly empty) list */
+    if( p_title == NULL )
+    {
+        p_newtitle->p_next = dvdcss->p_titles;
+        dvdcss->p_titles = p_newtitle;
+    }
+    /* Link the new title inside the list */
+    else
+    {
+        p_newtitle->p_next = p_title->p_next;
+        p_title->p_next = p_newtitle;
+    }
+
+    memcpy( dvdcss->css.p_title_key, p_title_key, KEY_SIZE );
+    return 0;
+}
+
+/*****************************************************************************
+ * _dvdcss_disckey: get disc key.
  *****************************************************************************
  * This function should only be called if DVD ioctls are present.
  * It will set dvdcss->i_method = DVDCSS_METHOD_TITLE if it fails to find 
@@ -268,13 +351,15 @@ static void CSSPrintKey( dvdcss_handle dvdcss, u8 const *data )
  *  -disc key hash crack,
  *  -decryption with player keys if they are available.
  *****************************************************************************/
-int CSSGetDiscKey( dvdcss_handle dvdcss )
+int _dvdcss_disckey( dvdcss_handle dvdcss )
 {
     unsigned char p_buffer[2048];
     dvd_key_t p_disc_key;
     int i;
 
-    if( CSSGetBusKey( dvdcss ) < 0)
+    _dvdcss_debug( dvdcss, "retrieving disc key by all means" );
+
+    if( GetBusKey( dvdcss ) < 0)
     {
         return -1;
     }
@@ -282,15 +367,16 @@ int CSSGetDiscKey( dvdcss_handle dvdcss )
     /* Get encrypted disc key */
     if( ioctl_ReadDiscKey( dvdcss->i_fd, &dvdcss->css.i_agid, p_buffer ) < 0 )
     {
-        _dvdcss_error( dvdcss, "ioctl_ReadDiscKey failed" );
+        _dvdcss_error( dvdcss, "ioctl ReadDiscKey failed" );
         return -1;
     }
 
     /* This should have invaidated the AGID and got us ASF=1. */
-    if( CSSGetASF( dvdcss ) != 1 )
+    if( GetASF( dvdcss ) != 1 )
     {
         /* Region mismatch (or region not set) is the most likely source. */  
-        _dvdcss_error( dvdcss, "ASF not 1 after reading disc key" );
+        _dvdcss_error( dvdcss,
+                       "ASF not 1 after reading disc key (region mismatch?)" );
         ioctl_InvalidateAgid( dvdcss->i_fd, &dvdcss->css.i_agid );
         return -1;
     }
@@ -304,58 +390,68 @@ int CSSGetDiscKey( dvdcss_handle dvdcss )
     switch( dvdcss->i_method )
     {
         case DVDCSS_METHOD_KEY:
+
             /* Decrypt disc key with player key. */
             _dvdcss_debug( dvdcss, "decrypting disc key with player keys" );
-            if( ! CSSDecryptDiscKey( p_buffer, p_disc_key ) )
+            if( ! DecryptDiscKey( p_buffer, p_disc_key ) )
             {
+                PrintKey( dvdcss, "decrypted disc key is ", p_disc_key );
                 break;
             }
-            _dvdcss_debug( dvdcss, "no valid player key" );
-            /* Fall through */
+            _dvdcss_debug( dvdcss, "failed to decrypt the disc key, "
+                                   "trying to crack it instead" );
+
+            /* Fallback */
 
         case DVDCSS_METHOD_DISC:
+
             /* Crack Disc key to be able to use it */
-            _dvdcss_debug( dvdcss, "cracking disc key from key hash" );
-            _dvdcss_debug( dvdcss, "building 64MB table ... this will take some time" );
+            _dvdcss_debug( dvdcss, "cracking disc key from key hash ..."
+                                   " this will take some time" );
             memcpy( p_disc_key, p_buffer, KEY_SIZE );
-            if( CSSDiscCrack( dvdcss, p_disc_key ) )
+            if( ! CrackDiscKey( dvdcss, p_disc_key ) )
             {
-                _dvdcss_debug( dvdcss, "failed cracking disc key" );
-                dvdcss->i_method = DVDCSS_METHOD_TITLE;
+                PrintKey( dvdcss, "cracked disc key is ", p_disc_key );
+                break;
             }
+            _dvdcss_debug( dvdcss, "failed to crack the disc key" );
+            dvdcss->i_method = DVDCSS_METHOD_TITLE;
             break;
 
         default:
-            _dvdcss_debug( dvdcss, "disc key won't be decrypted" );
+
+            _dvdcss_debug( dvdcss, "disc key needs not be decrypted" );
             memset( p_disc_key, 0, KEY_SIZE );
             break;
     }
 
     memcpy( dvdcss->css.p_disc_key, p_disc_key, KEY_SIZE );
-    CSSPrintKey( dvdcss, dvdcss->css.p_disc_key );
+
     return 0;
 }
 
 
 /*****************************************************************************
- * CSSGetTitleKey : get title key.
+ * _dvdcss_titlekey: get title key.
  *****************************************************************************/
-int CSSGetTitleKey( dvdcss_handle dvdcss, int i_pos, dvd_key_t p_title_key )
+int _dvdcss_titlekey( dvdcss_handle dvdcss, int i_pos, dvd_key_t p_title_key )
 {
     u8  p_key[KEY_SIZE];
     int i, i_ret = 0;
 
+    _dvdcss_debug( dvdcss, "retrieving title key by all means" );
+
     if( dvdcss->b_ioctls && ( dvdcss->i_method == DVDCSS_METHOD_KEY || 
-			      dvdcss->i_method == DVDCSS_METHOD_DISC ) )
+                              dvdcss->i_method == DVDCSS_METHOD_DISC ) )
     {
         /* We have a decrypted Disc key and the ioctls are available,
          * read the title key and decrypt it.
          */
 
-        _dvdcss_debug( dvdcss, "decrypting title key with disc key" );
+        _dvdcss_debug( dvdcss, "getting disc key the classic way" );
 
         /* We need to authenticate again every time to get a new session key */
-        if( CSSGetBusKey( dvdcss ) < 0 )
+        if( GetBusKey( dvdcss ) < 0 )
         {
             return -1;
         }
@@ -364,90 +460,96 @@ int CSSGetTitleKey( dvdcss_handle dvdcss, int i_pos, dvd_key_t p_title_key )
         if( ioctl_ReadTitleKey( dvdcss->i_fd, &dvdcss->css.i_agid,
                                 i_pos, p_key ) < 0 )
         {
-            _dvdcss_error( dvdcss, "ioctl_ReadTitleKey failed" );
+            _dvdcss_debug( dvdcss,
+                           "ioctl ReadTitleKey failed (region mismatch?)" );
             i_ret = -1;
         }
 
         /* Test ASF, it will be reset to 0 if we got a Region error */
-        switch( CSSGetASF( dvdcss ) )
+        switch( GetASF( dvdcss ) )
         {
             case -1:
                 /* An error getting the ASF status, something must be wrong. */
-                // ioctl_InvalidateAgid( dvdcss->i_fd, &dvdcss->css.i_agid );
-                _dvdcss_debug( dvdcss, "lost ASF reqesting Title key" );
+                _dvdcss_debug( dvdcss, "lost ASF reqesting title key" );
+                ioctl_InvalidateAgid( dvdcss->i_fd, &dvdcss->css.i_agid );
                 i_ret = -1;
-		break;
+                break;
 
             case 0:
                 /* This might either be a title that has no key, 
                  * or we encountered a region error. */
-                _dvdcss_debug( dvdcss, "lost ASF reqesting Title key" );
+                _dvdcss_debug( dvdcss, "lost ASF reqesting title key" );
                 break;
 
             case 1:
                 /* Drive status is ok. */
-		/* If the title key request failed, but we did not loose ASF,
-		 * we might stil have the AGID.  Other code assume that we
-		 * will not after this so invalidate it(?). */
-		if( i_ret < 0 )
-		{
-		  //ioctl_InvalidateAgid( dvdcss->i_fd, &dvdcss->css.i_agid );
-		}
+                /* If the title key request failed, but we did not loose ASF,
+                 * we might stil have the AGID.  Other code assume that we
+                 * will not after this so invalidate it(?). */
+                if( i_ret < 0 )
+                {
+                    ioctl_InvalidateAgid( dvdcss->i_fd, &dvdcss->css.i_agid );
+                }
                 break;
         }
-	
-	if( !( i_ret < 0 ) )
-	{
-	    /* Decrypt title key using the bus key */
-	    for( i = 0 ; i < KEY_SIZE ; i++ )
-	    {
-		p_key[ i ] ^= dvdcss->css.p_bus_key[ 4 - (i % KEY_SIZE) ];
-	    }
 
-	    /* If p_key is all zero then there realy wasn't any key pressent
-	     * even though we got to read it without an error. */
-	    if( !( p_key[0] | p_key[1] | p_key[2] | p_key[3] | p_key[4] ) )
-	    {
-		i_ret = 0;
-	    }
-	    else
-	    {
-		CSSDecryptTitleKey( dvdcss->css.p_disc_key, p_key );
-		i_ret = 1;
-	    }
+        if( !( i_ret < 0 ) )
+        {
+            /* Decrypt title key using the bus key */
+            for( i = 0 ; i < KEY_SIZE ; i++ )
+            {
+                p_key[ i ] ^= dvdcss->css.p_bus_key[ 4 - (i % KEY_SIZE) ];
+            }
 
-	    /* All went well either there wasn't a key or we have it now. */
-	    memcpy( p_title_key, p_key, KEY_SIZE );
-	    CSSPrintKey( dvdcss, p_title_key );
-	    
-	    return i_ret;
-	}
+            /* If p_key is all zero then there realy wasn't any key pressent
+             * even though we got to read it without an error. */
+            if( !( p_key[0] | p_key[1] | p_key[2] | p_key[3] | p_key[4] ) )
+            {
+                i_ret = 0;
+            }
+            else
+            {
+                DecryptTitleKey( dvdcss->css.p_disc_key, p_key );
+                i_ret = 1;
+            }
 
-	/* The title key request failed */
-	_dvdcss_debug( dvdcss, "Reverting to cracking the Title key" );
+            /* All went well either there wasn't a key or we have it now. */
+            memcpy( p_title_key, p_key, KEY_SIZE );
+            PrintKey( dvdcss, "title key is ", p_title_key );
 
-	/* FALL THROUGH */
+            return i_ret;
+        }
+
+        /* The title key request failed */
+        _dvdcss_debug( dvdcss, "reopening disc and cracking title key" );
+
+        /* Close and reopen everything */
+        _dvdcss_close( dvdcss );
+        _dvdcss_open( dvdcss );
+        _dvdcss_disckey( dvdcss );
+
+        /* Fallback */
     }
-    
+
     /* METHOD is TITLE, we can't use the ioctls or requesting the title key
      * failed above.  For these cases we try to crack the key instead. */
-    
+
     /* For now, the read limit is 9Gb / 2048 =  4718592 sectors. */
-    i_ret = CSSTitleCrack( dvdcss, i_pos, 4718592, p_key);
+    i_ret = CrackTitleKey( dvdcss, i_pos, 4718592, p_key );
 
     memcpy( p_title_key, p_key, KEY_SIZE );
-    CSSPrintKey( dvdcss, p_title_key );
+    PrintKey( dvdcss, "title key is ", p_title_key );
 
     return i_ret;
 }
 
 /*****************************************************************************
- * CSSDescrambleSector: does the actual descrambling of data
+ * _dvdcss_unscramble: does the actual descrambling of data
  *****************************************************************************
- * sec : sector to descramble
+ * sec : sector to unscramble
  * key : title key for this sector
  *****************************************************************************/
-int CSSDescrambleSector( dvd_key_t p_key, u8 *p_sec )
+int _dvdcss_unscramble( dvd_key_t p_key, u8 *p_sec )
 {
     unsigned int    i_t1, i_t2, i_t3, i_t4, i_t5, i_t6;
     u8             *p_end = p_sec + 0x800;
@@ -488,14 +590,14 @@ int CSSDescrambleSector( dvd_key_t p_key, u8 *p_sec )
 /* Following functions are local */
 
 /*****************************************************************************
- * CSSGetASF : Get Authentication success flag
+ * GetASF : Get Authentication success flag
  *****************************************************************************
  * Returns :
  *  -1 on ioctl error,
  *  0 if the device needs to be authenticated,
  *  1 either.
  *****************************************************************************/
-static int CSSGetASF( dvdcss_handle dvdcss )
+static int GetASF( dvdcss_handle dvdcss )
 {
     int i_asf = 0;
 
@@ -508,25 +610,25 @@ static int CSSGetASF( dvdcss_handle dvdcss )
 
     if( i_asf )
     {
-        _dvdcss_debug( dvdcss, "GetASF authenticated (ASF=1)" );
+        _dvdcss_debug( dvdcss, "GetASF authenticated, ASF=1" );
     }
     else
     {
-        _dvdcss_debug( dvdcss, "GetASF not authenticated (ASF=0)" );
+        _dvdcss_debug( dvdcss, "GetASF not authenticated, ASF=0" );
     }
 
     return i_asf;
 }
 
 /*****************************************************************************
- * CSSCryptKey : shuffles bits and unencrypt keys.
+ * CryptKey : shuffles bits and unencrypt keys.
  *****************************************************************************
- * Used during authentication and disc key negociation in CSSGetBusKey.
+ * Used during authentication and disc key negociation in GetBusKey.
  * i_key_type : 0->key1, 1->key2, 2->buskey.
- * i_varient : between 0 and 31.
+ * i_variant : between 0 and 31.
  *****************************************************************************/
-static void CSSCryptKey( int i_key_type, int i_varient,
-                         u8 const *p_challenge, u8 *p_key )
+static void CryptKey( int i_key_type, int i_variant,
+                      u8 const *p_challenge, u8 *p_key )
 {
     /* Permutation table for challenge */
     u8      pp_perm_challenge[3][10] =
@@ -534,8 +636,8 @@ static void CSSCryptKey( int i_key_type, int i_varient,
               { 6, 1, 9, 3, 8, 5, 7, 4, 0, 2 },
               { 4, 0, 3, 5, 7, 2, 8, 6, 1, 9 } };
 
-    /* Permutation table for varient table for key2 and buskey */
-    u8      pp_perm_varient[2][32] =
+    /* Permutation table for variant table for key2 and buskey */
+    u8      pp_perm_variant[2][32] =
             { { 0x0a, 0x08, 0x0e, 0x0c, 0x0b, 0x09, 0x0f, 0x0d,
                 0x1a, 0x18, 0x1e, 0x1c, 0x1b, 0x19, 0x1f, 0x1d,
                 0x02, 0x00, 0x06, 0x04, 0x03, 0x01, 0x07, 0x05,
@@ -545,7 +647,7 @@ static void CSSCryptKey( int i_key_type, int i_varient,
                 0x13, 0x1b, 0x17, 0x1f, 0x03, 0x0b, 0x07, 0x0f,
                 0x11, 0x19, 0x15, 0x1d, 0x01, 0x09, 0x05, 0x0d } };
 
-    u8      p_varients[32] =
+    u8      p_variants[32] =
             {   0xB7, 0x74, 0x85, 0xD0, 0xCC, 0xDB, 0xCA, 0x73,
                 0x03, 0xFE, 0x31, 0x03, 0x52, 0xE0, 0xB7, 0x42,
                 0x63, 0x16, 0xF2, 0x2A, 0x79, 0x52, 0xFF, 0x1B,
@@ -554,19 +656,11 @@ static void CSSCryptKey( int i_key_type, int i_varient,
     /* The "secret" key */
     u8      p_secret[5] = { 0x55, 0xD6, 0xC4, 0xC5, 0x28 };
 
-    u8      p_bits[30];
-    u8      p_scratch[10];
-    u8      p_tmp1[5];
-    u8      p_tmp2[5];
+    u8      p_bits[30], p_scratch[10], p_tmp1[5], p_tmp2[5];
     u8      i_lfsr0_o;  /* 1 bit used */
     u8      i_lfsr1_o;  /* 1 bit used */
-    u32     i_lfsr0;
-    u32     i_lfsr1;
-    u8      i_css_varient;
-    u8      i_cse;
-    u8      i_index;
-    u8      i_combined;
-    u8      i_carry;
+    u32     i_lfsr0, i_lfsr1;
+    u8      i_css_variant, i_cse, i_index, i_combined, i_carry;
     u8      i_val = 0;
     int     i_term = 0;
     int     i_bit;
@@ -575,13 +669,13 @@ static void CSSCryptKey( int i_key_type, int i_varient,
     for (i = 9; i >= 0; --i)
         p_scratch[i] = p_challenge[pp_perm_challenge[i_key_type][i]];
 
-    i_css_varient = ( i_key_type == 0 ) ? i_varient :
-                    pp_perm_varient[i_key_type-1][i_varient];
+    i_css_variant = ( i_key_type == 0 ) ? i_variant :
+                    pp_perm_variant[i_key_type-1][i_variant];
 
     /*
      * This encryption engine implements one of 32 variations
      * one the same theme depending upon the choice in the
-     * varient parameter (0 - 31).
+     * variant parameter (0 - 31).
      *
      * The algorithm itself manipulates a 40 bit input into
      * a 40 bit output.
@@ -622,7 +716,7 @@ static void CSSCryptKey( int i_key_type, int i_varient,
      * are implemented in bit reversed order.
      *
      */
-    
+
     /* In order to ensure that the LFSR works we need to ensure that the
      * initial values are non-zero.  Thus when we initialise them from
      * the seed,  we ensure that a bit is set.
@@ -651,7 +745,7 @@ static void CSSCryptKey( int i_key_type, int i_varient,
             i_carry = ( i_combined >> 1 ) & 1;
             i_val |= ( i_combined & 1 ) << i_bit;
         }
-    
+
         p_bits[--i_index] = i_val;
     } while( i_index > 0 );
 
@@ -659,7 +753,7 @@ static void CSSCryptKey( int i_key_type, int i_varient,
      * select one of 32 different variations on the
      * algorithm.
      */
-    i_cse = p_varients[i_css_varient] ^ p_crypt_tab2[i_css_varient];
+    i_cse = p_variants[i_css_variant] ^ p_crypt_tab2[i_css_variant];
 
     /* Now the actual blocks doing the encryption.  Each
      * of these works on 40 bits at a time and are quite
@@ -726,19 +820,19 @@ static void CSSCryptKey( int i_key_type, int i_varient,
 }
 
 /*****************************************************************************
- * CSSDecryptKey: decrypt p_crypted with p_key.
+ * DecryptKey: decrypt p_crypted with p_key.
  *****************************************************************************
  * Used to decrypt the disc key, with a player key, after requesting it 
- * in CSSGetDiscKey and to decrypt title keys, with a disc key, requested 
- * in CSSGetTitleKey.
+ * in _dvdcss_disckey and to decrypt title keys, with a disc key, requested 
+ * in _dvdcss_titlekey.
  * The player keys and the resulting disc key are only used as KEKs 
  * (key encryption keys).
  * Decryption is slightly dependant on the type of key:
  *  -for disc key, invert is 0x00,
  *  -for title key, invert if 0xff. 
  *****************************************************************************/
-static void CSSDecryptKey( u8 invert, u8 const *p_key, 
-                           u8 const *p_crypted, u8 *p_result )
+static void DecryptKey( u8 invert, u8 const *p_key, 
+                        u8 const *p_crypted, u8 *p_result )
 {
     unsigned int    i_lfsr1_lo;
     unsigned int    i_lfsr1_hi;
@@ -793,54 +887,53 @@ static void CSSDecryptKey( u8 invert, u8 const *p_key,
     return;
 }
 
-static const dvd_key_t player_keys[] = 
-{
-    { 0x01, 0xaf, 0xe3, 0x12, 0x80 },
-    { 0x12, 0x11, 0xca, 0x04, 0x3b },
-    { 0x14, 0x0c, 0x9e, 0xd0, 0x09 },
-    { 0x14, 0x71, 0x35, 0xba, 0xe2 },
-    { 0x1a, 0xa4, 0x33, 0x21, 0xa6 },
-    { 0x26, 0xec, 0xc4, 0xa7, 0x4e },
-    { 0x2c, 0xb2, 0xc1, 0x09, 0xee },
-    { 0x2f, 0x25, 0x9e, 0x96, 0xdd },
-    { 0x33, 0x2f, 0x49, 0x6c, 0xe0 },
-    { 0x35, 0x5b, 0xc1, 0x31, 0x0f },
-    { 0x36, 0x67, 0xb2, 0xe3, 0x85 },
-    { 0x39, 0x3d, 0xf1, 0xf1, 0xbd },
-    { 0x3b, 0x31, 0x34, 0x0d, 0x91 },
-    { 0x45, 0xed, 0x28, 0xeb, 0xd3 },
-    { 0x48, 0xb7, 0x6c, 0xce, 0x69 },
-    { 0x4b, 0x65, 0x0d, 0xc1, 0xee },
-    { 0x4c, 0xbb, 0xf5, 0x5b, 0x23 },
-    { 0x51, 0x67, 0x67, 0xc5, 0xe0 },
-    { 0x53, 0x94, 0xe1, 0x75, 0xbf },
-    { 0x57, 0x2c, 0x8b, 0x31, 0xae },
-    { 0x63, 0xdb, 0x4c, 0x5b, 0x4a },
-    { 0x7b, 0x1e, 0x5e, 0x2b, 0x57 },
-    { 0x85, 0xf3, 0x85, 0xa0, 0xe0 },
-    { 0xab, 0x1e, 0xe7, 0x7b, 0x72 },
-    { 0xab, 0x36, 0xe3, 0xeb, 0x76 },
-    { 0xb1, 0xb8, 0xf9, 0x38, 0x03 },
-    { 0xb8, 0x5d, 0xd8, 0x53, 0xbd },
-    { 0xbf, 0x92, 0xc3, 0xb0, 0xe2 },
-    { 0xcf, 0x1a, 0xb2, 0xf8, 0x0a },
-    { 0xec, 0xa0, 0xcf, 0xb3, 0xff },
-    { 0xfc, 0x95, 0xa9, 0x87, 0x35 }
-};
-
 /*****************************************************************************
- * CSSDecryptDiscKey
+ * DecryptDiscKey
  *****************************************************************************
  * Decryption of the disc key with player keys if they are available.
  * Try to decrypt the disc key from every position with every player key.
  * p_struct_disckey: the 2048 byte DVD_STRUCT_DISCKEY data
  * p_disc_key: result, the 5 byte disc key
  *****************************************************************************/
-static int CSSDecryptDiscKey( u8 const *p_struct_disckey, 
-                              dvd_key_t p_disc_key )
+static int DecryptDiscKey( u8 const *p_struct_disckey, dvd_key_t p_disc_key )
 {
     u8 p_verify[KEY_SIZE];
     int i, n = 0;
+
+    static const dvd_key_t player_keys[] = 
+    {
+        { 0x01, 0xaf, 0xe3, 0x12, 0x80 },
+        { 0x12, 0x11, 0xca, 0x04, 0x3b },
+        { 0x14, 0x0c, 0x9e, 0xd0, 0x09 },
+        { 0x14, 0x71, 0x35, 0xba, 0xe2 },
+        { 0x1a, 0xa4, 0x33, 0x21, 0xa6 },
+        { 0x26, 0xec, 0xc4, 0xa7, 0x4e },
+        { 0x2c, 0xb2, 0xc1, 0x09, 0xee },
+        { 0x2f, 0x25, 0x9e, 0x96, 0xdd },
+        { 0x33, 0x2f, 0x49, 0x6c, 0xe0 },
+        { 0x35, 0x5b, 0xc1, 0x31, 0x0f },
+        { 0x36, 0x67, 0xb2, 0xe3, 0x85 },
+        { 0x39, 0x3d, 0xf1, 0xf1, 0xbd },
+        { 0x3b, 0x31, 0x34, 0x0d, 0x91 },
+        { 0x45, 0xed, 0x28, 0xeb, 0xd3 },
+        { 0x48, 0xb7, 0x6c, 0xce, 0x69 },
+        { 0x4b, 0x65, 0x0d, 0xc1, 0xee },
+        { 0x4c, 0xbb, 0xf5, 0x5b, 0x23 },
+        { 0x51, 0x67, 0x67, 0xc5, 0xe0 },
+        { 0x53, 0x94, 0xe1, 0x75, 0xbf },
+        { 0x57, 0x2c, 0x8b, 0x31, 0xae },
+        { 0x63, 0xdb, 0x4c, 0x5b, 0x4a },
+        { 0x7b, 0x1e, 0x5e, 0x2b, 0x57 },
+        { 0x85, 0xf3, 0x85, 0xa0, 0xe0 },
+        { 0xab, 0x1e, 0xe7, 0x7b, 0x72 },
+        { 0xab, 0x36, 0xe3, 0xeb, 0x76 },
+        { 0xb1, 0xb8, 0xf9, 0x38, 0x03 },
+        { 0xb8, 0x5d, 0xd8, 0x53, 0xbd },
+        { 0xbf, 0x92, 0xc3, 0xb0, 0xe2 },
+        { 0xcf, 0x1a, 0xb2, 0xf8, 0x0a },
+        { 0xec, 0xa0, 0xcf, 0xb3, 0xff },
+        { 0xfc, 0x95, 0xa9, 0x87, 0x35 }
+    };
 
     /* Decrypt disc key with player keys from csskeys.h */
     while( n < sizeof(player_keys) / sizeof(dvd_key_t) )
@@ -848,13 +941,13 @@ static int CSSDecryptDiscKey( u8 const *p_struct_disckey,
         for( i = 1; i < 409; i++ )
         {
             /* Check if player key n is the right key for position i. */
-            CSSDecryptKey( 0, player_keys[n], p_struct_disckey + 5 * i,
-                           p_disc_key );
+            DecryptKey( 0, player_keys[n], p_struct_disckey + 5 * i,
+                        p_disc_key );
 
             /* The first part in the struct_disckey block is the 
              * 'disc key' encrypted with it self.  Using this we 
              * can check if we decrypted the correct key. */
-            CSSDecryptKey( 0, p_disc_key, p_struct_disckey, p_verify );
+            DecryptKey( 0, p_disc_key, p_struct_disckey, p_verify );
 
             /* If the position / player key pair worked then return. */
             if( memcmp( p_disc_key, p_verify, 5 ) == 0 )
@@ -864,26 +957,26 @@ static int CSSDecryptDiscKey( u8 const *p_struct_disckey,
         }
         n++;
     }
-    
+
     /* Have tried all combinations of positions and keys, 
      * and we still didn't succeed. */
     return -1;
 }
 
 /*****************************************************************************
- * CSSDecryptTitleKey
+ * DecryptTitleKey
  *****************************************************************************
  * Decrypt the title key using the disc key.
  * p_disc_key: result, the 5 byte disc key
  * p_titlekey: the encrypted title key, gets overwritten by the decrypted key
  *****************************************************************************/
-static void CSSDecryptTitleKey( dvd_key_t p_disc_key, dvd_key_t p_titlekey )
+static void DecryptTitleKey( dvd_key_t p_disc_key, dvd_key_t p_titlekey )
 {
-    CSSDecryptKey( 0xff, p_disc_key, p_titlekey, p_titlekey );
+    DecryptKey( 0xff, p_disc_key, p_titlekey, p_titlekey );
 }
 
 /*****************************************************************************
- * CSSDiscCrack: brute force disc key
+ * CrackDiscKey: brute force disc key
  * CSS hash reversal function designed by Frank Stevenson
  *****************************************************************************
  * This function uses a big amount of memory to crack the disc key from the   
@@ -898,12 +991,12 @@ static int investigate( unsigned char *hash, unsigned char *ckey )
 {
     unsigned char key[KEY_SIZE];
 
-    CSSDecryptKey( 0, ckey, hash, key);
+    DecryptKey( 0, ckey, hash, key );
 
     return memcmp( key, ckey, KEY_SIZE );
 }
 
-static int CSSDiscCrack( dvdcss_handle dvdcss, u8 *p_disc_key )
+static int CrackDiscKey( dvdcss_handle dvdcss, u8 *p_disc_key )
 {
     unsigned char B[5] = { 0,0,0,0,0 }; /* Second Stage of mangle cipher */
     unsigned char C[5] = { 0,0,0,0,0 }; /* Output Stage of mangle cipher
@@ -924,11 +1017,13 @@ static int CSSDiscCrack( dvdcss_handle dvdcss, u8 *p_disc_key )
     unsigned int*  BigTable;    /* LFSR2 startstate indexed by 
                                  * 1,2,5 output byte */
 
+    _dvdcss_debug( dvdcss, "cracking disc key" );
+
     /*
      * Prepare tables for hash reversal
      */
 
-    
+
     /* initialize lookup tables for k[1] */
     K1table = malloc( 65536 * K1TABLEWIDTH );
     memset( K1table, 0 , 65536 * K1TABLEWIDTH );
@@ -1092,15 +1187,15 @@ end:
 }
 
 /*****************************************************************************
- * CSSRecoverKey : (title) key recovery from chiper and plain text
+ * RecoverTitleKey: (title) key recovery from cipher and plain text
  * Function designed by Frank Stevenson
  *****************************************************************************
- * Called from CSSAttack* which are inturn called by CSSTitleCrack.  Given
+ * Called from Attack* which are in turn called by CrackTitleKey.  Given
  * a guessed(?) plain text and the chiper text.  Returns -1 on failure.
  *****************************************************************************/
-static int CSSRecoverKey( int i_start,
-                          u8 const *p_crypted, u8 const *p_decrypted,
-                          u8 const *p_sector_seed, u8 *p_key )
+static int RecoverTitleKey( int i_start, u8 const *p_crypted,
+                            u8 const *p_decrypted,
+                            u8 const *p_sector_seed, u8 *p_key )
 {
     u8 p_buffer[10];
     unsigned int i_t1, i_t2, i_t3, i_t4, i_t5, i_t6;
@@ -1228,7 +1323,7 @@ static int CSSRecoverKey( int i_start,
  * The the copyrigth protection bits are located at 0x14 (bits 0x20 and 0x10).
  * The data of the PES packet begins at 0x15 (if there isn't any PTS/DTS)
  * or at 0x?? if there are both PTS and DTS's.
- * The seed value used with the descrambler key is the 5 bytes at 0x54-0x58.
+ * The seed value used with the unscrambling key is the 5 bytes at 0x54-0x58.
  * The scrabled part of a sector begins at 0x80. 
  *****************************************************************************/
 
@@ -1236,14 +1331,14 @@ static int CSSRecoverKey( int i_start,
 static int i_tries = 0, i_success = 0;
 
 /*****************************************************************************
- * CSSTitleCrack : try to crack title key from the contents of a VOB.
+ * CrackTitleKey: try to crack title key from the contents of a VOB.
  *****************************************************************************
- * This function is called by CSSGetTitleKey to find a title key, if we've
+ * This function is called by _dvdcss_titlekey to find a title key, if we've
  * chosen to crack title key instead of decrypting it with the disc key.
  * The DVD should have been opened and be in an authenticated state.
  * i_pos is the starting sector, i_len is the maximum number of sectors to read
  *****************************************************************************/
-static int CSSTitleCrack( dvdcss_handle dvdcss, int i_pos, int i_len, 
+static int CrackTitleKey( dvdcss_handle dvdcss, int i_pos, int i_len, 
                           dvd_key_t p_titlekey )
 {
     u8       p_buf[0x800];
@@ -1251,21 +1346,32 @@ static int CSSTitleCrack( dvdcss_handle dvdcss, int i_pos, int i_len,
     int      i_reads = 0;
     int      i_encrypted = 0;
     int      b_stop_scanning = 0;
-    int      i_blocks_read;
+    int      i_ret;
+
+    _dvdcss_debug( dvdcss, "cracking title key" );
 
     i_tries = 0;
     i_success = 0;
 
     do
     {
-        i_pos = _dvdcss_seek( dvdcss, i_pos );
-        i_blocks_read = dvdcss_read( dvdcss, p_buf, 1, DVDCSS_NOFLAGS );
-        
-        /* Either we are at the end of the physical device or the auth
-         * have faild / where not done and we got a read error. */
-        if( !i_blocks_read )
+        i_ret = _dvdcss_seek( dvdcss, i_pos );
+
+        if( i_ret != i_pos )
         {
-            _dvdcss_debug( dvdcss, "read returned 0 (end of device?)" );
+            _dvdcss_error( dvdcss, "seek failed" );
+        }
+
+        i_ret = dvdcss_read( dvdcss, p_buf, 1, DVDCSS_NOFLAGS );
+ 
+        /* Either we are at the end of the physical device or the auth
+         * have failed / were not done and we got a read error. */
+        if( i_ret <= 0 )
+        {
+            if( i_ret == 0 )
+            {
+                _dvdcss_debug( dvdcss, "read returned 0 (end of device?)" );
+            }
             break;
         }
 
@@ -1289,25 +1395,27 @@ static int CSSTitleCrack( dvdcss_handle dvdcss, int i_pos, int i_len,
         {
             i_encrypted++;
 
-            if( CSSAttackPattern(p_buf, i_reads, p_titlekey) > 0 )
+            if( AttackPattern(p_buf, i_reads, p_titlekey) > 0 )
             {
                 b_stop_scanning = 1;
             }
 #if 0
-            if( CSSAttackPadding(p_buf, i_reads, p_titlekey) > 0 )
+            if( AttackPadding(p_buf, i_reads, p_titlekey) > 0 )
             {
                 b_stop_scanning = 1;
             }
 #endif
         }
 
-        i_pos += i_blocks_read;
-        i_len -= i_blocks_read;
-        i_reads += i_blocks_read;
+        i_pos++;
+        i_len--;
+        i_reads++;
 
         /* Emit a progress indication now and then. */
         if( !( i_reads & 0xfff ) ) 
-          _dvdcss_debug( dvdcss, "still working..." );
+        {
+            _dvdcss_debug( dvdcss, "still cracking..." );
+        }
 
         /* Stop after 2000 blocks if we haven't seen any encrypted blocks. */
         if( i_reads >= 2000 && i_encrypted == 0 ) break;
@@ -1350,12 +1458,12 @@ static int CSSTitleCrack( dvdcss_handle dvdcss, int i_pos, int i_len,
  * Then it guesses that the plain text for first encrypted bytes are
  * a contiuation of that pattern.
  *****************************************************************************/
-static int CSSAttackPattern( u8 const p_sec[0x800], int i_pos, u8 *p_key )
+static int AttackPattern( u8 const p_sec[0x800], int i_pos, u8 *p_key )
 {
     unsigned int i_best_plen = 0;
     unsigned int i_best_p = 0;
     unsigned int i, j;
-    
+
     /* For all cycle length from 2 to 48 */
     for( i = 2 ; i < 0x30 ; i++ )
     {
@@ -1372,25 +1480,24 @@ static int CSSAttackPattern( u8 const p_sec[0x800], int i_pos, u8 *p_key )
             }
         }
     }
-    
+
     /* We need at most 10 plain text bytes?, so a make sure that we
      * have at least 20 repeated bytes and that they have cycled at
      * least one time.  */
     if( ( i_best_plen > 3 ) && ( i_best_plen / i_best_p >= 2) )
     {
         int res;
-        
+
         i_tries++;
         memset( p_key, 0, KEY_SIZE );
-        res = CSSRecoverKey( 0,  &p_sec[0x80],
-                             &p_sec[ 0x80 - 
-                                     ( i_best_plen / i_best_p) * i_best_p ],
-                             &p_sec[0x54] /* key_seed */, p_key );
+        res = RecoverTitleKey( 0,  &p_sec[0x80],
+                      &p_sec[ 0x80 - (i_best_plen / i_best_p) * i_best_p ],
+                      &p_sec[0x54] /* key_seed */, p_key );
         i_success += ( res >= 0 );
-#if 0        
+#if 0
         if( res >= 0 )
         {
-            fprintf( stderr, "key is %02x %02x %02x %02x %02x ",
+            fprintf( stderr, "key is %02x:%02x:%02x:%02x:%02x ",
                      p_key[0], p_key[1], p_key[2], p_key[3], p_key[4] );
             fprintf( stderr, "at block %5d pattern len %3d period %3d %s\n", 
                      i_pos, i_best_plen, i_best_p, (res>=0?"y":"n") );
@@ -1398,7 +1505,7 @@ static int CSSAttackPattern( u8 const p_sec[0x800], int i_pos, u8 *p_key )
 #endif
         return ( res >= 0 );
     }
-    
+
     return 0;
 }
 
@@ -1416,16 +1523,16 @@ static int CSSAttackPattern( u8 const p_sec[0x800], int i_pos, u8 *p_key )
  * Padding stream. This looks like 0x00 00 01 be xx xx ff ff ...
  * where xx xx is the length of the padding stream.
  *****************************************************************************/
-static int CSSAttackPadding( u8 const p_sec[0x800], int i_pos, u8 *p_key )
+static int AttackPadding( u8 const p_sec[0x800], int i_pos, u8 *p_key )
 {
     unsigned int i_pes_length;
-    //static int i_tries = 0, i_success = 0;
+    /*static int i_tries = 0, i_success = 0;*/
 
     i_pes_length = (p_sec[0x12]<<8) | p_sec[0x13];
-    
+
     /* Coverd by the test below but usfull for debuging. */
     if( i_pes_length == 0x800 - 0x14 ) return 0;
-    
+
     /* There must be room for at least 4? bytes of padding stream, 
      * and it must be encrypted.
      * sector size - pack/pes header - padding startcode - padding length */
@@ -1434,7 +1541,7 @@ static int CSSAttackPadding( u8 const p_sec[0x800], int i_pos, u8 *p_key )
           p_sec[0x14 + i_pes_length + 1] == 0x00 &&
           p_sec[0x14 + i_pes_length + 2] == 0x01 ) )
     { 
-      fprintf( stderr, "plain %d %02x %02x %02x %02x (type %02x sub %02x)\n", 
+      fprintf( stderr, "plain %d %02x:%02x:%02x:%02x (type %02x sub %02x)\n", 
                0x800 - 0x14 - 4 - 2 - i_pes_length,
                p_sec[0x14 + i_pes_length + 0],
                p_sec[0x14 + i_pes_length + 1],
@@ -1443,14 +1550,14 @@ static int CSSAttackPadding( u8 const p_sec[0x800], int i_pos, u8 *p_key )
                p_sec[0x11], p_sec[0x17 + p_sec[0x16]]);
       return 0;
     }
-    
+
     /* If we are here we know that there is a where in the pack a
        encrypted PES header is (startcode + lenght). It's never more 
        than  two packets in the pack, so we 'know' the length. The 
        plaintext at offset (0x14 + i_pes_length) will then be 
        00 00 01 e0/bd/be xx xx, in the case of be the following bytes 
        are also known. */
-    
+
     /* An encrypted SPU PES packet with another encrypted PES packet following.
        Normaly if the following was a padding stream that would be in plain
        text. So it will be another SPU PES packet. */
@@ -1460,7 +1567,7 @@ static int CSSAttackPadding( u8 const p_sec[0x800], int i_pos, u8 *p_key )
     {
         i_tries++;
     }
-    
+
     /* A Video PES packet with another encrypted PES packet following.
      * No reason execpt for time stamps to break the data into two packets.
      * So it's likely that the following PES packet is a padding stream. */
@@ -1471,13 +1578,13 @@ static int CSSAttackPadding( u8 const p_sec[0x800], int i_pos, u8 *p_key )
    
     if( 1 )
     {
-        //fprintf( stderr, "key is %02x %02x %02x %02x %02x ",
-        //           p_key[0], p_key[1], p_key[2], p_key[3], p_key[4] );
+        /*fprintf( stderr, "key is %02x:%02x:%02x:%02x:%02x ",
+                   p_key[0], p_key[1], p_key[2], p_key[3], p_key[4] );*/
         fprintf( stderr, "at block %5d padding len %4d "
                  "type %02x sub %02x\n",  i_pos, i_pes_length, 
                  p_sec[0x11], p_sec[0x17 + p_sec[0x16]]);
     }
-    
+
     return 0;
 }
 #endif

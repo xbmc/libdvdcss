@@ -1,4 +1,4 @@
-# Makefile.in generated automatically by automake 1.4-p5 from Makefile.am
+# Makefile.in generated automatically by automake 1.4-p6 from Makefile.am
 
 # Copyright (C) 1994, 1995-8, 1999, 2001 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
@@ -69,6 +69,7 @@ DLLTOOL = @DLLTOOL@
 ECHO = @ECHO@
 EXEEXT = @EXEEXT@
 EXTRA_LIB = @EXTRA_LIB@
+EXTRA_SOURCES = @EXTRA_SOURCES@
 LIBTOOL = @LIBTOOL@
 LN_S = @LN_S@
 MAKEINFO = @MAKEINFO@
@@ -82,11 +83,16 @@ VERSION = @VERSION@
 SUBDIRS = dvdcss
 
 lib_LTLIBRARIES = libdvdcss.la
-libdvdcss_la_SOURCES = libdvdcss.c css.c ioctl.c bsdi_ioctl.c
-libdvdcss_la_LIBADD = @EXTRA_LIB@
+
+libdvdcss_la_SOURCES = libdvdcss.c device.c error.c css.c ioctl.c
+
+EXTRA_libdvdcss_la_SOURCES = bsdi_ioctl.c
+libdvdcss_la_DEPENDENCIES = @EXTRA_SOURCES@
+
+libdvdcss_la_LIBADD = @EXTRA_SOURCES@ @EXTRA_LIB@
 libdvdcss_la_LDFLAGS = -version-info 2:1:0
 
-noinst_HEADERS = csstables.h ioctl.h common.h css.h libdvdcss.h bsdi_dvd.h
+noinst_HEADERS = csstables.h ioctl.h device.h common.h css.h libdvdcss.h bsdi_dvd.h
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = config.h
 CONFIG_CLEAN_FILES = 
@@ -97,8 +103,7 @@ DEFS = @DEFS@ -I. -I$(srcdir) -I.
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
-libdvdcss_la_DEPENDENCIES = 
-libdvdcss_la_OBJECTS =  libdvdcss.lo css.lo ioctl.lo bsdi_ioctl.lo
+libdvdcss_la_OBJECTS =  libdvdcss.lo device.lo error.lo css.lo ioctl.lo
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -113,9 +118,9 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/bsdi_ioctl.P .deps/css.P .deps/ioctl.P \
-.deps/libdvdcss.P
-SOURCES = $(libdvdcss_la_SOURCES)
+DEP_FILES =  .deps/bsdi_ioctl.P .deps/css.P .deps/device.P .deps/error.P \
+.deps/ioctl.P .deps/libdvdcss.P
+SOURCES = $(libdvdcss_la_SOURCES) $(EXTRA_libdvdcss_la_SOURCES)
 OBJECTS = $(libdvdcss_la_OBJECTS)
 
 all: all-redirect

@@ -48,15 +48,6 @@
 /* Have a BeOS system. */
 #undef SYS_BEOS
 
-/* Define if <sys/types.h> defines boolean_t. */
-#undef BOOLEAN_T_IN_SYS_TYPES_H
-
-/* Define if <pthread.h> defines boolean_t. */
-#undef BOOLEAN_T_IN_PTHREAD_H
-
-/* Define if <cthreads.h> defines boolean_t. */
-#undef BOOLEAN_T_IN_CTHREADS_H
-
 /* Define if <sys/cdio.h> defines dvd_struct. */
 #undef DVD_STRUCT_IN_SYS_CDIO_H
 

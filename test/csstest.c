@@ -1,10 +1,12 @@
 /* csstest.c - test program for libdvdcss
  * 
  * Samuel Hocevar <sam@zoy.org> - June 2001
- * Updated on Nov 13th 2001 for libdvdcss version 1.0.0
+ *   Updated on Nov 13th 2001 for libdvdcss version 1.0.0
+ *   Additional error checks on Aug 9th 2002
  *
  * This piece of code is public domain */
 
+#include <stdio.h>
 #include <stdlib.h>
 
 #include <dvdcss/dvdcss.h>
@@ -13,13 +15,14 @@
 #define IsSectorScrambled(buf) (((unsigned char*)(buf))[0x14] & 0x30)
 
 /* Print parts of a 2048 bytes buffer */
-void dumpsector( unsigned char * );
+static void dumpsector( unsigned char * );
 
 int main( int i_argc, char *ppsz_argv[] )
 {
     dvdcss_handle dvdcss;
     unsigned char p_buffer[ DVDCSS_BLOCK_SIZE ];
     unsigned int  i_sector;
+    int           i_ret;
 
     /* Print version number */
     printf( "cool, I found libdvdcss version %s\n", dvdcss_interface_2 );
@@ -42,14 +45,25 @@ int main( int i_argc, char *ppsz_argv[] )
         return -1;
     }
 
-    /* Set the file descriptor at sector i_sector */
-    dvdcss_seek( dvdcss, i_sector, DVDCSS_NOFLAGS );
+    /* Set the file descriptor at sector i_sector and read one sector */
+    i_ret = dvdcss_seek( dvdcss, i_sector, DVDCSS_NOFLAGS );
+    if( i_ret != i_sector )
+    {
+        printf( "seek failed (%s)\n", dvdcss_error( dvdcss ) );
+        dvdcss_close( dvdcss );
+        return i_ret;
+    }
 
-    /* Read one sector */
-    dvdcss_read( dvdcss, p_buffer, 1, DVDCSS_NOFLAGS );
+    i_ret = dvdcss_read( dvdcss, p_buffer, 1, DVDCSS_NOFLAGS );
+    if( i_ret != 1 )
+    {
+        printf( "read failed (%s)\n", dvdcss_error( dvdcss ) );
+        dvdcss_close( dvdcss );
+        return i_ret;
+    }
 
     /* Print the sector */
-    printf( "requested sector:\n" );
+    printf( "requested sector: " );
     dumpsector( p_buffer );
 
     /* Check if sector was encrypted */
@@ -57,13 +71,25 @@ int main( int i_argc, char *ppsz_argv[] )
     {
         /* Set the file descriptor position to the previous location */
         /* ... and get the appropriate key for this sector */
-        dvdcss_seek( dvdcss, i_sector, DVDCSS_SEEK_KEY );
+        i_ret = dvdcss_seek( dvdcss, i_sector, DVDCSS_SEEK_KEY );
+        if( i_ret != i_sector )
+        {
+            printf( "seek failed (%s)\n", dvdcss_error( dvdcss ) );
+            dvdcss_close( dvdcss );
+            return i_ret;
+        }
 
         /* Read sector again, and decrypt it on the fly */
-        dvdcss_read( dvdcss, p_buffer, 1, DVDCSS_READ_DECRYPT );
+        i_ret = dvdcss_read( dvdcss, p_buffer, 1, DVDCSS_READ_DECRYPT );
+        if( i_ret != 1 )
+        {
+            printf( "read failed (%s)\n", dvdcss_error( dvdcss ) );
+            dvdcss_close( dvdcss );
+            return i_ret;
+        }
 
         /* Print the decrypted sector */
-        printf( "unscrambled sector:\n" );
+        printf( "unscrambled sector: " );
         dumpsector( p_buffer );
     }
     else
@@ -78,14 +104,14 @@ int main( int i_argc, char *ppsz_argv[] )
 }
 
 /* Print parts of a 2048 bytes buffer */
-void dumpsector( unsigned char *p_buffer )
+static void dumpsector( unsigned char *p_buffer )
 {
-    int i_amount = 10;
+    int i_amount = 4;
     for( ; i_amount ; i_amount--, p_buffer++ ) printf( "%.2x", *p_buffer );
-    printf( " ... " );
-    i_amount = 25;
+    printf( "..." );
+    i_amount = 22;
     p_buffer += 200;
     for( ; i_amount ; i_amount--, p_buffer++ ) printf( "%.2x", *p_buffer );
-    printf( " ...\n" );
+    printf( "...\n" );
 }
 

@@ -1,11 +1,12 @@
 /*****************************************************************************
- * private.h: private DVD reading library data
+ * device.h: DVD device access
  *****************************************************************************
- * Copyright (C) 1998-2001 VideoLAN
- * $Id: libdvdcss.h,v 1.3 2002/08/09 14:10:43 sam Exp $
+ * Copyright (C) 1998-2002 VideoLAN
+ * $Id: device.h,v 1.1 2002/08/09 14:10:43 sam Exp $
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
+ *          Håkan Hjort <d95hjort@dtek.chalmers.se>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,51 +24,45 @@
  *****************************************************************************/
 
 /*****************************************************************************
- * The libdvdcss structure
+ * iovec structure: vectored data entry
  *****************************************************************************/
-struct dvdcss_s
+#if defined( WIN32 )
+#   include <io.h>                                                 /* read() */
+#else
+#   include <sys/uio.h>                                      /* struct iovec */
+#endif
+
+#if defined( WIN32 )
+struct iovec
 {
-    /* File descriptor */
-    char * psz_device;
-    int    i_fd;
-    int    i_seekpos;
-
-    /* Decryption stuff */
-    int          i_method;
-    css_t        css;
-    int          b_ioctls;
-    int          b_scrambled;
-    dvd_title_t *p_titles;
-
-    /* Error management */
-    char * psz_error;
-    int    b_errors;
-    int    b_debug;
-
-#ifdef WIN32
-    char * p_readv_buffer;
-    int    i_readv_buf_size;
-#endif
-
-#ifndef WIN32
-    int    i_raw_fd;
-    int    i_read_fd;
-#endif
+    void *iov_base;     /* Pointer to data. */
+    size_t iov_len;     /* Length of data.  */
 };
+#endif
 
 /*****************************************************************************
- * libdvdcss method: used like init flags
+ * Device reading prototypes
  *****************************************************************************/
-#define DVDCSS_METHOD_KEY        0
-#define DVDCSS_METHOD_DISC       1
-#define DVDCSS_METHOD_TITLE      2
+int _dvdcss_use_ioctls ( dvdcss_handle );
+int _dvdcss_open       ( dvdcss_handle );
+int _dvdcss_close      ( dvdcss_handle );
+int _dvdcss_readv      ( dvdcss_handle, struct iovec *, int );
 
 /*****************************************************************************
- * Functions used across the library
+ * Device reading prototypes, win32 specific
  *****************************************************************************/
-int  _dvdcss_seek  ( dvdcss_handle, int );
-int  _dvdcss_read  ( dvdcss_handle, void *, int );
+#ifdef WIN32
+int _win32_dvdcss_readv  ( int, struct iovec *, int, char * );
+int _win32_dvdcss_aopen  ( char, dvdcss_handle );
+int _win32_dvdcss_aclose ( int );
+int _win32_dvdcss_aseek  ( int, int, int );
+int _win32_dvdcss_aread  ( int, void *, int );
+#endif
 
-void _dvdcss_error ( dvdcss_handle, char * );
-void _dvdcss_debug ( dvdcss_handle, char * );
+/*****************************************************************************
+ * Device reading prototypes, raw-device specific
+ *****************************************************************************/
+#ifndef WIN32
+int _dvdcss_raw_open     ( dvdcss_handle, char * );
+#endif
 

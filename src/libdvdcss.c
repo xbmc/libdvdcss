@@ -2,7 +2,7 @@
  * libdvdcss.c: DVD reading library.
  *****************************************************************************
  * Copyright (C) 1998-2001 VideoLAN
- * $Id: libdvdcss.c,v 1.13 2002/07/16 22:47:40 sam Exp $
+ * $Id: libdvdcss.c,v 1.14 2002/08/09 14:10:43 sam Exp $
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -39,104 +39,18 @@
 #   include <unistd.h>
 #endif
 
-#if defined( WIN32 )
-#   include <io.h>                                                 /* read() */
-#else
-#   include <sys/uio.h>                                      /* struct iovec */
-#endif
-
 #include "dvdcss/dvdcss.h"
 
 #include "common.h"
 #include "css.h"
 #include "libdvdcss.h"
 #include "ioctl.h"
+#include "device.h"
 
 /*****************************************************************************
  * dvdcss_interface_?: the current libdvdcss version and interface version
  *****************************************************************************/
 char * dvdcss_interface_2 = VERSION;
-
-/*****************************************************************************
- * iovec structure: vectored data entry
- *****************************************************************************/
-#if defined( WIN32 )
-struct iovec
-{
-    void *iov_base;     /* Pointer to data. */
-    size_t iov_len;     /* Length of data.  */
-};
-#endif
-
-/*****************************************************************************
- * Local prototypes
- *****************************************************************************/
-static int _dvdcss_use_ioctls ( dvdcss_handle dvdcss );
-static int _dvdcss_open  ( dvdcss_handle, char *psz_target );
-static int _dvdcss_close ( dvdcss_handle );
-static int _dvdcss_readv ( dvdcss_handle, struct iovec *p_iovec, int i_blocks );
-
-/*****************************************************************************
- * Local prototypes, win32 specific
- *****************************************************************************/
-#if defined( WIN32 )
-static int _win32_dvdcss_readv  ( int i_fd, struct iovec *p_iovec,
-                                  int i_num_buffers, char *p_tmp_buffer );
-static int _win32_dvdcss_aopen  ( char c_drive, dvdcss_handle dvdcss );
-static int _win32_dvdcss_aclose ( int i_fd );
-static int _win32_dvdcss_aseek  ( int i_fd, int i_blocks, int i_method );
-static int _win32_dvdcss_aread  ( int i_fd, void *p_data, int i_blocks );
-#else
-static int _dvdcss_raw_open     ( dvdcss_handle, char *psz_target );
-#endif
-
-/*****************************************************************************
- * readv_*: readv() replacements for iovec-impaired C libraries
- *****************************************************************************/
-#if defined( WIN32 )
-static inline int readv( int i_fd, struct iovec *p_iovec, int i_count )
-{
-    int i_index, i_len, i_total = 0;
-    unsigned char *p_base;
-    int i_bytes;
-
-    for( i_index = i_count; i_index; i_index-- )
-    {
-
-        i_len  = p_iovec->iov_len;
-        p_base = p_iovec->iov_base;
-
-        /* Loop is unrolled one time to spare the (i_bytes <= 0) test */
-
-        if( i_len > 0 )
-        {
-            i_bytes = read( i_fd, p_base, i_len );
-
-            if( i_bytes < 0 )
-            {
-                /* One of the reads failed, too bad.
-                   We won't even bother returning the reads that went ok,
-                   and as in the posix spec the file postition is left
-                   unspecified after a failure */
-                return -1;
-            }
-
-            i_total += i_bytes;
-
-            if( i_bytes != i_len )
-            {
-                /* we reached the end of the file or a signal interrupted
-                   the read */
-                return i_total;
-            }
-        }
-
-        p_iovec++;
-    }
-
-    return i_total;
-}
-#endif /* WIN32 */
 
 /*****************************************************************************
  * dvdcss_open: initialize library, open a DVD device, crack CSS key
@@ -153,24 +67,47 @@ extern dvdcss_handle dvdcss_open ( char *psz_target )
 
     dvdcss_handle dvdcss;
 
-    /* Allocate the library structure */
+    /*
+     *  Allocate the library structure
+     */
     dvdcss = malloc( sizeof( struct dvdcss_s ) );
     if( dvdcss == NULL )
     {
         return NULL;
     }
 
-    /* Initialize structure with default values */
+    /*
+     *  Initialize structure with default values
+     */
 #ifndef WIN32
     dvdcss->i_raw_fd = -1;
 #endif
     dvdcss->p_titles = NULL;
+    dvdcss->psz_device = (char *)strdup( psz_target );
     dvdcss->psz_error = "no error";
     dvdcss->i_method = DVDCSS_METHOD_KEY;
     dvdcss->b_debug = 0;
-    dvdcss->b_errors = 1;
+    dvdcss->b_errors = 0;
 
-    /* Find method from DVDCSS_METHOD environment variable */
+    /*
+     *  Find verbosity from DVDCSS_VERBOSE environment variable
+     */
+    if( psz_verbose != NULL )
+    {
+        switch( atoi( psz_verbose ) )
+        {
+        case 2:
+            dvdcss->b_debug = 1;
+        case 1:
+            dvdcss->b_errors = 1;
+        case 0:
+            break;
+        }
+    }
+
+    /*
+     *  Find method from DVDCSS_METHOD environment variable
+     */
     if( psz_method != NULL )
     {
         if( !strncmp( psz_method, "key", 4 ) )
@@ -189,66 +126,53 @@ extern dvdcss_handle dvdcss_open ( char *psz_target )
         {
             _dvdcss_error( dvdcss, "unknown decrypt method, please choose "
                                    "from 'title', 'key' or 'disc'" );
+            free( dvdcss->psz_device );
             free( dvdcss );
             return NULL;
         }
     }
 
-    /* Find verbosity from DVDCSS_VERBOSE environment variable */
-    if( psz_verbose != NULL )
-    {
-        switch( atoi( psz_verbose ) )
-        {
-        case 0:
-            dvdcss->b_errors = 0;
-            break;
-        case 1:
-            break;
-        case 2:
-            dvdcss->b_debug = 1;
-            break;
-        default:
-            _dvdcss_error( dvdcss, "unknown verbose level, please choose "
-                                   "from '0', '1' or '2'" );
-            free( dvdcss );
-            return NULL;
-            break;
-        }
-    }
-
-    /* Open device */
-    i_ret = _dvdcss_open( dvdcss, psz_target );
+    /*
+     *  Open device
+     */
+    i_ret = _dvdcss_open( dvdcss );
     if( i_ret < 0 )
     {
+        free( dvdcss->psz_device );
         free( dvdcss );
         return NULL;
     }
     
-    dvdcss->b_encrypted = 1; /* Assume the worst */
+    dvdcss->b_scrambled = 1; /* Assume the worst */
     dvdcss->b_ioctls = _dvdcss_use_ioctls( dvdcss );
 
     if( dvdcss->b_ioctls )
     {
-        i_ret = CSSTest( dvdcss );
+        i_ret = _dvdcss_test( dvdcss );
 	if( i_ret < 0 )
 	{
 	    /* Disable the CSS ioctls and hope that it works? */
+            _dvdcss_debug( dvdcss,
+                           "could not check whether the disc was scrambled" );
 	    dvdcss->b_ioctls = 0;
 	}
 	else
 	{
-	    dvdcss->b_encrypted = i_ret;
+            _dvdcss_debug( dvdcss, i_ret ? "disc is scrambled"
+                                         : "disc is unscrambled" );
+	    dvdcss->b_scrambled = i_ret;
 	}
     }
 
     /* If disc is CSS protected and the ioctls work, authenticate the drive */
-    if( dvdcss->b_encrypted && dvdcss->b_ioctls )
+    if( dvdcss->b_scrambled && dvdcss->b_ioctls )
     {
-        i_ret = CSSGetDiscKey( dvdcss );
+        i_ret = _dvdcss_disckey( dvdcss );
 
         if( i_ret < 0 )
         {
             _dvdcss_close( dvdcss );
+            free( dvdcss->psz_device );
             free( dvdcss );
             return NULL;
         }
@@ -283,7 +207,7 @@ extern int dvdcss_seek ( dvdcss_handle dvdcss, int i_blocks, int i_flags )
        || ( i_flags & DVDCSS_SEEK_KEY ) )
     {
         /* check the title key */
-        if( dvdcss_title( dvdcss, i_blocks ) ) 
+        if( _dvdcss_title( dvdcss, i_blocks ) ) 
         {
             return -1;
         }
@@ -300,82 +224,15 @@ extern int dvdcss_seek ( dvdcss_handle dvdcss, int i_blocks, int i_flags )
  *****************************************************************************/
 extern int dvdcss_title ( dvdcss_handle dvdcss, int i_block )
 {
-    dvd_title_t *p_title;
-    dvd_title_t *p_newtitle;
-    dvd_key_t    p_title_key;
-    int          i_ret;
-
-    if( ! dvdcss->b_encrypted )
+    fprintf( stderr, "WARNING: dvdcss_title() is DEPRECATED\n" );
+    if( ! dvdcss->b_scrambled )
     {
         return 0;
     }
 
-    /* Check if we've already cracked this key */
-    p_title = dvdcss->p_titles;
-    while( p_title != NULL
-            && p_title->p_next != NULL
-            && p_title->p_next->i_startlb <= i_block )
-    {
-        p_title = p_title->p_next;
-    }
-
-    if( p_title != NULL
-         && p_title->i_startlb == i_block )
-    {
-        /* We've already cracked this key, nothing to do */
-        memcpy( dvdcss->css.p_title_key, p_title->p_key, sizeof(dvd_key_t) );
-        return 0;
-    }
-
-    /* Crack or decrypt CSS title key for current VTS */
-    i_ret = CSSGetTitleKey( dvdcss, i_block, p_title_key );
-
-    if( i_ret < 0 )
-    {
-        _dvdcss_error( dvdcss, "fatal error in vts css key" );
-        return i_ret;
-    }
-    else if( i_ret == 0 )
-    {
-        _dvdcss_debug( dvdcss, "unencrypted title" );
-        /* Still store this in the cache, so we don't need to check again. */
-    }
-
-    /* Find our spot in the list */
-    p_newtitle = NULL;
-    p_title = dvdcss->p_titles;
-    while( ( p_title != NULL ) && ( p_title->i_startlb < i_block ) )
-    {
-        p_newtitle = p_title;
-        p_title = p_title->p_next;
-    }
-
-    /* Save the found title */
-    p_title = p_newtitle;
-
-    /* Write in the new title and its key */
-    p_newtitle = malloc( sizeof( dvd_title_t ) );
-    p_newtitle->i_startlb = i_block;
-    memcpy( p_newtitle->p_key, p_title_key, KEY_SIZE );
-
-    /* Link it at the head of the (possibly empty) list */
-    if( p_title == NULL )
-    {
-        p_newtitle->p_next = dvdcss->p_titles;
-        dvdcss->p_titles = p_newtitle;
-    }
-    /* Link the new title inside the list */
-    else
-    {
-        p_newtitle->p_next = p_title->p_next;
-        p_title->p_next = p_newtitle;
-    }
-
-    memcpy( dvdcss->css.p_title_key, p_title_key, KEY_SIZE );
-    return 0;
+    return _dvdcss_title( dvdcss, i_block );
 }
 
-#define Pkey dvdcss->css.p_title_key
 /*****************************************************************************
  * dvdcss_read: read data from the device, decrypt if requested
  *****************************************************************************/
@@ -388,13 +245,13 @@ extern int dvdcss_read ( dvdcss_handle dvdcss, void *p_buffer,
     i_ret = _dvdcss_read( dvdcss, p_buffer, i_blocks );
 
     if( i_ret <= 0
-         || !dvdcss->b_encrypted
+         || !dvdcss->b_scrambled
          || !(i_flags & DVDCSS_READ_DECRYPT) )
     {
         return i_ret;
     }
 
-    if( !( Pkey[0] | Pkey[1] | Pkey[2] | Pkey[3] | Pkey[4] ) ) 
+    if( ! memcmp( dvdcss->css.p_title_key, "\0\0\0\0\0", 5 ) )
     {
         /* For what we believe is an unencrypted title, 
 	 * check that there are no encrypted blocks */
@@ -407,7 +264,7 @@ extern int dvdcss_read ( dvdcss_handle dvdcss, void *p_buffer,
                 /* or fail completely? return 0; */
 		break;
             }
-            (u8*)p_buffer += DVDCSS_BLOCK_SIZE;
+            p_buffer = (void *) ((u8 *)p_buffer + DVDCSS_BLOCK_SIZE);
         }
     }
     else 
@@ -415,9 +272,9 @@ extern int dvdcss_read ( dvdcss_handle dvdcss, void *p_buffer,
         /* Decrypt the blocks we managed to read */
         for( i_index = i_ret; i_index; i_index-- )
 	{
-	    CSSDescrambleSector( dvdcss->css.p_title_key, p_buffer );
+	    _dvdcss_unscramble( dvdcss->css.p_title_key, p_buffer );
 	    ((u8*)p_buffer)[0x14] &= 0x8f;
-	    (u8*)p_buffer += DVDCSS_BLOCK_SIZE;
+            p_buffer = (void *) ((u8 *)p_buffer + DVDCSS_BLOCK_SIZE);
 	}
     }
     
@@ -427,28 +284,27 @@ extern int dvdcss_read ( dvdcss_handle dvdcss, void *p_buffer,
 /*****************************************************************************
  * dvdcss_readv: read data to an iovec structure, decrypt if requested
  *****************************************************************************/
-extern int dvdcss_readv ( dvdcss_handle dvdcss, void *p_iovec,
+extern int dvdcss_readv ( dvdcss_handle dvdcss, void *_p_iovec,
                                                 int i_blocks,
                                                 int i_flags )
 {
-#define P_IOVEC ((struct iovec*)p_iovec)
+    struct iovec *p_iovec = (struct iovec *)_p_iovec;
     int i_ret, i_index;
     void *iov_base;
     size_t iov_len;
 
-    i_ret = _dvdcss_readv( dvdcss, P_IOVEC, i_blocks );
+    i_ret = _dvdcss_readv( dvdcss, p_iovec, i_blocks );
 
     if( i_ret <= 0
-         || !dvdcss->b_encrypted
+         || !dvdcss->b_scrambled
          || !(i_flags & DVDCSS_READ_DECRYPT) )
     {
         return i_ret;
     }
 
-
     /* Initialize loop for decryption */
-    iov_base = P_IOVEC->iov_base;
-    iov_len = P_IOVEC->iov_len;
+    iov_base = p_iovec->iov_base;
+    iov_len = p_iovec->iov_len;
 
     /* Decrypt the blocks we managed to read */
     for( i_index = i_ret; i_index; i_index-- )
@@ -461,22 +317,20 @@ extern int dvdcss_readv ( dvdcss_handle dvdcss, void *p_iovec,
 
         while( iov_len == 0 )
         {
-            P_IOVEC++;
-            iov_base = P_IOVEC->iov_base;
-            iov_len = P_IOVEC->iov_len;
+            p_iovec++;
+            iov_base = p_iovec->iov_base;
+            iov_len = p_iovec->iov_len;
         }
 
-        CSSDescrambleSector( dvdcss->css.p_title_key, iov_base );
+        _dvdcss_unscramble( dvdcss->css.p_title_key, iov_base );
         ((u8*)iov_base)[0x14] &= 0x8f;
 
-        (u8*)iov_base += DVDCSS_BLOCK_SIZE;
-        (u8*)iov_len -= DVDCSS_BLOCK_SIZE;
+        iov_base = (void *) ((u8*)iov_base + DVDCSS_BLOCK_SIZE);
+        iov_len -= DVDCSS_BLOCK_SIZE;
     }
 
     return i_ret;
-#undef P_IOVEC
 }
-#undef Pkey
 
 /*****************************************************************************
  * dvdcss_close: close the DVD device and clean up the library
@@ -502,565 +356,9 @@ extern int dvdcss_close ( dvdcss_handle dvdcss )
         return i_ret;
     }
 
+    free( dvdcss->psz_device );
     free( dvdcss );
 
     return 0;
 }
-
-/* Following functions are local */
-
-static int _dvdcss_use_ioctls( dvdcss_handle dvdcss )
-{
-#if defined( WIN32 )
-    /* Some one need to implement this for Windows */
-    if( WIN2K )
-    {
-	return 1;	
-    }
-    else
-    {
-	return 1;	
-    }
-#else
-    struct stat fileinfo;
-    int ret;
-
-    ret = fstat( dvdcss->i_fd, &fileinfo );
-    if( ret < 0 )
-    {
-	return 1;  /* What to do?  Be conservative and try to use the ioctsl */
-    }
-    
-    /* Complete this list and check that we test for the right things 
-     * (I've assumed for all OSs that 'r', (raw) device, are char devices
-     *  and those that don't contain/use an 'r' in the name are block devices)
-     *
-     * Linux    needs a block device
-     * Solaris  needs a char device
-     * Darwin   needs a char device 
-     * OpenBSD  needs a char device
-     * NetBSD   needs a char device
-     * FreeBSD  can use either the block or the char device
-     * BSD/OS   can use either the block or the char device
-     */
-    
-    /* Check if this is a block/char device */
-    if( S_ISBLK( fileinfo.st_mode ) || 
-	S_ISCHR( fileinfo.st_mode ) )
-    {
-	return 1;
-    }
-    else
-    {
-	return 0;
-    }
-#endif
-}
-
-static int _dvdcss_open ( dvdcss_handle dvdcss, char *psz_target )
-{
-#if defined( WIN32 )
-    if( WIN2K )
-    {
-        char psz_dvd[7];
-        _snprintf( psz_dvd, 7, "\\\\.\\%c:", psz_target[0] );
-
-        /* To have access to ioctls, we need read and write access to the
-         * device. This is only allowed if you have administrator priviledges
-         * so we allow for a fallback method where ioctls are not available but
-         * we at least have read access to the device.
-         * (See Microsoft Q241374: Read and Write Access Required for SCSI
-         * Pass Through Requests) */
-        (HANDLE) dvdcss->i_fd =
-                CreateFile( psz_dvd, GENERIC_READ | GENERIC_WRITE,
-                                FILE_SHARE_READ | FILE_SHARE_WRITE,
-                                NULL, OPEN_EXISTING,
-                                FILE_FLAG_RANDOM_ACCESS, NULL );
-
-        if( (HANDLE) dvdcss->i_fd == INVALID_HANDLE_VALUE )
-            (HANDLE) dvdcss->i_fd =
-                    CreateFile( psz_dvd, GENERIC_READ, FILE_SHARE_READ,
-                                    NULL, OPEN_EXISTING,
-                                    FILE_FLAG_RANDOM_ACCESS, NULL );
-
-        if( (HANDLE) dvdcss->i_fd == INVALID_HANDLE_VALUE )
-        {
-            _dvdcss_error( dvdcss, "failed opening device" );
-            return -1;
-        }
-    }
-    else
-    {
-        dvdcss->i_fd = _win32_dvdcss_aopen( psz_target[0], dvdcss );
-        if( dvdcss->i_fd == -1 )
-        {
-            _dvdcss_error( dvdcss, "failed opening device" );
-            return -1;
-        }
-    }
-
-    /* initialise readv temporary buffer */
-    dvdcss->p_readv_buffer   = NULL;
-    dvdcss->i_readv_buf_size = 0;
-
-#else
-    dvdcss->i_fd = dvdcss->i_read_fd = open( psz_target, 0 );
-
-    if( dvdcss->i_fd == -1 )
-    {
-        _dvdcss_error( dvdcss, "failed opening device" );
-        return -1;
-    }
-
-#endif
-
-    return 0;
-}
-
-#ifndef WIN32
-static int _dvdcss_raw_open ( dvdcss_handle dvdcss, char *psz_target )
-{
-    dvdcss->i_raw_fd = open( psz_target, 0 );
-
-    if( dvdcss->i_raw_fd == -1 )
-    {
-        _dvdcss_error( dvdcss, "failed opening raw device, continuing" );
-        return -1;
-    }
-    else
-    {
-        dvdcss->i_read_fd = dvdcss->i_raw_fd;
-    }
-
-    return 0;
-}
-#endif
-
-static int _dvdcss_close ( dvdcss_handle dvdcss )
-{
-#if defined( WIN32 )
-    if( WIN2K )
-    {
-        CloseHandle( (HANDLE) dvdcss->i_fd );
-    }
-    else
-    {
-        _win32_dvdcss_aclose( dvdcss->i_fd );
-    }
-
-    /* Free readv temporary buffer */
-    if( dvdcss->p_readv_buffer )
-    {
-        free( dvdcss->p_readv_buffer );
-        dvdcss->p_readv_buffer   = NULL;
-        dvdcss->i_readv_buf_size = 0;
-    }
-
-#else
-    close( dvdcss->i_fd );
-
-    if( dvdcss->i_raw_fd >= 0 )
-    {
-        close( dvdcss->i_raw_fd );
-        dvdcss->i_raw_fd = -1;
-    }
-
-#endif
-
-    return 0;
-}
-
-int _dvdcss_seek ( dvdcss_handle dvdcss, int i_blocks )
-{
-#if defined( WIN32 )
-    dvdcss->i_seekpos = i_blocks;
-
-    if( WIN2K )
-    {
-        LARGE_INTEGER li_read;
-
-#ifndef INVALID_SET_FILE_POINTER
-#define INVALID_SET_FILE_POINTER ((DWORD)-1)
-#endif
-
-        li_read.QuadPart = (LONGLONG)i_blocks * DVDCSS_BLOCK_SIZE;
-
-        li_read.LowPart = SetFilePointer( (HANDLE) dvdcss->i_fd,
-                                          li_read.LowPart,
-                                          &li_read.HighPart, FILE_BEGIN );
-        if( (li_read.LowPart == INVALID_SET_FILE_POINTER)
-            && GetLastError() != NO_ERROR)
-        {
-            li_read.QuadPart = -DVDCSS_BLOCK_SIZE;
-        }
-
-        li_read.QuadPart /= DVDCSS_BLOCK_SIZE;
-        return (int)li_read.QuadPart;
-    }
-    else
-    {
-        return ( _win32_dvdcss_aseek( dvdcss->i_fd, i_blocks, SEEK_SET ) );
-    }
-#else
-    off_t   i_read;
-
-    dvdcss->i_seekpos = i_blocks;
-
-    i_read = lseek( dvdcss->i_read_fd,
-                    (off_t)i_blocks * (off_t)DVDCSS_BLOCK_SIZE, SEEK_SET );
-
-    return i_read / DVDCSS_BLOCK_SIZE;
-#endif
-
-}
-
-int _dvdcss_read ( dvdcss_handle dvdcss, void *p_buffer, int i_blocks )
-{
-#if defined( WIN32 ) 
-    if( WIN2K )
-    {
-        int i_bytes;
-
-        if( !ReadFile( (HANDLE) dvdcss->i_fd, p_buffer,
-                  i_blocks * DVDCSS_BLOCK_SIZE,
-                  (LPDWORD)&i_bytes, NULL ) )
-        {
-            return -1;
-        }
-        return i_bytes / DVDCSS_BLOCK_SIZE;
-    }
-    else
-    {
-        return _win32_dvdcss_aread( dvdcss->i_fd, p_buffer, i_blocks );
-    }
-
-#else
-    int i_bytes;
-    /* TODO: !!! errors are mangled and disarded (-1/2048 = 0)
-     * and partial reads are wrong,i.e 2200/2048 = 1 
-     * but the location has advanced 2200 bytes (lseek possition that is) */
-    i_bytes = read( dvdcss->i_read_fd, p_buffer,
-                    (size_t)i_blocks * DVDCSS_BLOCK_SIZE );
-    return i_bytes / DVDCSS_BLOCK_SIZE;
-#endif
-
-}
-
-static int _dvdcss_readv ( dvdcss_handle dvdcss, struct iovec *p_iovec,
-                           int i_blocks )
-{
-    int i_read;
-
-#if defined( WIN32 )
-    /* Check the size of the readv temp buffer, just in case we need to
-     * realloc something bigger */
-    if( dvdcss->i_readv_buf_size < i_blocks * DVDCSS_BLOCK_SIZE )
-    {
-        dvdcss->i_readv_buf_size = i_blocks * DVDCSS_BLOCK_SIZE;
-
-        if( dvdcss->p_readv_buffer ) free( dvdcss->p_readv_buffer );
-
-        /* Allocate a buffer which will be used as a temporary storage
-         * for readv */
-        dvdcss->p_readv_buffer = malloc( dvdcss->i_readv_buf_size );
-        if( !dvdcss->p_readv_buffer )
-        {
-            _dvdcss_error( dvdcss, " failed (readv)" );
-            return -1;
-        }
-    }
-
-    i_read = _win32_dvdcss_readv( dvdcss->i_fd, p_iovec, i_blocks,
-                                  dvdcss->p_readv_buffer );
-    return i_read;
-
-#else
-    i_read = readv( dvdcss->i_read_fd, p_iovec, i_blocks );
-    return i_read / DVDCSS_BLOCK_SIZE;
-
-#endif
-}
-
-
-#if defined( WIN32 )
-
-/*****************************************************************************
- * _win32_dvdcss_readv: vectored read using ReadFile for Win2K and
- *                      _win32_dvdcss_aread for win9x
- *****************************************************************************/
-static int _win32_dvdcss_readv( int i_fd, struct iovec *p_iovec,
-                                int i_num_buffers, char *p_tmp_buffer )
-{
-    int i_index;
-    int i_blocks, i_blocks_total = 0;
-
-    for( i_index = i_num_buffers; i_index; i_index-- )
-    {
-        i_blocks_total += p_iovec[i_index-1].iov_len; 
-    }
-
-    if( i_blocks_total <= 0 ) return 0;
-
-    i_blocks_total /= DVDCSS_BLOCK_SIZE;
-
-    if( WIN2K )
-    {
-        unsigned long int i_bytes;
-        if( !ReadFile( (HANDLE)i_fd, p_tmp_buffer,
-                       i_blocks_total * DVDCSS_BLOCK_SIZE, &i_bytes, NULL ) )
-        {
-            return -1;
-            /* The read failed... too bad.
-               As in the posix spec the file postition is left
-               unspecified after a failure */
-        }
-        i_blocks = i_bytes / DVDCSS_BLOCK_SIZE;
-    }
-    else /* Win9x */
-    {
-        i_blocks = _win32_dvdcss_aread( i_fd, p_tmp_buffer, i_blocks_total );
-        if( i_blocks < 0 )
-        {
-            return -1;  /* idem */
-        }
-    }
-
-    /* We just have to copy the content of the temp buffer into the iovecs */
-    i_index = 0;
-    i_blocks_total = i_blocks;
-    while( i_blocks_total > 0 )
-    {
-        memcpy( p_iovec[i_index].iov_base,
-                &p_tmp_buffer[(i_blocks - i_blocks_total) * DVDCSS_BLOCK_SIZE],
-                p_iovec[i_index].iov_len );
-        /* if we read less blocks than asked, we'll just end up copying
-           garbage, this isn't an issue as we return the number of
-           blocks actually read */
-        i_blocks_total -= ( p_iovec[i_index].iov_len / DVDCSS_BLOCK_SIZE );
-        i_index++;
-    } 
-
-    return i_blocks;
-}
-
-/*****************************************************************************
- * _win32_dvdcss_aopen: open dvd drive (load aspi and init w32_aspidev
- *                      structure)
- *****************************************************************************/
-static int _win32_dvdcss_aopen( char c_drive, dvdcss_handle dvdcss )
-{
-    HMODULE hASPI;
-    DWORD dwSupportInfo;
-    struct w32_aspidev *fd;
-    int i, j, i_hostadapters;
-    long (*lpGetSupport)( void );
-    long (*lpSendCommand)( void* );
-     
-    hASPI = LoadLibrary( "wnaspi32.dll" );
-    if( hASPI == NULL )
-    {
-        _dvdcss_error( dvdcss, "unable to load wnaspi32.dll" );
-        return -1;
-    }
-
-    (FARPROC) lpGetSupport = GetProcAddress( hASPI, "GetASPI32SupportInfo" );
-    (FARPROC) lpSendCommand = GetProcAddress( hASPI, "SendASPI32Command" );
- 
-    if(lpGetSupport == NULL || lpSendCommand == NULL )
-    {
-        _dvdcss_debug( dvdcss, "unable to get aspi function pointers" );
-        FreeLibrary( hASPI );
-        return -1;
-    }
-
-    dwSupportInfo = lpGetSupport();
-
-    if( HIBYTE( LOWORD ( dwSupportInfo ) ) == SS_NO_ADAPTERS )
-    {
-        _dvdcss_debug( dvdcss, "no host adapters found (aspi)" );
-        FreeLibrary( hASPI );
-        return -1;
-    }
-
-    if( HIBYTE( LOWORD ( dwSupportInfo ) ) != SS_COMP )
-    {
-        _dvdcss_error( dvdcss, "unable to initalize aspi layer" );
-        FreeLibrary( hASPI );
-        return -1;
-    }
-
-    i_hostadapters = LOBYTE( LOWORD( dwSupportInfo ) );
-    if( i_hostadapters == 0 )
-    {
-        FreeLibrary( hASPI );
-        return -1;
-    }
-
-    fd = malloc( sizeof( struct w32_aspidev ) );
-    if( fd == NULL )
-    {
-        FreeLibrary( hASPI );
-        return -1;
-    }
-
-    fd->i_blocks = 0;
-    fd->hASPI = (long) hASPI;
-    fd->lpSendCommand = lpSendCommand;
-
-    c_drive = c_drive > 'Z' ? c_drive - 'a' : c_drive - 'A';
-
-    for( i = 0; i < i_hostadapters; i++ )
-    {
-        for( j = 0; j < 15; j++ )
-        {
-            struct SRB_GetDiskInfo srbDiskInfo;
-
-            srbDiskInfo.SRB_Cmd         = SC_GET_DISK_INFO;
-            srbDiskInfo.SRB_HaId        = i;
-            srbDiskInfo.SRB_Flags       = 0;
-            srbDiskInfo.SRB_Hdr_Rsvd    = 0;
-            srbDiskInfo.SRB_Target      = j;
-            srbDiskInfo.SRB_Lun         = 0;
-
-            lpSendCommand( (void*) &srbDiskInfo );
-
-            if( (srbDiskInfo.SRB_Status == SS_COMP) &&
-                (srbDiskInfo.SRB_Int13HDriveInfo == c_drive) )
-            {
-                fd->i_sid = MAKEWORD( i, j );
-                return (int) fd;
-            }
-        }
-    }
-
-    free( (void*) fd );
-    FreeLibrary( hASPI );
-    _dvdcss_debug( dvdcss, "unable to get haid and target (aspi)" );
-    return( -1 );        
-}
-
-/*****************************************************************************
- * _win32_dvdcss_aclose: close dvd drive (unload aspi and free w32_aspidev
- *                       structure)
- *****************************************************************************/
-static int _win32_dvdcss_aclose( int i_fd )
-{
-    struct w32_aspidev *fd = (struct w32_aspidev *) i_fd;
-
-    FreeLibrary( (HMODULE) fd->hASPI );
-    free( (void*) i_fd );
-
-    return 0;
-}
-
-/*****************************************************************************
- * _win32_dvdcss_aseek: aspi version of _dvdcss_seek
- * 
- * returns the number of blocks read.
- *****************************************************************************/
-static int _win32_dvdcss_aseek( int i_fd, int i_blocks, int i_method )
-{
-    int i_old_blocks;
-    char sz_buf[ DVDCSS_BLOCK_SIZE ];
-    struct w32_aspidev *fd = (struct w32_aspidev *) i_fd;
-    
-    i_old_blocks = fd->i_blocks;
-    fd->i_blocks = i_blocks;
-
-    if( _win32_dvdcss_aread( i_fd, sz_buf, 1 ) == -1 )
-    {
-        fd->i_blocks = i_old_blocks;
-        return -1;
-    }
-
-    (fd->i_blocks)--;
-
-    return fd->i_blocks;
-}
-
-/*****************************************************************************
- * _win32_dvdcss_aread: aspi version of _dvdcss_read
- *
- * returns the number of blocks read.
- *****************************************************************************/
-static int _win32_dvdcss_aread( int i_fd, void *p_data, int i_blocks )
-{
-    HANDLE hEvent;
-    struct SRB_ExecSCSICmd ssc;
-    struct w32_aspidev *fd = (struct w32_aspidev *) i_fd;
-
-    /* Create the transfer completion event */
-    hEvent = CreateEvent( NULL, TRUE, FALSE, NULL );
-    if( hEvent == NULL )
-    {
-        return -1;
-    }
-
-    memset( &ssc, 0, sizeof( ssc ) );
-
-    ssc.SRB_Cmd         = SC_EXEC_SCSI_CMD;
-    ssc.SRB_Flags       = SRB_DIR_IN | SRB_EVENT_NOTIFY;
-    ssc.SRB_HaId        = LOBYTE( fd->i_sid );
-    ssc.SRB_Target      = HIBYTE( fd->i_sid );
-    ssc.SRB_SenseLen    = SENSE_LEN;
-    
-    ssc.SRB_PostProc = (LPVOID) hEvent;
-    ssc.SRB_BufPointer  = p_data;
-    ssc.SRB_CDBLen      = 12;
-    
-    ssc.CDBByte[0]      = 0xA8; /* RAW */
-    ssc.CDBByte[2]      = (UCHAR) (fd->i_blocks >> 24);
-    ssc.CDBByte[3]      = (UCHAR) (fd->i_blocks >> 16) & 0xff;
-    ssc.CDBByte[4]      = (UCHAR) (fd->i_blocks >> 8) & 0xff;
-    ssc.CDBByte[5]      = (UCHAR) (fd->i_blocks) & 0xff;
-    
-    /* We have to break down the reads into 64kb pieces (ASPI restriction) */
-    if( i_blocks > 32 )
-    {
-        ssc.SRB_BufLen = 32 * DVDCSS_BLOCK_SIZE;
-        ssc.CDBByte[9] = 32;
-        fd->i_blocks  += 32;
-
-        /* Initiate transfer */  
-        ResetEvent( hEvent );
-        fd->lpSendCommand( (void*) &ssc );
-
-        /* transfer the next 64kb (_win32_dvdcss_aread is called recursively)
-         * We need to check the status of the read on return */
-        if( _win32_dvdcss_aread( i_fd, (u8*) p_data + 32 * DVDCSS_BLOCK_SIZE,
-                                 i_blocks - 32) < 0 )
-        {
-            return -1;
-        }
-    }
-    else
-    {
-        /* This is the last transfer */
-        ssc.SRB_BufLen   = i_blocks * DVDCSS_BLOCK_SIZE;
-        ssc.CDBByte[9]   = (UCHAR) i_blocks;
-        fd->i_blocks += i_blocks;
-
-        /* Initiate transfer */  
-        ResetEvent( hEvent );
-        fd->lpSendCommand( (void*) &ssc );
-
-    }
-
-    /* If the command has still not been processed, wait until it's finished */
-    if( ssc.SRB_Status == SS_PENDING )
-    {
-        WaitForSingleObject( hEvent, INFINITE );
-    }
-    CloseHandle( hEvent );
-
-    /* check that the transfer went as planned */
-    if( ssc.SRB_Status != SS_COMP )
-    {
-      return -1;
-    }
-
-    return i_blocks;
-}
-
-#endif
 
