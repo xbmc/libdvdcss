@@ -66,7 +66,8 @@ int main( int i_argc, char *ppsz_argv[] )
     if( IsSectorScrambled( p_buffer ) )
     {
         /* Set the file descriptor position to the previous location */
-        dvdcss_seek( dvdcss, i_sector, DVDCSS_NOFLAGS );
+        /* ... and get the appropriate key for this sector */
+        dvdcss_seek( dvdcss, i_sector, DVDCSS_SEEK_KEY );
 
         /* Read sector again, and decrypt it on the fly */
         dvdcss_read( dvdcss, p_buffer, 1, DVDCSS_READ_DECRYPT );
