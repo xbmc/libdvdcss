@@ -2,7 +2,7 @@
  * ioctl.c: DVD ioctl replacement function
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: ioctl.c,v 1.11 2002/07/01 09:02:25 hjort Exp $
+ * $Id: ioctl.c,v 1.12 2002/07/01 10:36:37 hjort Exp $
  *
  * Authors: Markus Kuespert <ltlBeBoy@beosmail.com>
  *          Samuel Hocevar <sam@zoy.org>
@@ -10,6 +10,7 @@
  *          Håkan Hjort <d95hjort@dtek.chalmers.se>
  *          Eugenio Jarosiewicz <ej0@cise.ufl.edu>
  *          David Siebörger <drs-videolan@rucus.ru.ac.za>
+ *          Alex Strelnikov <lelik@os2.ru>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,6 +40,13 @@
 #if defined( WIN32 )
 #   include <windows.h>
 #   include <winioctl.h>
+#elif defined ( SYS_OS2 )
+#   define INCL_DOSFILEMGR
+#   define INCL_DOSDEVICES
+#   define INCL_DOSDEVIOCTL
+#   define INCL_DOSERRORS
+#   include <os2.h>
+#   include <sys/ioctl.h>
 #else
 #   include <netinet/in.h>
 #   include <sys/ioctl.h>
@@ -118,6 +126,13 @@ static int  WinSendSSC ( int, struct SRB_ExecSCSICmd * );
  *****************************************************************************/
 #if defined( __QNXNTO__ )
 static void QNXInitCPT ( CAM_PASS_THRU *, int );
+#endif
+
+/*****************************************************************************
+ * Local prototypes, OS2 specific
+ *****************************************************************************/
+#if defined( SYS_OS2 )
+static void OS2InitSDC( struct OS2_ExecSCSICmd *, int );
 #endif
 
 /*****************************************************************************
@@ -250,6 +265,18 @@ int ioctl_ReadCopyright( int i_fd, int i_layer, int *pi_copyright )
     i_ret = devctl(i_fd, DCMD_CAM_PASS_THRU, p_cpt, structSize, NULL);
 
     *pi_copyright = p_buffer[4];
+
+#elif defined( SYS_OS2 )
+    INIT_SSC( GPCMD_READ_DVD_STRUCTURE, 8 );
+
+    sdc.command[ 6 ] = i_layer;
+    sdc.command[ 7 ] = DVD_STRUCT_COPYRIGHT;
+
+    i_ret = DosDevIOCtl(i_fd, IOCTL_CDROMDISK, CDROMDISK_EXECMD,
+                        &sdc, sizeof(sdc), &ulParamLen,
+                        p_buffer, sizeof(p_buffer), &ulDataLen);
+
+    *pi_copyright = p_buffer[ 4 ];
 
 #else
 #   error "DVD ioctls are unavailable on this system"
@@ -407,6 +434,23 @@ int ioctl_ReadDiscKey( int i_fd, int *pi_agid, u8 *p_key )
 
     memcpy( p_key, p_buffer + 4, DVD_DISCKEY_SIZE );
 
+#elif defined ( SYS_OS2 )
+    INIT_SSC( GPCMD_READ_DVD_STRUCTURE, DVD_DISCKEY_SIZE + 4 );
+
+    sdc.command[ 7 ]  = DVD_STRUCT_DISCKEY;
+    sdc.command[ 10 ] = *pi_agid << 6;
+    
+    i_ret = DosDevIOCtl(i_fd, IOCTL_CDROMDISK, CDROMDISK_EXECMD,
+                        &sdc, sizeof(sdc), &ulParamLen,
+                        p_buffer, sizeof(p_buffer), &ulDataLen);
+
+    if( i_ret < 0 )
+    {
+        return i_ret;
+    }
+
+    memcpy( p_key, p_buffer + 4, DVD_DISCKEY_SIZE );
+
 #else
 #   error "DVD ioctls are unavailable on this system"
 
@@ -555,6 +599,21 @@ int ioctl_ReadTitleKey( int i_fd, int *pi_agid, int i_pos, u8 *p_key )
 
     memcpy( p_key, p_buffer + 5, DVD_KEY_SIZE );
 
+#elif defined( SYS_OS2 )
+    INIT_SSC( GPCMD_REPORT_KEY, 12 );
+
+    sdc.command[ 2 ] = ( i_pos >> 24 ) & 0xff;
+    sdc.command[ 3 ] = ( i_pos >> 16 ) & 0xff;
+    sdc.command[ 4 ] = ( i_pos >>  8 ) & 0xff;
+    sdc.command[ 5 ] = ( i_pos       ) & 0xff;
+    sdc.command[ 10 ] = DVD_REPORT_TITLE_KEY | (*pi_agid << 6);
+
+    i_ret = DosDevIOCtl(i_fd, IOCTL_CDROMDISK, CDROMDISK_EXECMD,
+                        &sdc, sizeof(sdc), &ulParamLen,
+                        p_buffer, sizeof(p_buffer), &ulDataLen);
+
+    memcpy( p_key, p_buffer + 5, DVD_KEY_SIZE );
+
 #else
 #   error "DVD ioctls are unavailable on this system"
 
@@ -665,6 +724,17 @@ int ioctl_ReportAgid( int i_fd, int *pi_agid )
     p_cpt->cam_cdb[ 10 ] = DVD_REPORT_AGID | (*pi_agid << 6);
 
     i_ret = devctl(i_fd, DCMD_CAM_PASS_THRU, p_cpt, structSize, NULL);
+
+    *pi_agid = p_buffer[ 7 ] >> 6;
+
+#elif defined( SYS_OS2 )
+    INIT_SSC( GPCMD_REPORT_KEY, 8 );
+
+    sdc.command[ 10 ] = DVD_REPORT_AGID | (*pi_agid << 6);
+
+    i_ret = DosDevIOCtl(i_fd, IOCTL_CDROMDISK, CDROMDISK_EXECMD,
+                        &sdc, sizeof(sdc), &ulParamLen,
+                        p_buffer, sizeof(p_buffer), &ulDataLen);
 
     *pi_agid = p_buffer[ 7 ] >> 6;
 
@@ -791,6 +861,17 @@ int ioctl_ReportChallenge( int i_fd, int *pi_agid, u8 *p_challenge )
 
     memcpy( p_challenge, p_buffer + 4, DVD_CHALLENGE_SIZE );
 
+#elif defined( SYS_OS2 )
+    INIT_SSC( GPCMD_REPORT_KEY, 16 );
+
+    sdc.command[ 10 ] = DVD_REPORT_CHALLENGE | (*pi_agid << 6);
+
+    i_ret = DosDevIOCtl(i_fd, IOCTL_CDROMDISK, CDROMDISK_EXECMD,
+                        &sdc, sizeof(sdc), &ulParamLen,
+                        p_buffer, sizeof(p_buffer), &ulDataLen);
+
+    memcpy( p_challenge, p_buffer + 4, DVD_CHALLENGE_SIZE );
+
 #else
 #   error "DVD ioctls are unavailable on this system"
 
@@ -913,6 +994,17 @@ int ioctl_ReportASF( int i_fd, int *pi_remove_me, int *pi_asf )
 
     *pi_asf = p_buffer[ 7 ] & 1;
 
+#elif defined( SYS_OS2 )
+    INIT_SSC( GPCMD_REPORT_KEY, 8 );
+
+    sdc.command[ 10 ] = DVD_REPORT_ASF;
+
+    i_ret = DosDevIOCtl(i_fd, IOCTL_CDROMDISK, CDROMDISK_EXECMD,
+                        &sdc, sizeof(sdc), &ulParamLen,
+                        p_buffer, sizeof(p_buffer), &ulDataLen);
+
+    *pi_asf = p_buffer[ 7 ] & 1;
+
 #else
 #   error "DVD ioctls are unavailable on this system"
 
@@ -1031,6 +1123,17 @@ int ioctl_ReportKey1( int i_fd, int *pi_agid, u8 *p_key )
 
     memcpy( p_key, p_buffer + 4, DVD_KEY_SIZE );
 
+#elif defined( SYS_OS2 )
+    INIT_SSC( GPCMD_REPORT_KEY, 12 );
+
+    sdc.command[ 10 ] = DVD_REPORT_KEY1 | (*pi_agid << 6);
+
+    i_ret = DosDevIOCtl(i_fd, IOCTL_CDROMDISK, CDROMDISK_EXECMD,
+                        &sdc, sizeof(sdc), &ulParamLen,
+                        p_buffer, sizeof(p_buffer), &ulDataLen);
+
+    memcpy( p_key, p_buffer + 4, DVD_KEY_SIZE );
+
 #else
 #   error "DVD ioctls are unavailable on this system"
 
@@ -1130,6 +1233,18 @@ int ioctl_InvalidateAgid( int i_fd, int *pi_agid )
 
     i_ret = devctl(i_fd, DCMD_CAM_PASS_THRU, p_cpt, structSize, NULL);
 
+#elif defined( SYS_OS2 )
+    INIT_SSC( GPCMD_REPORT_KEY, 1 );
+
+    sdc.data_length = 0;
+    sdc.command[ 8 ] = 0;
+    sdc.command[ 9 ] = 0;
+
+    sdc.command[ 10 ] = DVD_INVALIDATE_AGID | (*pi_agid << 6);
+
+    i_ret = DosDevIOCtl(i_fd, IOCTL_CDROMDISK, CDROMDISK_EXECMD,
+                        &sdc, sizeof(sdc), &ulParamLen,
+                        NULL, 0, &ulDataLen);
 #else
 #   error "DVD ioctls are unavailable on this system"
 
@@ -1255,6 +1370,18 @@ int ioctl_SendChallenge( int i_fd, int *pi_agid, u8 *p_challenge )
 
     i_ret = devctl(i_fd, DCMD_CAM_PASS_THRU, p_cpt, structSize, NULL);
 
+#elif defined( SYS_OS2 )
+    INIT_SSC( GPCMD_SEND_KEY, 16 );
+
+    sdc.command[ 10 ] = DVD_SEND_CHALLENGE | (*pi_agid << 6);
+
+    p_buffer[ 1 ] = 0xe;
+    memcpy( p_buffer + 4, p_challenge, DVD_CHALLENGE_SIZE );
+
+    return DosDevIOCtl(i_fd, IOCTL_CDROMDISK, CDROMDISK_EXECMD,
+                       &sdc, sizeof(sdc), &ulParamLen,
+                       p_buffer, sizeof(p_buffer), &ulDataLen);
+
 #else
 #   error "DVD ioctls are unavailable on this system"
 
@@ -1379,6 +1506,18 @@ int ioctl_SendKey2( int i_fd, int *pi_agid, u8 *p_key )
     memcpy( p_buffer + 4, p_key, DVD_KEY_SIZE );
 
     i_ret = devctl(i_fd, DCMD_CAM_PASS_THRU, p_cpt, structSize, NULL);
+
+#elif defined( SYS_OS2 )
+    INIT_SSC( GPCMD_SEND_KEY, 12 );
+
+    sdc.command[ 10 ] = DVD_SEND_KEY2 | (*pi_agid << 6);
+
+    p_buffer[ 1 ] = 0xa;
+    memcpy( p_buffer + 4, p_key, DVD_KEY_SIZE );
+
+    return DosDevIOCtl(i_fd, IOCTL_CDROMDISK, CDROMDISK_EXECMD,
+                       &sdc, sizeof(sdc), &ulParamLen,
+                       p_buffer, sizeof(p_buffer), &ulDataLen);
 
 #else
 #   error "DVD ioctls are unavailable on this system"
@@ -1522,6 +1661,19 @@ int ioctl_ReportRPC( int i_fd, int *p_type, int *p_mask, int *p_scheme )
     p_cpt->cam_cdb[ 10 ] = DVD_REPORT_RPC;
 
     i_ret = devctl(i_fd, DCMD_CAM_PASS_THRU, p_cpt, structSize, NULL);
+
+    *p_type = p_buffer[ 4 ] >> 6;
+    *p_mask = p_buffer[ 5 ];
+    *p_scheme = p_buffer[ 6 ];
+
+#elif defined( SYS_OS2 )
+    INIT_SSC( GPCMD_REPORT_KEY, 8 );
+
+    sdc.command[ 10 ] = DVD_REPORT_RPC;
+
+    i_ret = DosDevIOCtl(i_fd, IOCTL_CDROMDISK, CDROMDISK_EXECMD,
+                        &sdc, sizeof(sdc), &ulParamLen,
+                        p_buffer, sizeof(p_buffer), &ulDataLen);
 
     *p_type = p_buffer[ 4 ] >> 6;
     *p_mask = p_buffer[ 5 ];
@@ -1736,3 +1888,31 @@ static void QNXInitCPT( CAM_PASS_THRU * p_cpt, int i_type )
 }
 #endif
 
+#if defined( SYS_OS2 )
+/*****************************************************************************
+ * OS2InitSDC: initialize a SDC structure for the Execute SCSI-command
+ *****************************************************************************
+ * This function initializes a OS2 'execute SCSI command' structure for 
+ * future use, either a read command or a write command.
+ *****************************************************************************/
+static void OS2InitSDC( struct OS2_ExecSCSICmd *p_sdc, int i_type )
+{
+    switch( i_type )
+    {
+        case GPCMD_SEND_KEY:
+            p_sdc->flags = 0;
+            break;
+
+        case GPCMD_READ_DVD_STRUCTURE:
+        case GPCMD_REPORT_KEY:
+            p_sdc->flags = EX_DIRECTION_IN;
+            break;
+    }
+
+    p_sdc->command[ 0 ] = i_type;
+    p_sdc->command[ 8 ] = (p_sdc->data_length >> 8) & 0xff;
+    p_sdc->command[ 9 ] = p_sdc->data_length        & 0xff;
+    p_sdc->id_code      = 0x31304443;    // 'CD01'
+    p_sdc->cmd_length   = 12;
+}
+#endif

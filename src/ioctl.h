@@ -2,7 +2,7 @@
  * ioctl.h: DVD ioctl replacement function
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: ioctl.h,v 1.5 2002/07/01 09:02:25 hjort Exp $
+ * $Id: ioctl.h,v 1.6 2002/07/01 10:36:37 hjort Exp $
  *
  * Authors: Samuel Hocevar <sam@zoy.org>
  *
@@ -123,6 +123,22 @@ int ioctl_SendKey2          ( int, int *, u8 * );
 #endif
 
 /*****************************************************************************
+ * Common macro, OS2 specific
+ *****************************************************************************/
+#if defined( SYS_OS2 )
+#define INIT_SSC( TYPE, SIZE ) \
+    struct OS2_ExecSCSICmd sdc; \
+    u8 p_buffer[ (SIZE) ]; \
+    unsigned long ulParamLen; \
+    unsigned long ulDataLen; \
+    memset( &sdc, 0, sizeof( OS2_ExecSCSICmd ) ); \
+    memset( &p_buffer, 0, SIZE ); \
+    sdc.data_length = (SIZE); \
+    ulParamLen = sizeof(sdc); \
+    OS2InitSDC( &sdc, (TYPE) )
+#endif
+
+/*****************************************************************************
  * Additional types, OpenBSD specific
  *****************************************************************************/
 #if defined( HAVE_OPENBSD_DVD_STRUCT )
@@ -133,7 +149,7 @@ typedef union dvd_authinfo dvd_authinfo;
 /*****************************************************************************
  * Various DVD I/O tables
  *****************************************************************************/
-#if defined( SYS_BEOS ) || defined( WIN32 ) || defined ( SOLARIS_USCSI ) || defined ( HPUX_SCTL_IO ) || defined ( __QNXNTO__ )
+#if defined( SYS_BEOS ) || defined( WIN32 ) || defined ( SOLARIS_USCSI ) || defined ( HPUX_SCTL_IO ) || defined ( __QNXNTO__ ) || defined ( SYS_OS2 )
     /* The generic packet command opcodes for CD/DVD Logical Units,
      * From Table 57 of the SFF8090 Ver. 3 (Mt. Fuji) draft standard. */
 #   define GPCMD_READ_DVD_STRUCTURE 0xad
@@ -317,3 +333,28 @@ struct SRB_ExecSCSICmd
 
 #endif
 
+/*****************************************************************************
+ * OS2 ioctl specific
+ *****************************************************************************/
+#if defined( SYS_OS2 )
+
+#define CDROMDISK_EXECMD      0x7A
+
+#define EX_DIRECTION_IN       0x01
+#define EX_PLAYING_CHK        0x02
+
+#pragma pack(1)
+
+struct OS2_ExecSCSICmd
+{
+    unsigned long   id_code;      // 'CD01'
+    unsigned short  data_length;  // length of the Data Packet
+    unsigned short  cmd_length;   // length of the Command Buffer
+    unsigned short  flags;        // flags
+    unsigned char   command[16];  // Command Buffer for SCSI command
+
+} OS2_ExecSCSICmd;
+
+#pragma pack()
+
+#endif
