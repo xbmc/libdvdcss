@@ -7,7 +7,7 @@
 
 #include <stdlib.h>
 
-#ifdef DVBPSI_DIST
+#ifdef DVDCSS_DIST
 #include "../src/dvdcss.h"
 #else
 #include <videolan/dvdcss.h>
