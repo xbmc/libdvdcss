@@ -5,7 +5,7 @@
  *          Håkan Hjort <d95hjort@dtek.chalmers.se>
  *
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: libdvdcss.c,v 1.30 2003/03/22 16:37:37 gbazin Exp $
+ * $Id: libdvdcss.c,v 1.31 2003/03/27 18:57:12 gbazin Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -294,19 +294,12 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
         }
     }
 
-#ifndef WIN32
-    if( psz_raw_device != NULL )
-    {
-        _dvdcss_raw_open( dvdcss, psz_raw_device );
-    }
-#endif
-
     /* If the cache is enabled, extract a unique disc ID */
     if( psz_cache )
     {
         uint8_t p_sector[DVDCSS_BLOCK_SIZE];
         unsigned char   psz_debug[PATH_MAX+30];
-        unsigned char * psz_data;
+        unsigned char * psz_title, * psz_serial;
         int i;
 
         /* We read sector 0. If it starts with 0x000001ba (BE), we are
@@ -347,40 +340,37 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
         }
 
         /* Get the disc title */
-        psz_data = p_sector + 40;
-        psz_data[32] = '\0';
+        psz_title = p_sector + 40;
+        psz_title[32] = '\0';
 
         for( i = 0 ; i < 32 ; i++ )
         {
-            if( psz_data[i] <= ' ' )
+            if( psz_title[i] <= ' ' )
             {
-                psz_data[i] = '\0';
+                psz_title[i] = '\0';
                 break;
             }
-            else if( psz_data[i] == '/' || psz_data[i] == '\\' )
+            else if( psz_title[i] == '/' || psz_title[i] == '\\' )
             {
-                psz_data[i] = '-';
+                psz_title[i] = '-';
             }
         }
 
-        /* If it's not long enough, try the date + serial */
-        if( strlen( psz_data ) < 6 )
-        {
-            psz_data = p_sector + 813;
-            psz_data[16] = '\0';
+        /* Get the date + serial */
+        psz_serial = p_sector + 813;
+        psz_serial[16] = '\0';
 
-            /* Check that all characters are digits, otherwise convert. */
-            for( i = 0 ; i < 16 ; i++ )
+        /* Check that all characters are digits, otherwise convert. */
+        for( i = 0 ; i < 16 ; i++ )
+        {
+            if( psz_serial[i] < '0' || psz_serial[i] > '9' )
             {
-                if( psz_data[i] < '0' || psz_data[i] > '9' )
-                {
-                    sprintf( psz_data,
-                             "%.2X%.2X%.2X%.2X%.2X%.2X%.2X%.2X",
-                             psz_data[0], psz_data[1], psz_data[2],
-                             psz_data[3], psz_data[4], psz_data[5],
-                             psz_data[6], psz_data[7] );
-                    break;
-                }
+                sprintf( psz_serial,
+                         "%.2X%.2X%.2X%.2X%.2X%.2X%.2X%.2X",
+                         psz_serial[0], psz_serial[1], psz_serial[2],
+                         psz_serial[3], psz_serial[4], psz_serial[5],
+                         psz_serial[6], psz_serial[7] );
+                break;
             }
         }
 
@@ -398,7 +388,8 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
             goto nocache;
         }
 
-        i += sprintf( dvdcss->psz_cachefile + i, "/%s", psz_data );
+        i += sprintf( dvdcss->psz_cachefile + i, "/%s#%s", psz_title,
+                      psz_serial );
 #if !defined( WIN32 ) || defined( SYS_CYGWIN )
         i_ret = mkdir( dvdcss->psz_cachefile, 0755 );
 #else
@@ -420,6 +411,13 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
         _dvdcss_debug( dvdcss, psz_debug );
     }
     nocache:
+
+#ifndef WIN32
+    if( psz_raw_device != NULL )
+    {
+        _dvdcss_raw_open( dvdcss, psz_raw_device );
+    }
+#endif
 
     /* Seek at the beginning, just for safety. */
     dvdcss->pf_seek( dvdcss, 0 );
