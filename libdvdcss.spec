@@ -5,6 +5,17 @@
 %define major  	2
 %define libname %{name}%{major}
 
+%define redhat80 0
+%if %redhat80
+%define release %rel
+# some mdk macros that do not exist in rh
+%define configure2_5x CFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=/usr
+%define make %__make
+%define makeinstall_std make DESTDIR="$RPM_BUILD_ROOT" install
+# adjust define for Redhat.
+%endif
+
+
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -13,7 +24,7 @@ Source:		%{name}-%{version}.tar.bz2
 License:	GPL
 Group:		System/Libraries
 URL:		http://www.videolan.org/libdvdcss/
-Packager:	Yves Duret <yduret@mandrakesoft.com>
+Packager:	Yves Duret <yves@zarb.org>
 BuildRoot:	%_tmppath/%name-%version-%release-root
 Conflicts:	libdvdcss0.0.1, libdvdcss0.0.2
 
@@ -65,11 +76,11 @@ package installed.
 %setup -q
 
 %build
-%configure
-%make %{?_smp_mflags}
+%configure2_5x
+%make
 
 %install
-%makeinstall
+%makeinstall_std
 
 %clean
 rm -rf %buildroot
@@ -92,6 +103,8 @@ rm -rf %buildroot
 %{_includedir}/*
 
 %changelog
+- add more macros to fix RedHat build.
+
 * Mon Nov 18 2002 Alexis de Lattre <alexis@videolan.org> 1.2.4-2
 - Changes in .spec file for RedHat and RPM 4.1
 
