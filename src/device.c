@@ -2,7 +2,7 @@
  * device.h: DVD device access
  *****************************************************************************
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: device.c,v 1.15 2003/02/04 11:54:36 massiot Exp $
+ * $Id: device.c,v 1.16 2003/07/08 18:00:54 gbazin Exp $
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -144,7 +144,7 @@ int _dvdcss_open ( dvdcss_t dvdcss )
 
 #if defined( WIN32 )
     /* If device is not "X:", we are actually opening a file. */
-    dvdcss->b_file = !psz_device[0] || psz_device[1] != ':' || psz_device[3];
+    dvdcss->b_file = !psz_device[0] || psz_device[1] != ':' || psz_device[2];
 
     /* Initialize readv temporary buffer */
     dvdcss->p_readv_buffer   = NULL;
