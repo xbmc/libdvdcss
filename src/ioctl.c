@@ -2,7 +2,7 @@
  * ioctl.c: DVD ioctl replacement function
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: ioctl.c,v 1.17 2002/11/13 22:45:05 jlj Exp $
+ * $Id: ioctl.c,v 1.18 2002/11/14 01:32:37 jlj Exp $
  *
  * Authors: Markus Kuespert <ltlBeBoy@beosmail.com>
  *          Samuel Hocevar <sam@zoy.org>
@@ -1585,6 +1585,10 @@ int ioctl_ReportRPC( int i_fd, int *p_type, int *p_mask, int *p_scheme )
     *p_type = auth_info.lrpcs.type;
     *p_mask = auth_info.lrpcs.region_mask;
     *p_scheme = auth_info.lrpcs.rpc_scheme;
+
+#elif defined( HAVE_LINUX_DVD_STRUCT )
+    /* FIXME: OpenBSD doesn't know this */
+    i_ret = -1;
 
 #elif defined( HAVE_BSD_DVD_STRUCT )
     struct dvd_authinfo auth_info;
