@@ -2,7 +2,7 @@
  * css.c: Functions for DVD authentication and descrambling
  *****************************************************************************
  * Copyright (C) 1999-2003 VideoLAN
- * $Id: css.c,v 1.29 2003/09/15 17:12:46 sam Exp $
+ * $Id$
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
  *          Håkan Hjort <d95hjort@dtek.chalmers.se>
@@ -170,13 +170,27 @@ int _dvdcss_title ( dvdcss_t dvdcss, int i_block )
 
         if( i_fd >= 0 )
         {
-            if( read( i_fd, p_title_key, 5 ) == 5 )
+            unsigned char psz_key[KEY_SIZE * 3];
+            unsigned int k0, k1, k2, k3, k4;
+
+            psz_key[KEY_SIZE * 3 - 1] = '\0';
+
+            if( read( i_fd, psz_key, KEY_SIZE * 3 - 1 ) == KEY_SIZE * 3 - 1
+                 && sscanf( psz_key, "%x:%x:%x:%x:%x",
+                            &k0, &k1, &k2, &k3, &k4 ) == 5 )
             {
-                print_debug( dvdcss, "key found in cache" );
+                p_title_key[0] = k0;
+                p_title_key[1] = k1;
+                p_title_key[2] = k2;
+                p_title_key[3] = k3;
+                p_title_key[4] = k4;
+                PrintKey( dvdcss, "title key found in cache ", p_title_key );
+
                 /* Don't try to save it again */
                 b_cache = 0;
                 i_ret = 1;
             }
+
             close( i_fd );
         }
     }
@@ -200,12 +214,18 @@ int _dvdcss_title ( dvdcss_t dvdcss, int i_block )
     }
 
     /* Key is valid, we store it on disk. */
-    if( b_cache )
+    if( dvdcss->psz_cachefile[0] && b_cache )
     {
-        i_fd = open( dvdcss->psz_cachefile, O_RDWR|O_CREAT|O_EXCL, 0644 );
+        i_fd = open( dvdcss->psz_cachefile, O_RDWR|O_CREAT, 0644 );
         if( i_fd >= 0 )
         {
-            write( i_fd, p_title_key, 5 );
+            unsigned char psz_key[KEY_SIZE * 3 + 2];
+
+            sprintf( psz_key, "%02x:%02x:%02x:%02x:%02x\r\n",
+                              p_title_key[0], p_title_key[1], p_title_key[2],
+                              p_title_key[3], p_title_key[4] );
+
+            write( i_fd, psz_key, KEY_SIZE * 3 + 1 );
             close( i_fd );
         }
     }
@@ -282,12 +302,13 @@ int _dvdcss_disckey( dvdcss_t dvdcss )
         return -1;
     }
 
-    /* Decrypt disc key using bus key */
+    /* Shuffle disc key using bus key */
     for( i = 0 ; i < DVD_DISCKEY_SIZE ; i++ )
     {
         p_buffer[ i ] ^= dvdcss->css.p_bus_key[ 4 - (i % KEY_SIZE) ];
     }
 
+    /* Decrypt disc key */
     switch( dvdcss->i_method )
     {
         case DVDCSS_METHOD_KEY:
