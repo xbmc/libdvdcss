@@ -4,7 +4,7 @@
 
 HEAD
 
-  * Nothing yet.
+  * ./src/libdvdcss.c: Win32 compilation fix.
 
 1.2.1
 Sun,  2 Jun 2002 18:17:55 +0200

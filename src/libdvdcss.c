@@ -2,7 +2,7 @@
  * libdvdcss.c: DVD reading library.
  *****************************************************************************
  * Copyright (C) 1998-2001 VideoLAN
- * $Id: libdvdcss.c,v 1.10 2002/06/02 15:54:10 sam Exp $
+ * $Id: libdvdcss.c,v 1.11 2002/06/04 07:02:57 sam Exp $
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -161,7 +161,9 @@ extern dvdcss_handle dvdcss_open ( char *psz_target )
     }
 
     /* Initialize structure with default values */
+#ifndef WIN32
     dvdcss->i_raw_fd = -1;
+#endif
     dvdcss->p_titles = NULL;
     dvdcss->psz_error = "no error";
     dvdcss->i_method = DVDCSS_METHOD_KEY;
