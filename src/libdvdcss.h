@@ -2,7 +2,7 @@
  * libdvdcss.h: private DVD reading library data
  *****************************************************************************
  * Copyright (C) 1998-2001 VideoLAN
- * $Id: libdvdcss.h,v 1.8 2002/12/19 12:37:30 sam Exp $
+ * $Id: libdvdcss.h,v 1.9 2002/12/19 15:36:04 sam Exp $
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -33,7 +33,7 @@ struct dvdcss_s
     char * psz_device;
     int    i_fd;
     int    i_read_fd;
-    int    i_seekpos;
+    int    i_pos;
 
     /* File handling */
     int ( * pf_seek )  ( dvdcss_t, int );
