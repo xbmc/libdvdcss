@@ -2,9 +2,20 @@
 # ChangeLog for libdvdcss #
 #=========================#
 
-HEAD
+1.2.0
+Mon, 20 May 2002 19:48:42 +0200
 
-  * Nothing yet.
+  * ./src/libdvdcss.c: new function _dvdcss_use_ioctls. Avoid using the ioctl
+    calls when they have no chance of working, this in turn avoids a spurious
+    warning when they fail.
+  * ./src/css.c: updated error messages.
+  * ./src/libdvdcss.c: default to 'key', rather than 'title', method.
+  * ./libdvdcss.spec: enhancements by Mandrakesoft.
+  * ./src/libdvdcss.c: corrected a serious bug in dvdcss_read for titles with
+    all zero key (a unencrypted title on a CSS protected disc).
+  * ./src/ioctl.[ch]: Darwin changes: cleaned up the code, fixed
+    ReadTitleKey, and implemented ReportRPC.
+  * ./INSTALL: updated win32 compilation instructions.
 
 1.1.1
 Sat,  6 Apr 2002 03:24:20 +0200

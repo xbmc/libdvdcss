@@ -1,3 +1,9 @@
+libdvdcss (1.2.0-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Samuel Hocevar <sam@zoy.org>  Mon, 20 May 2002 19:48:42 +0200
+
 libdvdcss (1.1.1-1) unstable; urgency=low
 
   * Minor release.

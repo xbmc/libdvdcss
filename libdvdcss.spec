@@ -1,5 +1,5 @@
 %define name 	libdvdcss
-%define version	1.1.1
+%define version	1.2.0
 %define release	2plf
 
 %define major  	2
@@ -93,6 +93,10 @@ rm -rf %buildroot
 %{_includedir}/*
 
 %changelog
+* Mon May 20 2002 Samuel Hocevar <sam@zoy.org>
+- new upstream release
+- weird libxalf dependency is gone
+
 * Sun Apr 07 2002 Yves Duret <yduret@mandrakesoft.com> 1.1.1-2plf
 - major version is 2 (aka guillaume sux).
 - spec clean up: do not rm in %prep, %%buildroot, %%makeinstall_std, %%provides %%version-%%release
