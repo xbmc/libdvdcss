@@ -1,3 +1,18 @@
+libdvdcss (1.2.7-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/control:
+    + Set policy to 3.5.10.
+    + Removed the leading "a" in the package description.
+    + Set the source section to libs.
+    + Set the -dev package section to libdevel.
+    + Changed the debhelper build dependency to (>=3.0).
+  * debian/rules:
+    + Added magic to avoid autotools timestamp skews on autobuilders (as if
+      libdvdcss was ever going to hit the Debian autobuilders anyway).
+
+ -- Sam Hocevar (Debian packages) <sam+deb@zoy.org>  Fri, 13 Jun 2003 02:25:49 +0200
+
 libdvdcss (1.2.6-2) unstable; urgency=low
 
   * Removed libc6-dev from libdvdcss2-dev's dependencies because it is

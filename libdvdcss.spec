@@ -1,5 +1,5 @@
 %define name 	libdvdcss
-%define version	1.2.6
+%define version	1.2.7
 %define release	1
 
 %define major  	2
@@ -104,6 +104,10 @@ package installed.
 %{_includedir}/*
 
 %changelog
+* Fri Jun 13 2003 Sam Hocevar <sam@zoy.org> 1.2.7-1
+- new upstream release
+- key cache activated by default
+
 * Mon Mar 10 2003 Alexis de Lattre <alexis@videolan.org> 1.2.6-1
 - new upstream release
 - small bug fixes

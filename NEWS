@@ -1,4 +1,12 @@
-$Id: NEWS,v 1.4 2003/03/09 23:50:42 massiot Exp $
+$Id: NEWS,v 1.5 2003/06/13 00:41:35 sam Exp $
+
+Changes between 1.2.6 and 1.2.7:
+--------------------------------
+
+  * activated key caching by default.
+  * fix for collisions between cached keys.
+  * packaging improvements for Debian.
+  * packaging improvements for RPM-based distributions.
 
 Changes between 1.2.5 and 1.2.6:
 --------------------------------

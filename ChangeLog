@@ -2,6 +2,31 @@
 # ChangeLog for libdvdcss #
 #=========================#
 
+1.2.7
+Fri, 13 Jun 2003 02:25:49 +0200
+
+  * ./src/libdvdcss.c: fix for NetBSD's mkdir that doesn't like trailing "/"
+    on its argument. (courtesy of Christopher Richards)
+  * ./src/libdvdcss.c: CSS key cache collisions patch, courtesy of Michael
+    Roitzsch.
+  * ./libdvdcss.spec: better RH part thx Kipp Cannon <kipp@sgl.crestech.ca>.
+  * configure.ac, src/common.h: fixes for the cygwin build using the mno-cygwin
+    flag.
+  * ./src/css.c: typos in comments.
+  * ./debian/control: removed libc6-dev from libdvdcss2-dev's dependencies
+    because it is part of build-essential and it isn't even called libc6-dev
+    on all architectures.
+  * ./configure.ac: make use of the autotools/ directory.
+  * ./bootstrap: libfool is a tool. Worked around its blatant ignorance of
+    the AC_CONFIG_AUX_DIR directive.
+  * ./Makefile.am: put autotools/ in DIST_SUBDIRS instead of SUBDIRS.
+  * ./configure.ac: forgot to generate autotools/Makefile.
+  * ./src/libdvdcss.c: if DVDCSS_CACHE is not set, we force a default value.
+     - under Win32: C:\Documents and Settings\$USER\Application Data\dvdcss\
+     - under Unix and everything else: ${HOME}/.dvdcss/
+     - the special value DVDCSS_CACHE=off disables caching.
+  * ./src/libdvdcss.c: updated doxygen documentation accordingly.
+
 1.2.6
 Mon, Mar 10 2003 18:33:25 +0100
 
