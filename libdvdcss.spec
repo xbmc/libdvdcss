@@ -1,6 +1,6 @@
 # This is borrowed and adapted from Mandrake's Cooker
 %define name 	libdvdcss
-%define version	2.0.0-dev
+%define version	1.1.0
 %define release	1
 %define major  	2
 %define lib_name %{name}%{major}
@@ -10,7 +10,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 
-Source0:	http://www.videolan.org/pub/videolan/libdvcss/%{version}/%{name}-%{version}.tar.bz2
+Source0:	http://www.videolan.org/pub/videolan/libdvcss/%{version}/%{name}-%{version}.tar.gz
 License:	GPL
 Group:		System/Libraries
 URL:		http://videolan.org/
@@ -19,8 +19,9 @@ BuildRoot:	%_tmppath/%name-%version-%release-root
 %description
 libdvdcss is a simple library designed for accessing DVDs like a block device
 without having to bother about the decryption. The important features are:
- * Portability. Currently supported platforms are GNU/Linux, FreeBSD, BeOS
-   and Windows. The MacOS X version is being worked on as well.
+ * Portability. Currently supported platforms are GNU/Linux, FreeBSD, NetBSD,
+   OpenBSD, BSD/OS, BeOS, Windows 95/98, Windows NT/2000, MacOS X, Solaris,
+   and HP-UX.
  * Simplicity. There are currently 7 functions in the API, and we intend to
    keep this number low.
  * Freedom. libdvdcss is released under the General Public License, ensuring
@@ -36,8 +37,9 @@ Provides:       %name
 %description -n %{lib_name}
 libdvdcss is a simple library designed for accessing DVDs like a block device 
 without having to bother about the decryption. The important features are:
- * Portability. Currently supported platforms are GNU/Linux, FreeBSD, BeOS
-   and Windows. The MacOS X version is being worked on as well.
+ * Portability. Currently supported platforms are GNU/Linux, FreeBSD, NetBSD,
+   OpenBSD, BSD/OS, BeOS, Windows 95/98, Windows NT/2000, MacOS X, Solaris,
+   and HP-UX.
  * Simplicity. There are currently 7 functions in the API, and we intend to 
    keep this number low.
  * Freedom. libdvdcss is released under the General Public License, ensuring
@@ -66,7 +68,7 @@ the %{name} library.
 
 %build
 %configure
-make libdvdcss
+make
 
 %install
 %makeinstall
@@ -91,6 +93,10 @@ rm -fr %buildroot
 %{_includedir}/*
 
 %changelog
+* Wed Apr 03 2002 Samuel Hocevar <sam@zoy.org>
+- version 1.1.0
+- first release outside the vlc tree
+
 * Tue Oct 02 2001 Christophe Massiot <massiot@via.ecp.fr>
 - Imported Mandrake's vlc.spec into the CVS
 
