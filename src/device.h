@@ -2,7 +2,7 @@
  * device.h: DVD device access
  *****************************************************************************
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: device.h,v 1.4 2002/10/18 18:48:59 sam Exp $
+ * $Id: device.h,v 1.5 2002/12/02 07:38:21 jlj Exp $
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -29,6 +29,7 @@
 #if defined( WIN32 )
 #   include <io.h>                                                 /* read() */
 #else
+#   include <sys/types.h>
 #   include <sys/uio.h>                                      /* struct iovec */
 #endif
 
