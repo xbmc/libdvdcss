@@ -2,7 +2,7 @@
  * ioctl.h: DVD ioctl replacement function
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: ioctl.h,v 1.11 2002/11/15 18:39:08 jlj Exp $
+ * $Id: ioctl.h,v 1.12 2002/11/25 18:44:31 jlj Exp $
  *
  * Authors: Samuel Hocevar <sam@zoy.org>
  *
@@ -31,6 +31,8 @@ int ioctl_ReportASF         ( int, int *, int * );
 int ioctl_InvalidateAgid    ( int, int * );
 int ioctl_SendChallenge     ( int, int *, u8 * );
 int ioctl_SendKey2          ( int, int *, u8 * );
+int ioctl_ReportRPC         ( int, int *, int *, int * );
+int ioctl_SendRPC           ( int, int );
 
 #define DVD_KEY_SIZE 5
 #define DVD_CHALLENGE_SIZE 10
@@ -94,9 +96,23 @@ int ioctl_SendKey2          ( int, int *, u8 * );
 #endif
 
 /*****************************************************************************
- * Common macro, win32 (ASPI) specific
+ * Common macro, win32 specific
  *****************************************************************************/
 #if defined( WIN32 )
+#define INIT_SPTD( TYPE, SIZE ) \
+    DWORD tmp; \
+    SCSI_PASS_THROUGH_DIRECT sptd; \
+    u8 p_buffer[ (SIZE) ]; \
+    memset( &sptd, 0, sizeof( SCSI_PASS_THROUGH_DIRECT ) ); \
+    sptd.Length = sizeof( SCSI_PASS_THROUGH_DIRECT ); \
+    sptd.DataBuffer = p_buffer; \
+    sptd.DataTransferLength = (SIZE); \
+    WinInitSPTD( &sptd, (TYPE) );
+#define SEND_SPTD( DEV, SPTD, TMP ) \
+    (DeviceIoControl( (HANDLE)(DEV), IOCTL_SCSI_PASS_THROUGH_DIRECT, \
+                      (SPTD), sizeof( SCSI_PASS_THROUGH_DIRECT ), \
+                      (SPTD), sizeof( SCSI_PASS_THROUGH_DIRECT ), \
+                      (TMP), NULL ) ? 0 : -1)
 #define INIT_SSC( TYPE, SIZE ) \
     struct SRB_ExecSCSICmd ssc; \
     u8 p_buffer[ (SIZE) ]; \

@@ -14,8 +14,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <getopt.h>
 
-#include "dvdcss/dvdcss.h"
+#include <dvdcss/dvdcss.h>
 
 #include "config.h"
 #include "common.h"
@@ -25,7 +26,6 @@
 
 int set_region(int fd, int region)
 {
-#if 0
   int ret, region_mask;
 
   if(region > 8 || region <= 0) {
@@ -42,7 +42,7 @@ int set_region(int fd, int region)
     perror("dvd_region");
     return ret;
   }
-#endif
+
   return 0;
 }
 
@@ -155,6 +155,7 @@ int main(int argc, char *argv[])
   /* Print version number */
   printf( "found libdvdcss version %s\n", dvdcss_interface_2 );
 
+  /* TODO: use dvdcss_open instead of open */
 
   if( (fd = open(device_name, O_RDONLY | O_NONBLOCK)) < 0 ) {
     perror("open");
@@ -176,9 +177,6 @@ int main(int argc, char *argv[])
       fprintf( stderr, "you must specify the region!\n" );
       exit(0);
     }
-    
-    fprintf( stderr, "setting the region is not supported yet!\n");
-    exit( 1 );
     
     if( (ret = set_region(fd, region)) < 0 )
       return ret;

@@ -2,7 +2,7 @@
  * ioctl.c: DVD ioctl replacement function
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: ioctl.c,v 1.20 2002/11/15 18:39:08 jlj Exp $
+ * $Id: ioctl.c,v 1.21 2002/11/25 18:44:31 jlj Exp $
  *
  * Authors: Markus Kuespert <ltlBeBoy@beosmail.com>
  *          Samuel Hocevar <sam@zoy.org>
@@ -118,8 +118,9 @@ static void SolarisInitUSCSI( struct uscsi_cmd *p_sc, int i_type );
  * Local prototypes, win32 (aspi) specific
  *****************************************************************************/
 #if defined( WIN32 )
-static void WinInitSSC ( struct SRB_ExecSCSICmd *, int );
-static int  WinSendSSC ( int, struct SRB_ExecSCSICmd * );
+static void WinInitSPTD ( SCSI_PASS_THROUGH_DIRECT *, int );
+static void WinInitSSC  ( struct SRB_ExecSCSICmd *, int );
+static int  WinSendSSC  ( int, struct SRB_ExecSCSICmd * );
 #endif
 
 /*****************************************************************************
@@ -213,36 +214,18 @@ int ioctl_ReadCopyright( int i_fd, int i_layer, int *pi_copyright )
 #elif defined( WIN32 )
     if( WIN2K ) /* NT/2k/XP */
     {
-        DWORD tmp;
-        u8 p_buffer[ 8 ];
-        SCSI_PASS_THROUGH_DIRECT sptd;
+        INIT_SPTD( GPCMD_READ_DVD_STRUCTURE, 8 ); 
 
         /*  When using IOCTL_DVD_READ_STRUCTURE and 
             DVD_COPYRIGHT_DESCRIPTOR, CopyrightProtectionType
             seems to be always 6 ???
-            To work around this M$ bug we try to send a raw scsi command
+            To work around this MS bug we try to send a raw scsi command
             instead (if we've got enough privileges to do so). */
 
-        memset( &sptd, 0, sizeof( sptd ) );
-        memset( &p_buffer, 0, sizeof( p_buffer ) );
+        sptd.Cdb[ 6 ] = i_layer;
+        sptd.Cdb[ 7 ] = DVD_STRUCT_COPYRIGHT;
 
-        sptd.Length             = sizeof( SCSI_PASS_THROUGH_DIRECT );
-        sptd.CdbLength          = 12;
-        sptd.DataIn             = SCSI_IOCTL_DATA_IN;
-        sptd.DataTransferLength = 8;
-        sptd.TimeOutValue       = 2;
-        sptd.DataBuffer         = p_buffer;
-        sptd.Cdb[ 0 ]           = GPCMD_READ_DVD_STRUCTURE;
-        sptd.Cdb[ 6 ]           = i_layer;
-        sptd.Cdb[ 7 ]           = DVD_STRUCT_COPYRIGHT;
-        sptd.Cdb[ 8 ]           = (8 >> 8) & 0xff;
-        sptd.Cdb[ 9 ]           =  8       & 0xff;
-
-        i_ret = DeviceIoControl( (HANDLE) i_fd,
-                             IOCTL_SCSI_PASS_THROUGH_DIRECT,
-                             &sptd, sizeof( SCSI_PASS_THROUGH_DIRECT ),
-                             &sptd, sizeof( SCSI_PASS_THROUGH_DIRECT ),
-                             &tmp, NULL ) ? 0 : -1;
+        i_ret = SEND_SPTD( i_fd, &sptd, &tmp );
 
         if( i_ret == 0 )
         {
@@ -560,7 +543,7 @@ int ioctl_ReadTitleKey( int i_fd, int *pi_agid, int i_pos, u8 *p_key )
     if( WIN2K ) /* NT/2k/XP */
     {
         DWORD tmp;
-        u8 buffer[DVD_BUS_KEY_LENGTH];
+        u8 buffer[DVD_TITLE_KEY_LENGTH];
         PDVD_COPY_PROTECT_KEY key = (PDVD_COPY_PROTECT_KEY) &buffer;
 
         memset( &buffer, 0, sizeof( buffer ) );
@@ -1688,6 +1671,133 @@ int ioctl_ReportRPC( int i_fd, int *p_type, int *p_mask, int *p_scheme )
     return i_ret;
 }
 
+/*****************************************************************************
+ * ioctl_SendRPC: set RPC status for the drive
+ *****************************************************************************/
+int ioctl_SendRPC( int i_fd, int i_pdrc )
+{
+    int i_ret;
+
+#if defined( HAVE_LINUX_DVD_STRUCT ) && defined( DVD_HOST_SEND_RPC_STATE )
+    dvd_authinfo auth_info;
+
+    memset( &auth_info, 0, sizeof( auth_info ) );
+    auth_info.type = DVD_HOST_SEND_RPC_STATE;
+    auth_info.hrpcs.pdrc = i_pdrc;
+
+    return ioctl( i_fd, DVD_AUTH, &auth_info );
+
+#elif defined( HAVE_LINUX_DVD_STRUCT )
+    /* FIXME: OpenBSD doesn't know this */
+    i_ret = -1;
+
+#elif defined( HAVE_BSD_DVD_STRUCT )
+    struct dvd_authinfo auth_info;
+
+    memset( &auth_info, 0, sizeof( auth_info ) );
+    auth_info.format = DVD_SEND_RPC;
+    auth_info.region = i_pdrc;
+
+    return ioctl( i_fd, DVDIOCSENDKEY, &auth_info );
+
+#elif defined( SYS_BEOS )
+    INIT_RDC( GPCMD_SEND_KEY, 8 );
+
+    rdc.command[ 10 ] = DVD_SEND_RPC;
+
+    p_buffer[ 1 ] = 6;
+    p_buffer[ 4 ] = i_pdrc;
+
+    return ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
+
+#elif defined( HPUX_SCTL_IO )
+    INIT_SCTL_IO( GPCMD_SEND_KEY, 8 );
+
+    sctl_io.cdb[ 10 ] = DVD_SEND_RPC;
+
+    p_buffer[ 1 ] = 6;
+    p_buffer[ 4 ] = i_pdrc;
+
+    return ioctl( i_fd, SIOC_IO, &sctl_io );
+
+#elif defined( SOLARIS_USCSI )
+    INIT_USCSI( GPCMD_SEND_KEY, 8 );
+
+    rs_cdb.cdb_opaque[ 10 ] = DVD_SEND_RPC;
+ 
+    p_buffer[ 1 ] = 6;
+    p_buffer[ 4 ] = i_pdrc;
+
+    i_ret = ioctl( i_fd, USCSICMD, &sc );
+
+    if( i_ret < 0 || sc.uscsi_status )
+    {
+        i_ret = -1;
+    }
+    
+#elif defined( DARWIN_DVD_IOCTL )
+    INIT_DVDIOCTL( dk_dvd_send_key_t, DVDRegionPlaybackControlInfo,
+                   kDVDKeyFormatSetRegion );
+
+    dvd.keyClass = kDVDKeyClassCSS_CPPM_CPRM;
+    dvdbs.driveRegion = i_pdrc;
+
+    return ioctl( i_fd, DKIOCDVDSENDKEY, &dvd );
+
+#elif defined( WIN32 )
+    if( WIN2K ) /* NT/2k/XP */
+    {
+        INIT_SPTD( GPCMD_SEND_KEY, 8 );
+
+        sptd.Cdb[ 10 ] = DVD_SEND_RPC;
+
+        p_buffer[ 1 ] = 6;
+        p_buffer[ 4 ] = i_pdrc;
+
+        return SEND_SPTD( i_fd, &sptd, &tmp );
+    }
+    else
+    {
+        INIT_SSC( GPCMD_SEND_KEY, 8 );
+
+        ssc.CDBByte[ 10 ] = DVD_SEND_RPC;
+ 
+        p_buffer[ 1 ] = 6;
+        p_buffer[ 4 ] = i_pdrc;
+
+        return WinSendSSC( i_fd, &ssc );
+    }
+
+#elif defined( __QNXNTO__ )
+
+    INIT_CPT( GPCMD_SEND_KEY, 8 );
+
+    p_cpt->cam_cdb[ 10 ] = DVD_SEND_RPC;
+ 
+    p_buffer[ 1 ] = 6;
+    p_buffer[ 4 ] = i_pdrc;
+
+    return devctl(i_fd, DCMD_CAM_PASS_THRU, p_cpt, structSize, NULL);
+
+#elif defined( SYS_OS2 )
+    INIT_SSC( GPCMD_SEND_KEY, 8 );
+
+    sdc.command[ 10 ] = DVD_SEND_RPC;
+ 
+    p_buffer[ 1 ] = 6;
+    p_buffer[ 4 ] = i_pdrc;
+
+    return DosDevIOCtl(i_fd, IOCTL_CDROMDISK, CDROMDISK_EXECMD,
+                       &sdc, sizeof(sdc), &ulParamLen,
+                       p_buffer, sizeof(p_buffer), &ulDataLen);
+
+#else
+#   error "DVD ioctls are unavailable on this system"
+
+#endif
+    return i_ret;
+}
+
 /* Local prototypes */
 
 #if defined( SYS_BEOS )
@@ -1794,6 +1904,36 @@ static void SolarisInitUSCSI( struct uscsi_cmd *p_sc, int i_type )
 #endif
 
 #if defined( WIN32 )
+/*****************************************************************************
+ * WinInitSPTD: initialize a sptd structure
+ *****************************************************************************
+ * This function initializes a SCSI pass through command structure for future
+ * use, either a read command or a write command.
+ *****************************************************************************/
+static void WinInitSPTD( SCSI_PASS_THROUGH_DIRECT *p_sptd, int i_type )
+{
+    memset( p_sptd->DataBuffer, 0, p_sptd->DataTransferLength );
+
+    switch( i_type )
+    {
+        case GPCMD_SEND_KEY:
+            p_sptd->DataIn = SCSI_IOCTL_DATA_OUT;
+            break;
+
+        case GPCMD_READ_DVD_STRUCTURE:
+        case GPCMD_REPORT_KEY:
+            p_sptd->DataIn = SCSI_IOCTL_DATA_IN;
+            break;
+    }
+
+    p_sptd->Cdb[ 0 ] = i_type;
+    p_sptd->Cdb[ 8 ] = (u8)(p_sptd->DataTransferLength >> 8) & 0xff;
+    p_sptd->Cdb[ 9 ] = (u8) p_sptd->DataTransferLength       & 0xff; 
+    p_sptd->CdbLength = 12;
+
+    p_sptd->TimeOutValue = 2;
+}
+
 /*****************************************************************************
  * WinInitSSC: initialize a ssc structure for the win32 aspi layer
  *****************************************************************************
