@@ -1,5 +1,9 @@
-SUBDIRS = src test debian doc
-EXTRA_DIST = libdvdcss.spec
+SUBDIRS = src test
+DIST_SUBDIRS = $(SUBDIRS) debian doc
+
+EXTRA_DIST = libdvdcss.spec bootstrap
+
+AUTOMAKE_OPTIONS = foreign dist-bzip2 subdir-objects
 
 doc-dummy:
 

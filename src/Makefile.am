@@ -15,7 +15,7 @@ EXTRA_libdvdcss_la_SOURCES = \
 	$(bsdi_extras)
 
 libdvdcss_la_LIBADD = $(bsdi_libadd)
-libdvdcss_la_LDFLAGS = -version-info 2:2:0 $(beos_ldflags)
+libdvdcss_la_LDFLAGS = -version-info 2:3:0 $(libtool_flags)
 
 bsdi_extras = bsdi_ioctl.c bsdi_dvd.h
 
@@ -24,7 +24,8 @@ bsdi_sources = $(bsdi_extras)
 bsdi_libadd = -ldvd
 endif
 
-if SYS_BEOS
-beos_ldflags = -no-undefined
+if SYS_MSVC
+else
+libtool_flags = -no-undefined
 endif
 

@@ -3,11 +3,12 @@ AC_INIT(src/libdvdcss.c)
 AC_CANONICAL_SYSTEM
 
 AM_INIT_AUTOMAKE(libdvdcss, 1.2.3)
-AM_CONFIG_HEADER(src/config.h)
+AM_CONFIG_HEADER(config.h)
 
 AC_PROG_CC
 AC_STDC_HEADERS
 
+AC_LIBTOOL_WIN32_DLL
 AM_PROG_LIBTOOL 
 
 AC_C_CONST
@@ -25,7 +26,9 @@ case x"${target_os}" in
     ;;
   xbeos*)
     AC_DEFINE(SYS_BEOS, 1, Have a BeOS system.)
-    SYS_BEOS=1
+    ;;
+  x*msvc*)
+    SYS_MSVC=1
     ;;
   x*)
     ;;
@@ -137,7 +140,7 @@ AC_CHECK_HEADERS(sys/ioctl.h,[
 CFLAGS="-D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -DDVDCSS_DIST $CFLAGS"
 
 AM_CONDITIONAL(SYS_BSDI, test "x$SYS_BSDI" = "x1")
-AM_CONDITIONAL(SYS_BEOS, test "x$SYS_BEOS" = "x1")
+AM_CONDITIONAL(SYS_MSVC, test "x$SYS_MSVC" = "x1")
 
 AC_OUTPUT([Makefile src/Makefile src/dvdcss/Makefile test/Makefile debian/Makefile doc/Makefile])
 

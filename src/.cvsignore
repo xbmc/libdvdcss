@@ -3,5 +3,4 @@ Makefile
 Makefile.in
 *.lo
 *.la
-config.h
 stamp-h*

@@ -8,11 +8,16 @@ config.cache
 config.status
 config.guess
 config.sub
+config.h
+config.h.in
 Makefile
 Makefile.in
 build-stamp
 stamp-h*
 aclocal.m4
+autom4te.cache
+compile
+depcomp
 install-sh
 libtool
 ltmain.sh
