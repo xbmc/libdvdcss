@@ -2,7 +2,7 @@
  * ioctl.c: DVD ioctl replacement function
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: ioctl.c,v 1.3 2002/04/03 21:25:13 jlj Exp $
+ * $Id: ioctl.c,v 1.4 2002/04/03 23:02:20 jlj Exp $
  *
  * Authors: Markus Kuespert <ltlBeBoy@beosmail.com>
  *          Samuel Hocevar <sam@zoy.org>
@@ -735,7 +735,7 @@ int ioctl_ReportChallenge( int i_fd, int *pi_agid, u8 *p_challenge )
 
     memcpy( p_challenge, p_buffer + 4, DVD_CHALLENGE_SIZE );
     
-#elif defined(_DARWIN_DVD_IOCTL )
+#elif defined( DARWIN_DVD_IOCTL )
     dk_dvd_report_key_t dvd;
     DVDChallengeKeyInfo dvdcki;
     
