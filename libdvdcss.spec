@@ -65,6 +65,7 @@ package installed.
 %setup -q
 
 %build
+./bootstrap
 %configure
 %make
 
