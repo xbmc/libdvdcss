@@ -10,13 +10,6 @@ A typical way to configure libdvdcss is:
 
 See `./configure --help' for more information.
 
-It is also possible to cross-compile for the Win32 platform using mingw32:
-
-   CC=i586-mingw32msvc-gcc CFLAGS=-I/usr/i586-mingw32msvc \
-     RANLIB=i586-mingw32msvc-ranlib ./configure --host=i386-mingw32msvc \
-     --target=i386-mingw32msvc --build=i386-linux
-
-
 Building libdvdcss
 ==================
 
@@ -34,3 +27,47 @@ You can install libdvdcss by typing:
    make install
 
 
+Building libdvdcss for Win32
+============================
+
+You have two alternatives to build libdvdcss for Win32:
+
+- natively on Windows, using MSYS+MINGW (www.mingw.org):
+
+ (MSYS is a minimal build environnement to compile unixish projects under
+  windoze. It provides all the common unix tools like sh, gmake...)
+
+ You need to download and install MSYS-1.0.5 (version 1.0.6 doesn't seem to
+ work as well) and MINGW.
+ http://prdownloads.sourceforge.net/mingw/msys-1.0.5-i686-bin.tar.gz
+ http://prdownloads.sourceforge.net/mingw/MinGW-1.1.tar.gz
+
+ To build libdvdcss you just have to run the following commands:
+
+  MAKE=gmake ./configure
+
+  MAKE=gmake gmake
+
+- or on Linux, using the mingw32 cross-compiler:
+
+ You can find a mingw32 cross-compiler on the videolan web site:
+ http://www.videolan.org/vlc/windows.html
+ Or if you are running Debian, there is a mingw32 package you can use.
+
+ If you are cross-compiling from the Debian package, you can use the following
+ commands:
+
+  ./configure --host=i586-mingw32msvc --target=i586-mingw32msvc \
+  --build=i386-linux
+
+  make
+
+ If you are cross-compiling using the mingw32 package provided by
+ www.videolan.org, you have to use something along those lines:
+
+  CC=/usr/local/cross-tools/bin/i586-mingw32msvc-gcc \
+  PATH=/usr/local/cross-tools/bin:$PATH \
+  ./configure --host=i586-mingw32msvc --target=i586-mingw32msvc \
+  --build=i386-linux
+
+  PATH=/usr/local/cross-tools/bin:$PATH make
