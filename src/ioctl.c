@@ -2,7 +2,7 @@
  * ioctl.c: DVD ioctl replacement function
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: ioctl.c,v 1.10 2002/06/04 07:10:07 sam Exp $
+ * $Id: ioctl.c,v 1.11 2002/07/01 09:02:25 hjort Exp $
  *
  * Authors: Markus Kuespert <ltlBeBoy@beosmail.com>
  *          Samuel Hocevar <sam@zoy.org>
@@ -1476,28 +1476,31 @@ int ioctl_ReportRPC( int i_fd, int *p_type, int *p_mask, int *p_scheme )
     if( WIN2K ) /* NT/Win2000/Whistler */
     {
         DWORD tmp;
-        u8 buffer[ DVD_ASF_LENGTH ]; /* correct this */
-        PDVD_COPY_PROTECT_KEY key = (PDVD_COPY_PROTECT_KEY) &buffer;
+        u8 buffer[ DVD_REGION_LENGTH ];
+        PDVD_REGION region = (PDVD_REGION) &buffer;
 
         memset( &buffer, 0, sizeof( buffer ) );
-
-        key->KeyLength  = DVD_ASF_LENGTH; /* correct this */
-        key->KeyType    = DvdGetRpcKey;
-        key->KeyFlags   = 0;
 
 #if !defined(_MSC_VER)
 #   warning "Fix ReportRPC for WIN32!"
 #endif
-        /* The IOCTL_DVD_READ_KEY might be the right IOCTL */
-        i_ret = DeviceIoControl( (HANDLE) i_fd, IOCTL_DVD_READ_KEY, key, 
-                key->KeyLength, key, key->KeyLength, &tmp, NULL ) ? 0 : -1;
+        i_ret = DeviceIoControl( (HANDLE) i_fd, IOCTL_DVD_GET_REGION, NULL, 0,
+                region, DVD_REGION_LENGTH, &tmp, NULL ) ? 0 : -1;
 
         /* Someone who has the headers should correct all this. */
-        *p_type = 0;
-        *p_mask = 0;
-        *p_scheme = 0;
-        i_ret = -1; /* Remove this line when implemented. */
-
+	/* Use the IOCTL_SCSI_PASS_THROUGH_DIRECT so we get the reall
+	 * values of theses entities?  */
+        if(key->SystemRegion != 0) {
+	    *p_type = key->ResetCount > 1 ? 1 : 3 - key->ResetCount;
+	    *p_mask =  0xff ^ (1 << (key->SystemRegion - 1));
+	    *p_scheme = 1;
+	}
+	else
+	{
+	    *p_type = 0;  /* ?? */
+	    *p_mask = 0xff;
+	    *p_scheme = 1; /* ?? */
+	}
     }
     else
     {

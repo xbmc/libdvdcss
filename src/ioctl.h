@@ -2,7 +2,7 @@
  * ioctl.h: DVD ioctl replacement function
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: ioctl.h,v 1.4 2002/06/02 16:14:48 sam Exp $
+ * $Id: ioctl.h,v 1.5 2002/07/01 09:02:25 hjort Exp $
  *
  * Authors: Samuel Hocevar <sam@zoy.org>
  *
@@ -178,6 +178,7 @@ typedef union dvd_authinfo dvd_authinfo;
 #define DVD_TITLE_KEY_LENGTH            (8 + sizeof(DVD_COPY_PROTECT_KEY))
 #define DVD_DISK_KEY_LENGTH             (2048 + sizeof(DVD_COPY_PROTECT_KEY))
 #define DVD_ASF_LENGTH                  (sizeof(DVD_ASF) + sizeof(DVD_COPY_PROTECT_KEY))
+#define DVD_REGION_LENGTH               (sizeof(DVD_REGION))
 
 #define SCSI_IOCTL_DATA_OUT             0
 #define SCSI_IOCTL_DATA_IN              1
@@ -221,6 +222,13 @@ typedef struct _DVD_ASF
     UCHAR SuccessFlag:1;
     UCHAR Reserved1:7;
 } DVD_ASF, * PDVD_ASF;
+
+typedef struct _DVD_REGION {
+  UCHAR  CopySystem;
+  UCHAR  RegionData;
+  UCHAR  SystemRegion;
+  UCHAR  ResetCount;
+} DVD_REGION, *PDVD_REGION;
 
 typedef struct _SCSI_PASS_THROUGH_DIRECT
 {
