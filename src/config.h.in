@@ -12,10 +12,6 @@
 /* Define if you have the ANSI C header files.  */
 #undef STDC_HEADERS
 
-/* Define if your processor stores words with the most significant
-   byte first (like Motorola and SPARC, unlike Intel and VAX).  */
-#undef WORDS_BIGENDIAN
-
 /* Define if you have the </sys/dev/scsi/scsi_ioctl.h> header file.  */
 #undef HAVE__SYS_DEV_SCSI_SCSI_IOCTL_H
 

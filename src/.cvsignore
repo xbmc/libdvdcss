@@ -1,0 +1,6 @@
+.*
+Makefile
+*.lo
+*.la
+config.h
+stamp-h*
