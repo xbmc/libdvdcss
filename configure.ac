@@ -26,7 +26,7 @@ case x"${target_os}" in
     CFLAGS="${CFLAGS} -no-cpp-precomp"
     ;;
   x*cygwin*)
-    AC_DEFINE(SYS_CYGWIN, 1, Have a BeOS system.)
+    AC_DEFINE(SYS_CYGWIN, 1, Have a Cygwin system.)
     ;;
   xbeos*)
     AC_DEFINE(SYS_BEOS, 1, Have a BeOS system.)

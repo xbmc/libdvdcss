@@ -44,7 +44,7 @@ int main( int i_argc, char *ppsz_argv[] )
 
     /* Set the file descriptor at sector i_sector and read one sector */
     i_ret = dvdcss_seek( dvdcss, i_sector, DVDCSS_NOFLAGS );
-    if( i_ret != i_sector )
+    if( i_ret != (int)i_sector )
     {
         printf( "seek failed (%s)\n", dvdcss_error( dvdcss ) );
         dvdcss_close( dvdcss );
@@ -69,7 +69,7 @@ int main( int i_argc, char *ppsz_argv[] )
         /* Set the file descriptor position to the previous location */
         /* ... and get the appropriate key for this sector */
         i_ret = dvdcss_seek( dvdcss, i_sector, DVDCSS_SEEK_KEY );
-        if( i_ret != i_sector )
+        if( i_ret != (int)i_sector )
         {
             printf( "seek failed (%s)\n", dvdcss_error( dvdcss ) );
             dvdcss_close( dvdcss );

@@ -2,7 +2,7 @@
  * device.h: DVD device access
  *****************************************************************************
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: device.c,v 1.9 2002/12/06 00:16:57 babal Exp $
+ * $Id: device.c,v 1.10 2002/12/10 10:38:12 sam Exp $
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -431,7 +431,7 @@ static int libc_seek( dvdcss_t dvdcss, int i_blocks )
         _dvdcss_error( dvdcss, "seek error" );
     }
 
-    return i_read / DVDCSS_BLOCK_SIZE;
+    return (int)(i_read / DVDCSS_BLOCK_SIZE);
 }
 
 #if defined( WIN32 )
@@ -497,7 +497,7 @@ static int libc_read ( dvdcss_t dvdcss, void *p_buffer, int i_blocks )
         return i_ret;
     }
 
-    return i_ret / DVDCSS_BLOCK_SIZE;
+    return (int)(i_ret / DVDCSS_BLOCK_SIZE);
 }
 
 #if defined( WIN32 )
