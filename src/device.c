@@ -2,7 +2,7 @@
  * device.h: DVD device access
  *****************************************************************************
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: device.c,v 1.3 2002/08/10 17:42:09 sam Exp $
+ * $Id: device.c,v 1.4 2002/10/10 12:44:28 gbazin Exp $
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -169,10 +169,12 @@ int _dvdcss_open ( dvdcss_t dvdcss )
         char psz_dvd[7];
         _snprintf( psz_dvd, 7, "\\\\.\\%c:", psz_device[0] );
 
-        /* To have access to ioctls, we need read and write access to the
-         * device. This is only allowed if you have administrator priviledges
-         * so we allow for a fallback method where ioctls are not available but
-         * we at least have read access to the device.
+        /* To work around an M$ bug in IOCTL_DVD_READ_STRUCTURE, we need read
+         * _and_ write access to the device (so we can make SCSI Pass Through
+         * Requests). Unfortunately this is only allowed if you have
+         * administrator priviledges so we allow for a fallback method with
+         * only read access to the device (in this case ioctl_ReadCopyright()
+         * won't send back the right result).
          * (See Microsoft Q241374: Read and Write Access Required for SCSI
          * Pass Through Requests) */
         (HANDLE) dvdcss->i_fd =

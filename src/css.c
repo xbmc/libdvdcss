@@ -2,7 +2,7 @@
  * css.c: Functions for DVD authentication and descrambling
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: css.c,v 1.15 2002/08/10 21:19:55 sam Exp $
+ * $Id: css.c,v 1.16 2002/10/10 12:44:28 gbazin Exp $
  *
  * Author: Stéphane Borel <stef@via.ecp.fr>
  *         Håkan Hjort <d95hjort@dtek.chalmers.se>
@@ -83,13 +83,7 @@ int _dvdcss_test( dvdcss_t dvdcss )
         /* Since it's the first ioctl we try to issue, we add a notice */
         _dvdcss_error( dvdcss, "css error: ioctl_ReadCopyright failed, "
                        "make sure there is a DVD in the drive, and that "
-                       "you have used the correct device node."
-#if defined( WIN32 )
-                       "\nAlso note that if you are using Windows NT/2000/XP "
-                       "you need to have administrator priviledges to be able "
-                       "to use ioctls."
-#endif
-                     );
+                       "you have used the correct device node." );
 
         return i_ret;
     }

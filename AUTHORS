@@ -58,3 +58,7 @@ N: German Tischler
 E: tanis@gaspode.franken.de
 D: FreeBSD DVD input patch
 
+N: Gildas Bazin
+E: gbazin@netcourrier.com
+C: gbazin
+D: various fixes to the Win32 port

@@ -2,7 +2,7 @@
  * ioctl.h: DVD ioctl replacement function
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: ioctl.h,v 1.7 2002/08/10 17:42:09 sam Exp $
+ * $Id: ioctl.h,v 1.8 2002/10/10 12:44:28 gbazin Exp $
  *
  * Authors: Samuel Hocevar <sam@zoy.org>
  *
@@ -188,7 +188,7 @@ typedef union dvd_authinfo dvd_authinfo;
 #define IOCTL_DVD_END_SESSION           CTL_CODE(FILE_DEVICE_DVD, 0x0403, METHOD_BUFFERED, FILE_READ_ACCESS)
 #define IOCTL_DVD_GET_REGION            CTL_CODE(FILE_DEVICE_DVD, 0x0405, METHOD_BUFFERED, FILE_READ_ACCESS)
 #define IOCTL_DVD_SEND_KEY2             CTL_CODE(FILE_DEVICE_DVD, 0x0406, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
-
+#define IOCTL_DVD_READ_STRUCTURE        CTL_CODE(FILE_DEVICE_DVD, 0x0450, METHOD_BUFFERED, FILE_READ_ACCESS)
 #define IOCTL_SCSI_PASS_THROUGH_DIRECT  CTL_CODE(FILE_DEVICE_CONTROLLER, 0x0405, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
 
 #define DVD_CHALLENGE_KEY_LENGTH        (12 + sizeof(DVD_COPY_PROTECT_KEY))
@@ -202,6 +202,28 @@ typedef union dvd_authinfo dvd_authinfo;
 #define SCSI_IOCTL_DATA_IN              1
 
 typedef ULONG DVD_SESSION_ID, *PDVD_SESSION_ID;
+
+typedef enum DVD_STRUCTURE_FORMAT {
+    DvdPhysicalDescriptor,
+    DvdCopyrightDescriptor,
+    DvdDiskKeyDescriptor,
+    DvdBCADescriptor,
+    DvdManufacturerDescriptor,
+    DvdMaxDescriptor
+} DVD_STRUCTURE_FORMAT, *PDVD_STRUCTURE_FORMAT;
+
+typedef struct DVD_READ_STRUCTURE {
+    LARGE_INTEGER BlockByteOffset;
+    DVD_STRUCTURE_FORMAT Format;
+    DVD_SESSION_ID SessionId;
+    UCHAR LayerNumber;
+} DVD_READ_STRUCTURE, *PDVD_READ_STRUCTURE;
+
+typedef struct _DVD_COPYRIGHT_DESCRIPTOR {
+    UCHAR CopyrightProtectionType;
+    UCHAR RegionManagementInformation;
+    USHORT Reserved;
+} DVD_COPYRIGHT_DESCRIPTOR, *PDVD_COPYRIGHT_DESCRIPTOR;
 
 typedef enum
 {
