@@ -2,7 +2,7 @@
  * device.h: DVD device access
  *****************************************************************************
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: device.h,v 1.2 2002/08/10 14:27:26 sam Exp $
+ * $Id: device.h,v 1.3 2002/08/10 17:42:09 sam Exp $
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -47,17 +47,6 @@ int _dvdcss_use_ioctls ( dvdcss_t );
 int _dvdcss_open       ( dvdcss_t );
 int _dvdcss_close      ( dvdcss_t );
 int _dvdcss_readv      ( dvdcss_t, struct iovec *, int );
-
-/*****************************************************************************
- * Device reading prototypes, win32 specific
- *****************************************************************************/
-#ifdef WIN32
-int _win32_dvdcss_readv  ( int, struct iovec *, int, char * );
-int _win32_dvdcss_aopen  ( char, dvdcss_t );
-int _win32_dvdcss_aclose ( int );
-int _win32_dvdcss_aseek  ( int, int, int );
-int _win32_dvdcss_aread  ( int, void *, int );
-#endif
 
 /*****************************************************************************
  * Device reading prototypes, raw-device specific

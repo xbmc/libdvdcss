@@ -2,7 +2,7 @@
  * ioctl.c: DVD ioctl replacement function
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: ioctl.c,v 1.12 2002/07/01 10:36:37 hjort Exp $
+ * $Id: ioctl.c,v 1.13 2002/08/10 17:42:09 sam Exp $
  *
  * Authors: Markus Kuespert <ltlBeBoy@beosmail.com>
  *          Samuel Hocevar <sam@zoy.org>
@@ -1620,18 +1620,15 @@ int ioctl_ReportRPC( int i_fd, int *p_type, int *p_mask, int *p_scheme )
 
         memset( &buffer, 0, sizeof( buffer ) );
 
-#if !defined(_MSC_VER)
-#   warning "Fix ReportRPC for WIN32!"
-#endif
         i_ret = DeviceIoControl( (HANDLE) i_fd, IOCTL_DVD_GET_REGION, NULL, 0,
                 region, DVD_REGION_LENGTH, &tmp, NULL ) ? 0 : -1;
 
         /* Someone who has the headers should correct all this. */
-	/* Use the IOCTL_SCSI_PASS_THROUGH_DIRECT so we get the reall
+	/* Use the IOCTL_SCSI_PASS_THROUGH_DIRECT so we get the real
 	 * values of theses entities?  */
-        if(key->SystemRegion != 0) {
-	    *p_type = key->ResetCount > 1 ? 1 : 3 - key->ResetCount;
-	    *p_mask =  0xff ^ (1 << (key->SystemRegion - 1));
+        if(region->SystemRegion != 0) {
+	    *p_type = region->ResetCount > 1 ? 1 : 3 - region->ResetCount;
+	    *p_mask =  0xff ^ (1 << (region->SystemRegion - 1));
 	    *p_scheme = 1;
 	}
 	else
@@ -1705,11 +1702,8 @@ static void BeInitRDC( raw_device_command *p_rdc, int i_type )
             /* leave the flags to 0 */
             break;
 
-        case GPCMD_READ_DVD_STRUCTURE:
-        case GPCMD_REPORT_KEY:
-            p_rdc->flags = B_RAW_DEVICE_DATA_IN;
-            break;
-    }
+        case GPCMD_READ_DVD_STRUCTURE: case GPCMD_REPORT_KEY:
+    p_rdc->flags = B_RAW_DEVICE_DATA_IN; break; }
 
     p_rdc->command[ 0 ]      = i_type;
 
