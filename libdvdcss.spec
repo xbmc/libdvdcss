@@ -1,5 +1,5 @@
 %define name 	libdvdcss
-%define version	1.2.3
+%define version	1.2.4
 %define release	1
 
 %define major  	2
@@ -21,13 +21,13 @@ Conflicts:	libdvdcss0.0.1, libdvdcss0.0.2
 libdvdcss is a simple library designed for accessing DVDs like a block device
 without having to bother about the decryption. The important features are:
  * Portability: currently supported platforms are GNU/Linux, FreeBSD, NetBSD,
-   OpenBSD, BSD/OS, BeOS, Windows 95/98, Windows NT/2000, MacOS X, Solaris,
-   HP-UX and OS/2.
+   OpenBSD, BSD/OS, BeOS, Windows 95/98/ME, Windows NT/2000/XP, MacOS X,
+   Solaris, HP-UX and OS/2.
  * Adaptability: unlike most similar projects, libdvdcss doesn't require the
    region of your drive to be set and will try its best to read from the disc
    even in the case of a region mismatch.
  * Simplicity: a DVD player can be built around the libdvdcss API using no
-   more than 4 or 5 library calls.
+   more than 6 library calls.
 
 %package -n %{libname}
 Summary:        Library for accessing DVDs like block devices with transparent decryption
@@ -38,13 +38,13 @@ Provides:       %name = %version-%release
 libdvdcss is a simple library designed for accessing DVDs like a block device
 without having to bother about the decryption. The important features are:
  * Portability: currently supported platforms are GNU/Linux, FreeBSD, NetBSD,
-   OpenBSD, BSD/OS, BeOS, Windows 95/98, Windows NT/2000, MacOS X, Solaris,
-   HP-UX and OS/2.
+   OpenBSD, BSD/OS, BeOS, Windows 95/98/ME, Windows NT/2000/XP, MacOS X,
+   Solaris, HP-UX and OS/2.
  * Adaptability: unlike most similar projects, libdvdcss doesn't require the
    region of your drive to be set and will try its best to read from the disc
    even in the case of a region mismatch.
  * Simplicity: a DVD player can be built around the libdvdcss API using no
-   more than 4 or 5 library calls.
+   more than 6 library calls.
 
 %package -n %{libname}-devel
 Summary:        Development tools for programs which will use the %{name} library
@@ -91,6 +91,14 @@ rm -rf %buildroot
 %{_includedir}/*
 
 %changelog
+* Wed Nov 13 2002 Alexis de Lattre <alexis@videolan.org> 1.2.4-1
+- new upstream release
+- fixes for Win32
+
+* Sun Oct 13 2002 Samuel Hocevar <sam@zoy.org> 1.2.3-1
+- new upstream release
+- fix for drives not allowing to read their disc key
+
 * Sun Oct 13 2002 Samuel Hocevar <sam@zoy.org> 1.2.3-1
 - new upstream release
 - fix for drives not allowing to read their disc key
