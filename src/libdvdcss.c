@@ -5,7 +5,7 @@
  *          Håkan Hjort <d95hjort@dtek.chalmers.se>
  *
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: libdvdcss.c,v 1.33 2003/06/18 17:23:55 sam Exp $
+ * $Id: libdvdcss.c,v 1.34 2003/09/09 10:03:48 sam Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -225,8 +225,8 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
         }
         else
         {
-            _dvdcss_error( dvdcss, "unknown decrypt method, please choose "
-                                   "from 'title', 'key' or 'disc'" );
+            print_error( dvdcss, "unknown decrypt method, please choose "
+                                 "from 'title', 'key' or 'disc'" );
             free( dvdcss->psz_device );
             free( dvdcss );
             return NULL;
@@ -321,7 +321,7 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
         /* Check that we can add the ID directory and the block filename */
         else if( strlen( psz_cache ) + 1 + 32 + 1 + 10 + 1 > PATH_MAX )
         {
-            _dvdcss_error( dvdcss, "cache directory name is too long" );
+            print_error( dvdcss, "cache directory name is too long" );
             psz_cache = NULL;
         }
     }
@@ -346,14 +346,14 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
         if( i_ret < 0 )
         {
             /* Disable the CSS ioctls and hope that it works? */
-            _dvdcss_debug( dvdcss,
-                           "could not check whether the disc was scrambled" );
+            print_debug( dvdcss,
+                         "could not check whether the disc was scrambled" );
             dvdcss->b_ioctls = 0;
         }
         else
         {
-            _dvdcss_debug( dvdcss, i_ret ? "disc is scrambled"
-                                         : "disc is unscrambled" );
+            print_debug( dvdcss, i_ret ? "disc is scrambled"
+                                       : "disc is unscrambled" );
             dvdcss->b_scrambled = i_ret;
         }
     }
@@ -461,7 +461,7 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
 #endif
         if( i_ret < 0 && errno != EEXIST )
         {
-            _dvdcss_error( dvdcss, "failed creating cache directory" );
+            print_error( dvdcss, "failed creating cache directory" );
             dvdcss->psz_cachefile[0] = '\0';
             goto nocache;
         }
@@ -475,7 +475,7 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
 #endif
         if( i_ret < 0 && errno != EEXIST )
         {
-            _dvdcss_error( dvdcss, "failed creating cache subdirectory" );
+            print_error( dvdcss, "failed creating cache subdirectory" );
             dvdcss->psz_cachefile[0] = '\0';
             goto nocache;
         }
@@ -486,7 +486,7 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
 
         sprintf( psz_debug, "using CSS key cache dir: %s",
                             dvdcss->psz_cachefile );
-        _dvdcss_debug( dvdcss, psz_debug );
+        print_debug( dvdcss, psz_debug );
     }
     nocache:
 
@@ -606,7 +606,7 @@ extern int dvdcss_read ( dvdcss_t dvdcss, void *p_buffer,
         {
             if( ((uint8_t*)p_buffer)[0x14] & 0x30 )
             {
-                _dvdcss_error( dvdcss, "no key but found encrypted block" );
+                print_error( dvdcss, "no key but found encrypted block" );
                 /* Only return the initial range of unscrambled blocks? */
                 /* or fail completely? return 0; */
                 break;
