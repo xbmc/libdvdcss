@@ -384,7 +384,7 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
         int i_fd;
 
         sprintf( psz_tagfile, "%s/CACHEDIR.TAG", psz_cache );
-        i_fd = open( psz_tagfile, O_RDWR|O_CREAT|O_EXCL, 0644 );
+        i_fd = open( psz_tagfile, O_RDWR|O_CREAT, 0644 );
         if( i_fd >= 0 )
         {
             write( i_fd, psz_tag, strlen(psz_tag) );
