@@ -2,7 +2,7 @@
  * css.c: Functions for DVD authentification and unscrambling
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: css.c,v 1.4 2002/03/09 17:57:53 hjort Exp $
+ * $Id: css.c,v 1.5 2002/04/03 06:12:50 sam Exp $
  *
  * Author: Stéphane Borel <stef@via.ecp.fr>
  *         Håkan Hjort <d95hjort@dtek.chalmers.se>
@@ -304,13 +304,9 @@ int CSSGetDiscKey( dvdcss_handle dvdcss )
             {
                 break;
             }
-#ifdef WITHOUT_CSSKEYS
-            _dvdcss_debug( dvdcss, "player keys not compiled in" );
-            dvdcss->i_method = DVDCSS_METHOD_DISC;
-#else
             _dvdcss_debug( dvdcss, "no valid player key" );
             /* Fall through */
-#endif
+
         case DVDCSS_METHOD_DISC:
             /* Crack Disc key to be able to use it */
             _dvdcss_debug( dvdcss, "cracking disc key from key hash" );
@@ -325,7 +321,8 @@ int CSSGetDiscKey( dvdcss_handle dvdcss )
 
         default:
             _dvdcss_debug( dvdcss, "disc key won't be decrypted" );
-	    memset( p_disc_key, 0, KEY_SIZE );
+            memset( p_disc_key, 0, KEY_SIZE );
+            break;
     }
 
     memcpy( dvdcss->css.p_disc_key, p_disc_key, KEY_SIZE );
@@ -775,9 +772,6 @@ static void CSSDecryptKey( u8 invert, u8 const *p_key,
 
 static const dvd_key_t player_keys[] = 
 {
-#ifdef WITHOUT_CSSKEYS
-    { 0x00, 0x00, 0x00, 0x00, 0x00 }
-#else
     { 0x01, 0xaf, 0xe3, 0x12, 0x80 },
     { 0x12, 0x11, 0xca, 0x04, 0x3b },
     { 0x14, 0x0c, 0x9e, 0xd0, 0x09 },
@@ -809,7 +803,6 @@ static const dvd_key_t player_keys[] =
     { 0xcf, 0x1a, 0xb2, 0xf8, 0x0a },
     { 0xec, 0xa0, 0xcf, 0xb3, 0xff },
     { 0xfc, 0x95, 0xa9, 0x87, 0x35 }
-#endif
 };
 
 /*****************************************************************************

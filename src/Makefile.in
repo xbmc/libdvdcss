@@ -67,10 +67,6 @@ EXTRA_LIB = @EXTRA_LIB@
 EXTRA_SRC = @EXTRA_SRC@
 LIBTOOL = @LIBTOOL@
 LN_S = @LN_S@
-LT_AGE = @LT_AGE@
-LT_CURRENT = @LT_CURRENT@
-LT_RELEASE = @LT_RELEASE@
-LT_REVISION = @LT_REVISION@
 MAKEINFO = @MAKEINFO@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
@@ -79,12 +75,14 @@ RANLIB = @RANLIB@
 STRIP = @STRIP@
 VERSION = @VERSION@
 
+pkgincludedir = $(includedir)/dvdcss
+
 lib_LTLIBRARIES = libdvdcss.la
 libdvdcss_la_SOURCES = libdvdcss.c css.c ioctl.c @EXTRA_SRC@
 libdvdcss_la_LIBADD = @EXTRA_LIB@
-libdvdcss_la_LDFLAGS = -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) -release $(LT_RELEASE)
+libdvdcss_la_LDFLAGS = -version-info 2:1:0
 
-pkgincludedir = $(includedir)/videolan
+noinst_HEADERS = csstables.h ioctl.h common.h css.h libdvdcss.h
 pkginclude_HEADERS = dvdcss.h
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = config.h
@@ -103,7 +101,7 @@ COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CF
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
-HEADERS =  $(pkginclude_HEADERS)
+HEADERS =  $(noinst_HEADERS) $(pkginclude_HEADERS)
 
 DIST_COMMON =  ./stamp-h.in Makefile.am Makefile.in config.h.in
 

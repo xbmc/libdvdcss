@@ -17,22 +17,16 @@
 #define IsSectorScrambled(buf) (((unsigned char*)(buf))[0x14] & 0x30)
 
 /* Print parts of a 2048 bytes buffer */
-void dumpsector( unsigned char *p_buffer )
-{
-    int i_amount = 10;
-    for( ; i_amount ; i_amount--, p_buffer++ ) printf( "%.2x", *p_buffer );
-    printf( " ... " );
-    i_amount = 25;
-    p_buffer += 200;
-    for( ; i_amount ; i_amount--, p_buffer++ ) printf( "%.2x", *p_buffer );
-    printf( " ...\n" );
-}
+void dumpsector( unsigned char * );
 
 int main( int i_argc, char *ppsz_argv[] )
 {
     dvdcss_handle dvdcss;
     unsigned char p_buffer[ DVDCSS_BLOCK_SIZE ];
     unsigned int  i_sector;
+
+    /* Print version number */
+    printf( "cool, I found libdvdcss version %s\n", dvdcss_interface_2 );
 
     /* Check for 2 arguments */
     if( i_argc != 3 )
@@ -85,5 +79,17 @@ int main( int i_argc, char *ppsz_argv[] )
     dvdcss_close( dvdcss );
 
     return 0;
+}
+
+/* Print parts of a 2048 bytes buffer */
+void dumpsector( unsigned char *p_buffer )
+{
+    int i_amount = 10;
+    for( ; i_amount ; i_amount--, p_buffer++ ) printf( "%.2x", *p_buffer );
+    printf( " ... " );
+    i_amount = 25;
+    p_buffer += 200;
+    for( ; i_amount ; i_amount--, p_buffer++ ) printf( "%.2x", *p_buffer );
+    printf( " ...\n" );
 }
 

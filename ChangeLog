@@ -4,9 +4,50 @@
 
 HEAD
 
-  * Support for REPORT_TITLE_KEY and RPC commands by Håkan Hjort
+  * ./Makefile.am: added the debian dir to the targets.
+  * ./configure.in: switched to a more conventional versioning scheme.
+  * ./src/css.c: removed a useless #ifdef.
+  * ./src/dvdcss.h: added a versioned symbol to the API.
+  * ./src/Makefile.am: use <dvdcss/dvdcss.h> instead of <videolan/dvdcss.h>.
+  * ./test/test.c: test program is now up to date.
+  * ./src/css.c: split the code into more functions. The disc and title
+    decryption / cracking code is now each in it's own function. Also moved the
+    code that looks for a weak block in the VOB to crack the title key from out
+    from the loop that reads them.
+  * ./src/css.c: added another crack method, it's disabled for now though.
+  * ./src/css.c: lowered some limits on the current 'weak' test.
+  * ./src/*: added more comments.
+  * ./configure.in: add -D_FILE_OFFSET_BITS=64 to the compile line to make
+    off_t / lseek and other file access functions used in dvdcss be 64bit.
+  * ./test/test.c: tell libdvdcss to get the key for the block before we
+    decrypt it.
+  * ./test/Makefile.am: don't link to libdl.
+  * ./configure.in: fixed compilation of test/test.c.
+  * ./test/test.c: added the sample program.
+  * ./configure.in: do check for the unistd.h header file.
+  * ./src/css.c: Win32 (NT/2000/XP) fix: first attempt to open the DVD device
+    in read/write mode so we can use ioctls. If this fails (insufficent
+    privileges) we at least open in read-only mode so the libdvdcss title
+    decryption method can be used.
+  * ./src/libdvdcss.c: patch of libdvdcss to decrypt vobs when they are not
+    on a block device.
+  * ./src/css.c: with DVDCSS_METHOD=disc or key, the keys are no longer
+    buffered on start. The title key is still read at each block but it is
+    checked for change before decryption.
+  * ./src/css.c: made CSSAuth more rubust, should now also work with drives
+    that are not 100% compliant to the SFF-8090 standard.
+  * ./src/css.c: AGID invalidation should now work, allowing us to recover from
+    hung / failed authentications.
+  * ./src/css.c: corrected CSSGetASF, it does not take an AGID argument.
+  * ./src/css.c: moved several data structures from the dvdcss handle to local
+    variables in CSSAuth.
+  * ./src/css.h: removed CSSAuth as a externaly visible function in css.c.
+  * ./configure.in, ./src/libdvdcss.c: Win32 compilation fix.
+  * ./configure.in: attempt at fixing the Solaris port.
+  * ./src/css.c: Support for REPORT_TITLE_KEY and RPC commands by Håkan Hjort
     <d95hjort@dtek.chalmers.se>.
-  * HP-UX port courtesy of David Siebörger <drs-videolan@rucus.ru.ac.za>.
+  * ./src/ioctl.c: HP-UX port courtesy of David Siebörger
+    <drs-videolan@rucus.ru.ac.za>.
 
 1.0.1
 Fri,  7 Dec 2001 20:18:56 +0100

@@ -45,9 +45,6 @@
 /* Version number of package */
 #undef VERSION
 
-/* css decryption with player keys */
-#undef HAVE_CSSKEYS
-
 /* Define if <sys/types.h> defines boolean_t. */
 #undef BOOLEAN_T_IN_SYS_TYPES_H
 
