@@ -1,3 +1,5 @@
+#ifdef NEED_BSDI_LIBDVD
+
 /*
  * Hacked version of the linux cdrom.c kernel module - everything except the
  * DVD handling ripped out and the rest rewritten to use raw SCSI commands
@@ -694,3 +696,5 @@ int cdrom_blocksize(int fd, int size)
 	mh.block_length_lo = size & 0xff;
 	return(scsi_cmd(fd, &cgc));
 	}
+
+#endif
