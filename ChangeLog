@@ -4,6 +4,11 @@
 
 HEAD
 
+  * Nothing yet.
+
+1.1.1
+Sat,  6 Apr 2002 03:24:20 +0200
+
   * ./src/ioctl.c: OpenBSD compile fix. Thanks to ex0dus on #videolan.
   * ./src/libdvdcss.h: IRIX compile fix by Michael Pruett <michael@68k.org>.
   * ./configure.in: BeOS bug fix. I'm so lame.

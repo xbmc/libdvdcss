@@ -1,3 +1,9 @@
+libdvdcss (1.1.1-1) unstable; urgency=low
+
+  * Minor release.
+
+ -- Samuel Hocevar <sam@zoy.org>  Sat,  6 Apr 2002 03:24:20 +0200
+
 libdvdcss (1.1.0-1) unstable; urgency=low
 
   * First release outside the vlc tree.

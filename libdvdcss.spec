@@ -1,6 +1,6 @@
 # This is borrowed and adapted from Mandrake's Cooker
 %define name 	libdvdcss
-%define version	1.1.0
+%define version	1.1.1
 %define release	1
 %define major  	2
 %define lib_name %{name}%{major}
@@ -93,6 +93,9 @@ rm -fr %buildroot
 %{_includedir}/*
 
 %changelog
+* Sat Apr 06 2002 Samuel Hocevar <sam@zoy.org>
+- version 1.1.1
+
 * Wed Apr 03 2002 Samuel Hocevar <sam@zoy.org>
 - version 1.1.0
 - first release outside the vlc tree
