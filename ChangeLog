@@ -3,8 +3,10 @@
 #=========================#
 
 1.2.4
-Wed, 14 Nov 2002 00:11:00 +0200
+Thu, 14 Nov 2002 16:15:00 +0200
 
+  * src/css.c src/ioctl.c, src/libdvdcss.c: changed the work-around to detect
+    if the dvd is encrypted on Win2K in non-administrator mode.
   * src/ioctl.c: cosmetic fixes
   * src/ioctl.c: fixed typo that prevented unencrypted DVDs to work in
     non-administrator mode on WinNT/2k/XP.
