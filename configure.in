@@ -123,6 +123,12 @@ AC_CHECK_HEADERS(sys/ioctl.h,[
     ])
   ])
   dnl
+  dnl Darwin 
+  dnl
+  AC_CHECK_HEADER(IOKit/storage/IODVDMediaBSDClient.h,[
+    AC_DEFINE(DARWIN_DVD_IOCTL, 1, Have IOKit DVD IOCTL headers)
+  ])
+  dnl
   dnl Final tests to check what was detected
   dnl
   if test x$LINUX_DVD_STRUCT = x1; then

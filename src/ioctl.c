@@ -2,7 +2,7 @@
  * ioctl.c: DVD ioctl replacement function
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: ioctl.c,v 1.2 2002/02/03 14:54:53 hjort Exp $
+ * $Id: ioctl.c,v 1.3 2002/04/03 21:25:13 jlj Exp $
  *
  * Authors: Markus Kuespert <ltlBeBoy@beosmail.com>
  *          Samuel Hocevar <sam@zoy.org>
@@ -72,10 +72,8 @@
 #   include <sys/scsi/scsi_types.h>
 #   include <sys/scsi/impl/uscsi.h>
 #endif
-
-#ifdef SYS_DARWIN
+#ifdef DARWIN_DVD_IOCTL
 #   include <IOKit/storage/IODVDMediaBSDClient.h>
-/* #   include "DVDioctl/DVDioctl.h" */
 #endif
 
 #include "common.h"
@@ -175,7 +173,7 @@ int ioctl_ReadCopyright( int i_fd, int i_layer, int *pi_copyright )
     *pi_copyright = p_buffer[ 4 ];
     /* s->copyright.rmi = p_buffer[ 5 ]; */
 
-#elif defined( SYS_DARWIN )
+#elif defined( DARWIN_DVD_IOCTL )
     dk_dvd_read_structure_t dvd;
     DVDCopyrightInfo dvdcpi;
     
@@ -345,7 +343,7 @@ int ioctl_ReadDiscKey( int i_fd, int *pi_agid, u8 *p_key )
 
     memcpy( p_key, p_buffer + 4, DVD_DISCKEY_SIZE );
 
-#elif defined( SYS_DARWIN )
+#elif defined( DARWIN_DVD_IOCTL )
     dk_dvd_read_structure_t dvd;
     DVDDiscKeyInfo dvddki;
     
@@ -494,7 +492,7 @@ int ioctl_ReadTitleKey( int i_fd, int *pi_agid, int i_pos, u8 *p_key )
  
     memcpy( p_key, p_buffer + 5, DVD_KEY_SIZE ); 
     
-#elif defined( SYS_DARWIN )
+#elif defined( DARWIN_DVD_IOCTL )
     dk_dvd_report_key_t dvd;
     DVDTitleKeyInfo dvdtki;
     
@@ -625,7 +623,7 @@ int ioctl_ReportAgid( int i_fd, int *pi_agid )
 
     *pi_agid = p_buffer[ 7 ] >> 6;
     
-#elif defined( SYS_DARWIN )
+#elif defined( DARWIN_DVD_IOCTL )
     dk_dvd_report_key_t dvd;
     DVDAuthenticationGrantIDInfo dvdagid;
     
@@ -737,7 +735,7 @@ int ioctl_ReportChallenge( int i_fd, int *pi_agid, u8 *p_challenge )
 
     memcpy( p_challenge, p_buffer + 4, DVD_CHALLENGE_SIZE );
     
-#elif defined( SYS_DARWIN )
+#elif defined(_DARWIN_DVD_IOCTL )
     dk_dvd_report_key_t dvd;
     DVDChallengeKeyInfo dvdcki;
     
@@ -860,7 +858,7 @@ int ioctl_ReportASF( int i_fd, int *pi_remove_me, int *pi_asf )
 
     *pi_asf = p_buffer[ 7 ] & 1;
     
-#elif defined( SYS_DARWIN )
+#elif defined( DARWIN_DVD_IOCTL )
     dk_dvd_report_key_t dvd;
     DVDAuthenticationSuccessFlagInfo dvdasfi;
     
@@ -984,7 +982,7 @@ int ioctl_ReportKey1( int i_fd, int *pi_agid, u8 *p_key )
 
     memcpy( p_key, p_buffer + 4, DVD_KEY_SIZE );
     
-#elif defined( SYS_DARWIN )
+#elif defined( DARWIN_DVD_IOCTL )
     dk_dvd_report_key_t dvd;
     DVDKey1Info dvdk1i;
     
@@ -1092,7 +1090,7 @@ int ioctl_InvalidateAgid( int i_fd, int *pi_agid )
         i_ret = -1;
     }
 
-#elif defined( SYS_DARWIN )
+#elif defined( DARWIN_DVD_IOCTL )
     dk_dvd_send_key_t dvd;
     DVDAuthenticationGrantIDInfo dvdagid;
     
@@ -1207,7 +1205,7 @@ int ioctl_SendChallenge( int i_fd, int *pi_agid, u8 *p_challenge )
 
     return 0;
     
-#elif defined( SYS_DARWIN )
+#elif defined( DARWIN_DVD_IOCTL )
     dk_dvd_send_key_t dvd;
     DVDChallengeKeyInfo dvdcki;
     
@@ -1329,7 +1327,7 @@ int ioctl_SendKey2( int i_fd, int *pi_agid, u8 *p_key )
 
     return 0;
     
-#elif defined( SYS_DARWIN )
+#elif defined( DARWIN_DVD_IOCTL )
     dk_dvd_send_key_t dvd;
     DVDKey2Info dvdk2i;
     
@@ -1445,7 +1443,7 @@ int ioctl_ReportRPC( int i_fd, int *p_type, int *p_mask, int *p_scheme )
     *p_mask = p_buffer[ 5 ];
     *p_scheme = p_buffer[ 6 ];
     
-#elif defined( SYS_DARWIN )
+#elif defined( DARWIN_DVD_IOCTL )
     /* The headers for Darwin / MacOSX are unavaialbe. */
     /* Someone who has them should have no problem implementing this. */
     i_ret = -1;
