@@ -2,7 +2,7 @@
  * css.c: Functions for DVD authentication and descrambling
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: css.c,v 1.19 2002/11/14 12:38:57 gbazin Exp $
+ * $Id: css.c,v 1.20 2002/11/24 17:34:23 sam Exp $
  *
  * Author: Stéphane Borel <stef@via.ecp.fr>
  *         Håkan Hjort <d95hjort@dtek.chalmers.se>
@@ -38,6 +38,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/param.h>
+#include <fcntl.h>
 
 #include "dvdcss/dvdcss.h"
 
@@ -275,10 +279,11 @@ static void PrintKey( dvdcss_t dvdcss, char *prefix, u8 const *data )
  *****************************************************************************/
 int _dvdcss_title ( dvdcss_t dvdcss, int i_block )
 {
+    char *       psz_cachefile = NULL;
     dvd_title_t *p_title;
     dvd_title_t *p_newtitle;
     dvd_key_t    p_title_key;
-    int          i_ret;
+    int          i_fd, i_ret = -1, b_cache = 0;
 
     if( ! dvdcss->b_scrambled )
     {
@@ -302,18 +307,54 @@ int _dvdcss_title ( dvdcss_t dvdcss, int i_block )
         return 0;
     }
 
-    /* Crack or decrypt CSS title key for current VTS */
-    i_ret = _dvdcss_titlekey( dvdcss, i_block, p_title_key );
+    /* Check whether the key is in our disk cache */
+    if( dvdcss->psz_cachefile[0] )
+    {
+        /* XXX: be careful, we use sprintf and not snprintf */
+        sprintf( dvdcss->psz_block, "%0.10x", i_block );
+        i_fd = open( dvdcss->psz_cachefile, O_RDONLY );
+        b_cache = 1;
 
+        if( i_fd >= 0 )
+        {
+            if( read( i_fd, p_title_key, 5 ) == 5 )
+            {
+                _dvdcss_debug( dvdcss, "key found in cache" );
+                /* Don't try to save it again */
+                b_cache = 0;
+                i_ret = 1;
+            }
+            close( i_fd );
+        }
+    }
+
+    /* Crack or decrypt CSS title key for current VTS */
     if( i_ret < 0 )
     {
-        _dvdcss_error( dvdcss, "fatal error in vts css key" );
-        return i_ret;
+        i_ret = _dvdcss_titlekey( dvdcss, i_block, p_title_key );
+
+        if( i_ret < 0 )
+        {
+            _dvdcss_error( dvdcss, "fatal error in vts css key" );
+            return i_ret;
+        }
+
+        if( i_ret == 0 )
+        {
+            _dvdcss_debug( dvdcss, "unencrypted title" );
+            /* We cache this anyway, so we don't need to check again. */
+        }
     }
-    else if( i_ret == 0 )
+
+    /* Key is valid, we store it on disk. */
+    if( b_cache )
     {
-        _dvdcss_debug( dvdcss, "unencrypted title" );
-        /* Still store this in the cache, so we don't need to check again. */
+        i_fd = open( dvdcss->psz_cachefile, O_RDWR|O_CREAT|O_EXCL, 0644 );
+        if( i_fd >= 0 )
+        {
+            write( i_fd, p_title_key, 5 );
+            close( i_fd );
+        }
     }
 
     /* Find our spot in the list */
@@ -1451,7 +1492,7 @@ static int CrackTitleKey( dvdcss_t dvdcss, int i_pos, int i_len,
         return 1;
     }
 
-    if( i_encrypted == 0 )
+    if( i_encrypted == 0 && i_reads > 0 )
     {
         memset( p_titlekey, 0, KEY_SIZE );
         _dvdcss_debug( dvdcss, "file was unscrambled" );

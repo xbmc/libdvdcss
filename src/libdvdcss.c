@@ -5,7 +5,7 @@
  *          Håkan Hjort <d95hjort@dtek.chalmers.se>
  *
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: libdvdcss.c,v 1.19 2002/10/18 18:48:59 sam Exp $
+ * $Id: libdvdcss.c,v 1.20 2002/11/24 17:34:23 sam Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -79,6 +79,11 @@
  *
  * \li \b DVDCSS_RAW_DEVICE: specify the raw device to use.
  * 
+ * \li \b DVDCSS_CACHE: specify a directory in which to store title key
+ *     values. This will speed up descrambling of DVDs which are in the
+ *     cache. The DVDCSS_CACHE directory is created if it does not exist,
+ *     and a subdirectory is created named after the DVD's title or
+ *     manufacturing date.
  */
 
 /*
@@ -91,7 +96,9 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/param.h>
 #include <fcntl.h>
+#include <errno.h>
 
 #ifdef HAVE_UNISTD_H
 #   include <unistd.h>
@@ -137,6 +144,7 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
 
     char *psz_method = getenv( "DVDCSS_METHOD" );
     char *psz_verbose = getenv( "DVDCSS_VERBOSE" );
+    char *psz_cache = getenv( "DVDCSS_CACHE" );
 #ifndef WIN32
     char *psz_raw_device = getenv( "DVDCSS_RAW_DEVICE" );
 #endif
@@ -162,6 +170,7 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
     dvdcss->psz_device = (char *)strdup( psz_target );
     dvdcss->psz_error = "no error";
     dvdcss->i_method = DVDCSS_METHOD_KEY;
+    dvdcss->psz_cachefile[0] = '\0';
     dvdcss->b_debug = 0;
     dvdcss->b_errors = 0;
 
@@ -205,6 +214,23 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
             free( dvdcss->psz_device );
             free( dvdcss );
             return NULL;
+        }
+    }
+
+    /*
+     *  Find cache dir from the DVDCSS_CACHE environment variable
+     */
+    if( psz_cache != NULL )
+    {
+        if( psz_cache[0] == '\0' )
+        {
+            psz_cache = NULL;
+        }
+        /* Check that we can add the ID directory and the block filename */
+        else if( strlen( psz_cache ) + 1 + 32 + 1 + 10 + 1 > PATH_MAX )
+        {
+            _dvdcss_error( dvdcss, "cache directory name is too long" );
+            psz_cache = NULL;
         }
     }
 
@@ -260,6 +286,99 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
         _dvdcss_raw_open( dvdcss, psz_raw_device );
     }
 #endif
+
+    /* If the cache is enabled, extract a unique disc ID */
+    if( psz_cache )
+    {
+        u8  p_sector[DVDCSS_BLOCK_SIZE];
+        unsigned char   psz_debug[PATH_MAX+30];
+        unsigned char * psz_data;
+        int i;
+
+        /* The data we are looking for is at sector 16 (32768 bytes):
+         *  - offset 40: disc title (32 uppercase chars)
+         *  - offset 813: manufacturing date + serial no (16 digits) */
+
+        i_ret = dvdcss->pf_seek( dvdcss, 16 );
+        if( i_ret != 16 )
+        {
+            goto nocache;
+        }
+
+        i_ret = dvdcss->pf_read( dvdcss, p_sector, 1 );
+        if( i_ret != 1 )
+        {
+            goto nocache;
+        }
+
+        /* Get the disc title */
+        psz_data = p_sector + 40;
+        psz_data[32] = '\0';
+
+        for( i = 0 ; i < 32 ; i++ )
+        {
+            if( psz_data[i] <= ' ' )
+            {
+                psz_data[i] = '\0';
+                break;
+            }
+            else if( psz_data[i] == '/' || psz_data[i] == '\\' )
+            {
+                psz_data[i] = '-';
+            }
+        }
+
+        /* If it's not long enough, try the date + serial */
+        if( strlen( psz_data ) < 6 )
+        {
+            psz_data = p_sector + 813;
+            psz_data[16] = '\0';
+
+            /* Check that all characters are digits, otherwise convert. */
+            for( i = 0 ; i < 16 ; i++ )
+            {
+                if( psz_data[i] < '0' || psz_data[i] > '9' )
+                {
+                    sprintf( psz_data,
+                             "%0.2X%0.2X%0.2X%0.2X%0.2X%0.2X%0.2X%0.2X",
+                             psz_data[0], psz_data[1], psz_data[2],
+                             psz_data[3], psz_data[4], psz_data[5],
+                             psz_data[6], psz_data[7] );
+                    break;
+                }
+            }
+        }
+
+        /* We have a disc name or ID, we can create the cache dir */
+        i = sprintf( dvdcss->psz_cachefile, "%s", psz_cache );
+        i_ret = mkdir( dvdcss->psz_cachefile, 0755 );
+        if( i_ret < 0 && errno != EEXIST )
+        {
+            _dvdcss_error( dvdcss, "failed creating cache directory" );
+            dvdcss->psz_cachefile[0] = '\0';
+            goto nocache;
+        }
+
+        i += sprintf( dvdcss->psz_cachefile + i, "/%s/", psz_data );
+        i_ret = mkdir( dvdcss->psz_cachefile, 0755 );
+        if( i_ret < 0 && errno != EEXIST )
+        {
+            _dvdcss_error( dvdcss, "failed creating cache subdirectory" );
+            dvdcss->psz_cachefile[0] = '\0';
+            goto nocache;
+        }
+
+        /* Pointer to the filename we will use. */
+        dvdcss->psz_block = dvdcss->psz_cachefile + i;
+
+        sprintf( psz_debug, "using CSS key cache dir: %s",
+                            dvdcss->psz_cachefile );
+        _dvdcss_debug( dvdcss, psz_debug );
+    }
+    nocache:
+
+    /* Seek at the beginning, just for safety. */
+    dvdcss->pf_seek( dvdcss, 0 );
 
     return dvdcss;
 }
