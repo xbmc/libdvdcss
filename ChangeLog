@@ -2,6 +2,18 @@
 # ChangeLog for libdvdcss #
 #=========================#
 
+1.2.4
+Wed, 13 Nov 2002 ??
+
+  * src/ioctl.c: fixed typo that prevented unencrypted DVDs to work in
+    non-administrator mode on WinNT/2k/XP.
+  * src/device.c, src/ioctl.h: on win9x, when using ASPI, make sure the drive
+    we are trying to open is actually a cdrom/dvdrom drive.
+  * src/device.c: split the open, read and seek functions so that we can use
+    function pointers instead of doing the if(WIN2K) test.
+  * src/device.c: if the target is not a drive name such as F:, we open it
+    with the standard libc functions, even under Win32.
+
 1.2.3
 Sun, 13 Oct 2002 01:01:03 +0200
 
@@ -20,7 +32,6 @@ Sun, 13 Oct 2002 01:01:03 +0200
     whatever which makes disc key decryption fail.
   * src/ioctl.c, src/ioctl.h: fix in ioctl_ReadCopyright to try to work around
     the buggy IOCTL_DVD_READ_STRUCTURE on WinNT/2k/XP.
-
 
 1.2.2
 Sat, 10 Aug 2002 22:15:57 +0200
