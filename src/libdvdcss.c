@@ -5,7 +5,7 @@
  *          Håkan Hjort <d95hjort@dtek.chalmers.se>
  *
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: libdvdcss.c,v 1.26 2002/12/19 15:44:30 sam Exp $
+ * $Id: libdvdcss.c,v 1.27 2003/01/27 16:57:19 sam Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -304,6 +304,27 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
         unsigned char   psz_debug[PATH_MAX+30];
         unsigned char * psz_data;
         int i;
+
+        /* We read sector 0. If it starts with 0x000001ba (BE), we are
+         * reading a VOB file, and we should not cache anything. */
+
+        i_ret = dvdcss->pf_seek( dvdcss, 0 );
+        if( i_ret != 0 )
+        {
+            goto nocache;
+        }
+
+        i_ret = dvdcss->pf_read( dvdcss, p_sector, 1 );
+        if( i_ret != 1 )
+        {
+            goto nocache;
+        }
+
+        if( p_sector[0] == 0x00 && p_sector[1] == 0x00
+             && p_sector[2] == 0x01 && p_sector[3] == 0xba )
+        {
+            goto nocache;
+        }
 
         /* The data we are looking for is at sector 16 (32768 bytes):
          *  - offset 40: disc title (32 uppercase chars)
