@@ -5,7 +5,7 @@
  *          Håkan Hjort <d95hjort@dtek.chalmers.se>
  *
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: libdvdcss.c,v 1.27 2003/01/27 16:57:19 sam Exp $
+ * $Id: libdvdcss.c,v 1.28 2003/01/28 00:41:10 sam Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,7 +77,11 @@
  *       decrypt a DVD stored on a hard disc, or a DVD with the wrong region
  *       on an RPC2 drive.
  *
- * \li \b DVDCSS_RAW_DEVICE: specify the raw device to use.
+ * \li \b DVDCSS_RAW_DEVICE: specify the raw device to use. Exact usage will
+ *     depend on your operating system, the Linux utility to set up raw devices
+ *     is \c raw(8) for instance. Please note that on most operating systems,
+ *     using a raw device requires highly aligned buffers: Linux requires a
+ *     2048 bytes alignment (which is the size of a DVD sector).
  *
  * \li \b DVDCSS_CACHE: specify a directory in which to store title key
  *     values. This will speed up descrambling of DVDs which are in the

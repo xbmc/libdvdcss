@@ -1,8 +1,9 @@
 /* csstest.c - test program for libdvdcss
- * 
+ *
  * Samuel Hocevar <sam@zoy.org> - June 2001
  *   Updated on Nov 13th 2001 for libdvdcss version 1.0.0
  *   Additional error checks on Aug 9th 2002
+ *   Aligned data reads on Jan 28th 2003
  *
  * This piece of code is public domain */
 
@@ -16,10 +17,11 @@ static void dumpsector ( unsigned char * );
 
 int main( int i_argc, char *ppsz_argv[] )
 {
-    dvdcss_t      dvdcss;
-    unsigned char p_buffer[ DVDCSS_BLOCK_SIZE ];
-    unsigned int  i_sector;
-    int           i_ret;
+    dvdcss_t       dvdcss;
+    unsigned char  p_data[ DVDCSS_BLOCK_SIZE * 2 ];
+    unsigned char *p_buffer;
+    unsigned int   i_sector;
+    int            i_ret;
 
     /* Print version number */
     printf( "cool, I found libdvdcss version %s\n", dvdcss_interface_2 );
@@ -41,6 +43,10 @@ int main( int i_argc, char *ppsz_argv[] )
         printf( "argh ! couldn't open DVD (%s)\n", ppsz_argv[1] );
         return -1;
     }
+
+    /* Align our read buffer */
+    p_buffer = p_data + DVDCSS_BLOCK_SIZE
+                      - ((long int)p_data & (DVDCSS_BLOCK_SIZE-1));
 
     /* Set the file descriptor at sector i_sector and read one sector */
     i_ret = dvdcss_seek( dvdcss, i_sector, DVDCSS_NOFLAGS );
