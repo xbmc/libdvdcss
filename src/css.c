@@ -2,7 +2,7 @@
  * css.c: Functions for DVD authentication and descrambling
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: css.c,v 1.14 2002/08/10 14:27:26 sam Exp $
+ * $Id: css.c,v 1.15 2002/08/10 21:19:55 sam Exp $
  *
  * Author: Stéphane Borel <stef@via.ecp.fr>
  *         Håkan Hjort <d95hjort@dtek.chalmers.se>
@@ -357,9 +357,7 @@ int _dvdcss_disckey( dvdcss_t dvdcss )
     dvd_key_t p_disc_key;
     int i;
 
-    _dvdcss_debug( dvdcss, "retrieving disc key by all means" );
-
-    if( GetBusKey( dvdcss ) < 0)
+    if( GetBusKey( dvdcss ) < 0 )
     {
         return -1;
     }
@@ -440,8 +438,6 @@ int _dvdcss_titlekey( dvdcss_t dvdcss, int i_pos, dvd_key_t p_title_key )
     u8  p_key[KEY_SIZE];
     int i, i_ret = 0;
 
-    _dvdcss_debug( dvdcss, "retrieving title key by all means" );
-
     if( dvdcss->b_ioctls && ( dvdcss->i_method == DVDCSS_METHOD_KEY || 
                               dvdcss->i_method == DVDCSS_METHOD_DISC ) )
     {
@@ -449,7 +445,7 @@ int _dvdcss_titlekey( dvdcss_t dvdcss, int i_pos, dvd_key_t p_title_key )
          * read the title key and decrypt it.
          */
 
-        _dvdcss_debug( dvdcss, "getting disc key the classic way" );
+        _dvdcss_debug( dvdcss, "getting title key the classic way" );
 
         /* We need to authenticate again every time to get a new session key */
         if( GetBusKey( dvdcss ) < 0 )
