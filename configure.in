@@ -103,7 +103,6 @@ AC_CHECK_HEADERS(sys/ioctl.h,[
   dnl
   dnl BSDI: dvd.h
   dnl
-  NEED_BSDI_LIBDVD=0
   AC_EGREP_HEADER(dvd_struct,dvd.h,[
     AC_DEFINE(DVD_STRUCT_IN_DVD_H, 1,
               Define if <dvd.h> defines DVD_STRUCT.)
@@ -114,10 +113,8 @@ AC_CHECK_HEADERS(sys/ioctl.h,[
     dnl BSDI: /sys/dev/scsi/scsi_ioctl.h, using our own libdvd
     dnl
     AC_CHECK_HEADERS(/sys/dev/scsi/scsi_ioctl.h,[
-      NEED_BSDI_LIBDVD=1
       AC_DEFINE(DVD_STRUCT_IN_BSDI_DVDIOCTL_DVD_H, 1,
                 Define if <extras/BSDI_dvdioctl/dvd.h> defines DVD_STRUCT.)
-      EXTRA_SRC="${EXTRA_SRC} bsdi_ioctl.c"
       LINUX_DVD_STRUCT=1
     ])
   ])
@@ -163,7 +160,6 @@ AC_CHECK_HEADERS(sys/ioctl.h,[
 
 CFLAGS="-D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -DDVDCSS_DIST $CFLAGS"
 
-AC_SUBST(EXTRA_SRC)
 AC_SUBST(EXTRA_LIB)
 
 AC_OUTPUT([Makefile src/Makefile src/dvdcss/Makefile test/Makefile debian/Makefile])

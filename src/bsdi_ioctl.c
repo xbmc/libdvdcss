@@ -1,4 +1,6 @@
-#ifdef NEED_BSDI_LIBDVD
+#include "config.h"
+
+#ifdef DVD_STRUCT_IN_BSDI_DVDIOCTL_DVD_H
 
 /*
  * Hacked version of the linux cdrom.c kernel module - everything except the
@@ -43,7 +45,7 @@ typedef	struct	cgc
 		int	buflen;
 		int	rw;
 		int	timeout;
-		struct scsi_user_cdb	*sus;
+		scsi_user_sense_t *sus;
 		} cgc_t;
 
 static int scsi_cmd(int, cgc_t *);
@@ -435,7 +437,7 @@ static int scsi_cmd(int fd, cgc_t *cgc)
 			cp[12], cp[13], cp[14], cp[15]);
 		}
 	if	(cgc->sus)
-		bcopy(&suc, cgc->sus, sizeof (struct scsi_user_cdb));
+		bcopy(&suc.suc_sus, cgc->sus, sizeof (struct scsi_user_sense));
 	if	(scsistatus)
 		return(EIO);	/* generic i/o error for unsuccessful status */
 	return(0);
