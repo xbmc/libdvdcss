@@ -1,6 +1,6 @@
 %define name 	libdvdcss
 %define version	1.2.4
-%define release	1
+%define release	2
 
 %define major  	2
 %define libname %{name}%{major}
@@ -66,10 +66,10 @@ package installed.
 
 %build
 %configure
-%make
+%make %{?_smp_mflags}
 
 %install
-%makeinstall_std
+%makeinstall
 
 %clean
 rm -rf %buildroot
@@ -88,9 +88,13 @@ rm -rf %buildroot
 %doc ChangeLog COPYING
 %{_libdir}/*.a
 %{_libdir}/*.so
+%{_libdir}/*.la
 %{_includedir}/*
 
 %changelog
+* Mon Nov 18 2002 Alexis de Lattre <alexis@videolan.org> 1.2.4-2
+- Changes in .spec file for RedHat and RPM 4.1
+
 * Thu Nov 14 2002 Alexis de Lattre <alexis@videolan.org> 1.2.4-1
 - new upstream release
 - fixes for Win32
