@@ -3,8 +3,9 @@
 #=========================#
 
 1.2.4
-Wed, 13 Nov 2002 ??
+Wed, 14 Nov 2002 00:11:00 +0200
 
+  * src/ioctl.c: cosmetic fixes
   * src/ioctl.c: fixed typo that prevented unencrypted DVDs to work in
     non-administrator mode on WinNT/2k/XP.
   * src/device.c, src/ioctl.h: on win9x, when using ASPI, make sure the drive

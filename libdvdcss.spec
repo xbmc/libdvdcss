@@ -91,7 +91,7 @@ rm -rf %buildroot
 %{_includedir}/*
 
 %changelog
-* Wed Nov 13 2002 Alexis de Lattre <alexis@videolan.org> 1.2.4-1
+* Wed Nov 14 2002 Alexis de Lattre <alexis@videolan.org> 1.2.4-1
 - new upstream release
 - fixes for Win32
 
