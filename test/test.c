@@ -7,11 +7,7 @@
 
 #include <stdlib.h>
 
-#ifdef DVDCSS_DIST
-#include "../src/dvdcss.h"
-#else
-#include <videolan/dvdcss.h>
-#endif
+#include <dvdcss/dvdcss.h>
 
 /* Macro to check if a sector is scrambled */
 #define IsSectorScrambled(buf) (((unsigned char*)(buf))[0x14] & 0x30)

@@ -2,7 +2,7 @@
  * libdvdcss.h: DVD reading library, exported functions.
  *****************************************************************************
  * Copyright (C) 1998-2001 VideoLAN
- * $Id: dvdcss.h,v 1.2 2002/04/03 06:12:50 sam Exp $
+ * $Id: dvdcss.h,v 1.1 2002/04/03 15:19:21 sam Exp $
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>

@@ -4,6 +4,9 @@
 
 HEAD
 
+  * ./src/dvdcss/dvdcss.h: moved dvdcss.h in a subdirectory so that we can
+    include <dvdcss/dvdcss.h> without having to make install.
+  * ./test/test.c: removed #ifdef DVDCSS_DIST.
   * ./Makefile.am: added the debian dir to the targets.
   * ./configure.in: switched to a more conventional versioning scheme.
   * ./src/css.c: removed a useless #ifdef.
