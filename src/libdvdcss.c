@@ -5,7 +5,7 @@
  *          Håkan Hjort <d95hjort@dtek.chalmers.se>
  *
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: libdvdcss.c,v 1.31 2003/03/27 18:57:12 gbazin Exp $
+ * $Id: libdvdcss.c,v 1.32 2003/06/12 23:22:34 sam Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -87,7 +87,10 @@
  *     values. This will speed up descrambling of DVDs which are in the
  *     cache. The DVDCSS_CACHE directory is created if it does not exist,
  *     and a subdirectory is created named after the DVD's title or
- *     manufacturing date.
+ *     manufacturing date. If DVDCSS_CACHE is not set or is empty, \e libdvdcss
+ *     will use the default value which is "${HOME}/.dvdcss/" under Unix and
+ *     "C:\Documents and Settings\$USER\Application Data\dvdcss\" under Win32.
+ *     The special value "off" disables caching.
  */
 
 /*
@@ -102,6 +105,9 @@
 #include <sys/stat.h>
 #ifdef HAVE_SYS_PARAM_H
 #   include <sys/param.h>
+#endif
+#ifdef HAVE_PWD_H
+#   include <pwd.h>
 #endif
 #include <fcntl.h>
 #include <errno.h>
@@ -154,6 +160,7 @@ char * dvdcss_interface_2 = VERSION;
  */
 extern dvdcss_t dvdcss_open ( char *psz_target )
 {
+    char psz_buffer[PATH_MAX];
     int i_ret;
 
     char *psz_method = getenv( "DVDCSS_METHOD" );
@@ -232,11 +239,87 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
     }
 
     /*
+     *  If DVDCSS_CACHE was not set, try to guess a default value
+     */
+    if( psz_cache == NULL || psz_cache[0] == '\0' )
+    {
+#ifdef HAVE_DIRECT_H
+        typedef HRESULT( WINAPI *SHGETFOLDERPATH )
+                       ( HWND, int, HANDLE, DWORD, LPTSTR );
+
+#   define CSIDL_FLAG_CREATE 0x8000
+#   define CSIDL_APPDATA 0x1A
+#   define SHGFP_TYPE_CURRENT 0
+
+        char psz_home[MAX_PATH];
+        HINSTANCE p_dll;
+        SHGETFOLDERPATH p_getpath;
+
+        *psz_home = '\0';
+
+        /* Load the shfolder dll to retrieve SHGetFolderPath */
+        p_dll = LoadLibrary( "shfolder.dll" );
+        if( p_dll )
+        {
+            p_getpath = (void*)GetProcAddress( p_dll, "SHGetFolderPathA" );
+            if( p_getpath )
+            {
+                /* Get the "Application Data" folder for the current user */
+                if( p_getpath( NULL, CSIDL_APPDATA | CSIDL_FLAG_CREATE,
+                               NULL, SHGFP_TYPE_CURRENT, psz_home ) == S_OK )
+                {
+                    FreeLibrary( p_dll );
+                }
+                else
+                {
+                    *psz_home = '\0';
+                }
+            }
+            FreeLibrary( p_dll );
+        }
+
+        /* Cache our keys in
+         * C:\Documents and Settings\$USER\Application Data\dvdcss\ */
+        if( *psz_home )
+        {
+            snprintf( psz_buffer, PATH_MAX, "%s/dvdcss", psz_home );
+            psz_buffer[PATH_MAX-1] = '\0';
+            psz_cache = psz_buffer;
+        }
+#else
+        char *psz_home = NULL;
+#   ifdef HAVE_PWD_H
+        struct passwd *p_pwd;
+
+        /* Try looking in password file for home dir. */
+        p_pwd = getpwuid(getuid());
+        if( p_pwd )
+        {
+            psz_home = p_pwd->pw_dir;
+        }
+#   endif
+
+        if( psz_home == NULL )
+        {
+            psz_home = getenv( "HOME" );
+        }
+
+        /* Cache our keys in ${HOME}/.dvdcss/ */
+        if( psz_home )
+        {
+            snprintf( psz_buffer, PATH_MAX, "%s/.dvdcss", psz_home );
+            psz_buffer[PATH_MAX-1] = '\0';
+            psz_cache = psz_buffer;
+        }
+#endif
+    }
+
+    /*
      *  Find cache dir from the DVDCSS_CACHE environment variable
      */
     if( psz_cache != NULL )
     {
-        if( psz_cache[0] == '\0' )
+        if( psz_cache[0] == '\0' || !strcmp( psz_cache, "off" ) )
         {
             psz_cache = NULL;
         }
