@@ -50,6 +50,10 @@ N: David Siebörger
 E: drs-videolan@rucus.ru.ac.za
 D: HP-UX port of the DVD ioctls
 
+N: Alex Strelnikov
+E: lelik@os2.ru
+D: OS/2 port
+
 N: German Tischler
 E: tanis@gaspode.franken.de
 D: FreeBSD DVD input patch

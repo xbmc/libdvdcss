@@ -5,7 +5,7 @@
  *          Håkan Hjort <d95hjort@dtek.chalmers.se>
  *
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: libdvdcss.c,v 1.17 2002/08/10 14:27:26 sam Exp $
+ * $Id: libdvdcss.c,v 1.18 2002/08/10 20:21:54 sam Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -508,13 +508,6 @@ extern int dvdcss_close ( dvdcss_t dvdcss )
 #undef dvdcss_title
 extern int dvdcss_title ( dvdcss_t dvdcss, int i_block )
 {
-    fprintf( stderr, "WARNING: dvdcss_title() is DEPRECATED, "
-                     "use dvdcss_seek() instead\n" );
-    if( ! dvdcss->b_scrambled )
-    {
-        return 0;
-    }
-
     return _dvdcss_title( dvdcss, i_block );
 }
 

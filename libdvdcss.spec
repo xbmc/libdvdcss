@@ -8,7 +8,7 @@
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Summary:	Library for accessing DVDs like block device usind deCSS if needed
+Summary:        Library for accessing DVDs like block devices with transparent decryption
 Source:		%{name}-%{version}.tar.bz2
 License:	GPL
 Group:		System/Libraries
@@ -20,33 +20,31 @@ Conflicts:	libdvdcss0.0.1, libdvdcss0.0.2
 %description
 libdvdcss is a simple library designed for accessing DVDs like a block device
 without having to bother about the decryption. The important features are:
- * Portability. Currently supported platforms are GNU/Linux, FreeBSD, NetBSD,
+ * Portability: currently supported platforms are GNU/Linux, FreeBSD, NetBSD,
    OpenBSD, BSD/OS, BeOS, Windows 95/98, Windows NT/2000, MacOS X, Solaris,
-   and HP-UX.
- * Simplicity. There are currently 7 functions in the API, and we intend to
-   keep this number low.
- * Freedom. libdvdcss is released under the General Public License, ensuring
-   it will stay free, and used only for free software products.
- * Just better. Unlike most similar projects, libdvdcss doesn't require the
-   region of your drive to be set.
+   HP-UX and OS/2.
+ * Adaptability: unlike most similar projects, libdvdcss doesn't require the
+   region of your drive to be set and will try its best to read from the disc
+   even in the case of a region mismatch.
+ * Simplicity: a DVD player can be built around the libdvdcss API using no
+   more than 4 or 5 library calls.
 
 %package -n %{libname}
-Summary:        A library for accessing DVDs like block device usind deCSS if needed
+Summary:        Library for accessing DVDs like block devices with transparent decryption
 Group:          System/Libraries
 Provides:       %name = %version-%release
 
 %description -n %{libname}
 libdvdcss is a simple library designed for accessing DVDs like a block device
 without having to bother about the decryption. The important features are:
- * Portability. Currently supported platforms are GNU/Linux, FreeBSD, NetBSD,
+ * Portability: currently supported platforms are GNU/Linux, FreeBSD, NetBSD,
    OpenBSD, BSD/OS, BeOS, Windows 95/98, Windows NT/2000, MacOS X, Solaris,
-   and HP-UX.
- * Simplicity. There are currently 7 functions in the API, and we intend to
-   keep this number low.
- * Freedom. libdvdcss is released under the General Public License, ensuring
-   it will stay free, and used only for free software products.
- * Just better. Unlike most similar projects, libdvdcss doesn't require the
-   region of your drive to be set.
+   HP-UX and OS/2.
+ * Adaptability: unlike most similar projects, libdvdcss doesn't require the
+   region of your drive to be set and will try its best to read from the disc
+   even in the case of a region mismatch.
+ * Simplicity: a DVD player can be built around the libdvdcss API using no
+   more than 4 or 5 library calls.
 
 %package -n %{libname}-devel
 Summary:        Development tools for programs which will use the %{name} library
@@ -93,8 +91,9 @@ rm -rf %buildroot
 %{_includedir}/*
 
 %changelog
-* Not Released Yet Samuel Hocevar <sam@zoy.org> 1.2.2-1
+* Sat Aug 10 2002 Samuel Hocevar <sam@zoy.org> 1.2.2-1
 - new upstream release
+- even more fixes for the disc/drive region mismatch problem
 
 * Sun Jun 02 2002 Samuel Hocevar <sam@zoy.org> 1.2.1-1
 - new upstream release

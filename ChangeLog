@@ -3,8 +3,45 @@
 #=========================#
 
 1.2.2
-Not released yet
+Sat, 10 Aug 2002 22:15:57 +0200
 
+  * ./src/ioctl.c: fixed ReportRPC for Win32.
+  * ./src/device.h: removed unneeded exported symbols.
+  * ./src/dvdcss/dvdcss.h: marked deprecated stuff.
+  * ./test/csstest.c: more documentation.
+      see http://www.videolan.org/libdvdcss/doc/
+  * ALL: removed autotools files.
+  * ./doc/*: added doxygen files.
+  * ./src/libdvdcss.c, ./src/dvdcss/dvdcss.h: documented the API.
+  * ./src/css.c: in case of a region mismatch and when the drive needs to 
+    be reset, we read the first sector of the disc instead of closing and
+    reopening it.
+  * ./src/Makefile.am: tell libtool that libdvdcss does not have undefined
+    symbols. Fix for BeOS courtesy of Andrew Bachmann.
+  * ./src/css.c: when the ReadTitleKey ioctl failed, reopen the device before
+    falling back to the title method. Fixes the "ioctl_ReadTitleKey failed"
+    error many users have been reporting.
+  * ALL: libdvdcss builds with -ansi -pedantic. Yeah I like that :-)
+  * ./src/css.c: renamed a few functions so that they make more sense, added
+    debug messages here and there, fixed typos and speling.
+  * ./src/error.c: moved _dvdcss_error and _dvdcss_debug here.
+  * ./src/device.c: moved device reading functions from libdvdcss.c to here.
+  * ./src/device.c: errors from dvdcss_read are now properly handled; partial       reads still aren't though.
+  * ./src/libdvdcss.c: default verbosity is now 0, a library should not be
+    intrusive by default.
+  * ./test/csstest.c: additional error check.
+  * ./configure.in: removed the crap boolean_t detection.
+  * ./src/css.c: speling fixes.
+  * ALL: re-ran bootstrap with more recent autotools.
+  * ./configure.in, ./src/bsdi_ioctl.c: included config.h before testing
+    defines in the BSDi ioctl code. Added a bug fix from the author. Removed
+    the now unused parts from configure.in.
+  * ./src/Makefile.am: fix so that the bsdi_*.[hc] files make it into the
+    dist tar-ball.
+  * ./test/Makefile.am: corrected the include path for the programs in test/.
+  * ./src/ioctl.c: OS/2 port courtesy of Alex Strelnikov.
+  * ./src/css.c, ./src/libdvdcss.c: typo fixes from Adam Jones.
+  * ./src/ioctl.c: getting ReportRPC for WIN32 a bit closer to working.
   * ./src/ioctl.c: implemented ioctl_ReportKey1 for HP-UX.
   * ./src/libdvdcss.c: Win32 compilation fix.
 
