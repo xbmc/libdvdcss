@@ -1,6 +1,6 @@
 %define name 	libdvdcss
-%define version	1.2.1
-%define release	2plf
+%define version	1.2.2
+%define release	1
 
 %define major  	2
 %define libname %{name}%{major}
@@ -93,6 +93,9 @@ rm -rf %buildroot
 %{_includedir}/*
 
 %changelog
+* Not Released Yet Samuel Hocevar <sam@zoy.org> 1.2.2-1
+- new upstream release
+
 * Sun Jun 02 2002 Samuel Hocevar <sam@zoy.org> 1.2.1-1
 - new upstream release
 - fix for a crash on disc/drive region mismatch

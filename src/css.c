@@ -1,8 +1,8 @@
 /*****************************************************************************
- * css.c: Functions for DVD authentification and unscrambling
+ * css.c: Functions for DVD authentication and unscrambling
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: css.c,v 1.10 2002/07/01 09:59:09 hjort Exp $
+ * $Id: css.c,v 1.11 2002/07/16 22:47:40 sam Exp $
  *
  * Author: Stéphane Borel <stef@via.ecp.fr>
  *         Håkan Hjort <d95hjort@dtek.chalmers.se>
@@ -488,7 +488,7 @@ int CSSDescrambleSector( dvd_key_t p_key, u8 *p_sec )
 /* Following functions are local */
 
 /*****************************************************************************
- * CSSGetASF : Get Authentification success flag
+ * CSSGetASF : Get Authentication success flag
  *****************************************************************************
  * Returns :
  *  -1 on ioctl error,

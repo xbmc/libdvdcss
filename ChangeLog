@@ -2,7 +2,8 @@
 # ChangeLog for libdvdcss #
 #=========================#
 
-HEAD
+1.2.2
+Not released yet
 
   * ./src/ioctl.c: implemented ioctl_ReportKey1 for HP-UX.
   * ./src/libdvdcss.c: Win32 compilation fix.

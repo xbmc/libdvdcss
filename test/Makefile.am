@@ -1,10 +1,10 @@
 
-noinst_PROGRAMS = csstest dvd_region
+noinst_PROGRAMS = csstest #dvd_region
 
 csstest_SOURCES = csstest.c
 csstest_LDADD = $(top_builddir)/src/libdvdcss.la
 csstest_CFLAGS = -I$(top_srcdir)/src
 
-dvd_region_SOURCES = dvd_region.c
-dvd_region_LDADD = $(top_builddir)/src/libdvdcss.la
-dvd_region_CFLAGS = -I$(top_srcdir)/src
+#dvd_region_SOURCES = dvd_region.c
+#dvd_region_LDADD = $(top_builddir)/src/libdvdcss.la
+#dvd_region_CFLAGS = -I$(top_srcdir)/src

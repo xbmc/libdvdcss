@@ -2,7 +2,7 @@
  * libdvdcss.c: DVD reading library.
  *****************************************************************************
  * Copyright (C) 1998-2001 VideoLAN
- * $Id: libdvdcss.c,v 1.12 2002/07/01 13:40:33 hjort Exp $
+ * $Id: libdvdcss.c,v 1.13 2002/07/16 22:47:40 sam Exp $
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -94,7 +94,7 @@ static int _dvdcss_raw_open     ( dvdcss_handle, char *psz_target );
  * readv_*: readv() replacements for iovec-impaired C libraries
  *****************************************************************************/
 #if defined( WIN32 )
-static __inline__ int readv( int i_fd, struct iovec *p_iovec, int i_count )
+static inline int readv( int i_fd, struct iovec *p_iovec, int i_count )
 {
     int i_index, i_len, i_total = 0;
     unsigned char *p_base;
