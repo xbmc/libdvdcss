@@ -68,6 +68,10 @@ EXTRA_LIB = @EXTRA_LIB@
 EXTRA_SRC = @EXTRA_SRC@
 LIBTOOL = @LIBTOOL@
 LN_S = @LN_S@
+LT_AGE = @LT_AGE@
+LT_CURRENT = @LT_CURRENT@
+LT_RELEASE = @LT_RELEASE@
+LT_REVISION = @LT_REVISION@
 MAKEINFO = @MAKEINFO@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
@@ -76,14 +80,14 @@ RANLIB = @RANLIB@
 STRIP = @STRIP@
 VERSION = @VERSION@
 
-noinst_PROGRAMS = dvdcss_test
+noinst_PROGRAMS = test
 
-dvdcss_test_SOURCES = dvdcss_test.c
-dvdcss_test_LDADD = $(top_builddir)/dvdcss/libdvdcss.la -ldl
+test_SOURCES = test.c
+test_LDADD = $(top_builddir)/src/libdvdcss.la -ldl
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../src/config.h
 CONFIG_CLEAN_FILES = 
-noinst_PROGRAMS =  dvdcss_test$(EXEEXT)
+noinst_PROGRAMS =  test$(EXEEXT)
 PROGRAMS =  $(noinst_PROGRAMS)
 
 
@@ -91,9 +95,9 @@ DEFS = @DEFS@ -I. -I$(srcdir) -I../src
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
-dvdcss_test_OBJECTS =  dvdcss_test.$(OBJEXT)
-dvdcss_test_DEPENDENCIES =  $(top_builddir)/dvdcss/libdvdcss.la
-dvdcss_test_LDFLAGS = 
+test_OBJECTS =  test.$(OBJEXT)
+test_DEPENDENCIES =  $(top_builddir)/src/libdvdcss.la
+test_LDFLAGS = 
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -106,9 +110,9 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/dvdcss_test.P
-SOURCES = $(dvdcss_test_SOURCES)
-OBJECTS = $(dvdcss_test_OBJECTS)
+DEP_FILES =  .deps/test.P
+SOURCES = $(test_SOURCES)
+OBJECTS = $(test_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -168,9 +172,9 @@ distclean-libtool:
 
 maintainer-clean-libtool:
 
-dvdcss_test$(EXEEXT): $(dvdcss_test_OBJECTS) $(dvdcss_test_DEPENDENCIES)
-	@rm -f dvdcss_test$(EXEEXT)
-	$(LINK) $(dvdcss_test_LDFLAGS) $(dvdcss_test_OBJECTS) $(dvdcss_test_LDADD) $(LIBS)
+test$(EXEEXT): $(test_OBJECTS) $(test_DEPENDENCIES)
+	@rm -f test$(EXEEXT)
+	$(LINK) $(test_LDFLAGS) $(test_OBJECTS) $(test_LDADD) $(LIBS)
 
 tags: TAGS
 

@@ -33,6 +33,9 @@
 /* Define if you have the <sys/ioctl.h> header file.  */
 #undef HAVE_SYS_IOCTL_H
 
+/* Define if you have the <unistd.h> header file.  */
+#undef HAVE_UNISTD_H
+
 /* Define if you have the <winioctl.h> header file.  */
 #undef HAVE_WINIOCTL_H
 

@@ -36,7 +36,6 @@ DESTDIR =
 
 pkgdatadir = $(datadir)/@PACKAGE@
 pkglibdir = $(libdir)/@PACKAGE@
-pkgincludedir = $(includedir)/@PACKAGE@
 
 top_builddir = ..
 
@@ -68,6 +67,10 @@ EXTRA_LIB = @EXTRA_LIB@
 EXTRA_SRC = @EXTRA_SRC@
 LIBTOOL = @LIBTOOL@
 LN_S = @LN_S@
+LT_AGE = @LT_AGE@
+LT_CURRENT = @LT_CURRENT@
+LT_RELEASE = @LT_RELEASE@
+LT_REVISION = @LT_REVISION@
 MAKEINFO = @MAKEINFO@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
@@ -79,8 +82,9 @@ VERSION = @VERSION@
 lib_LTLIBRARIES = libdvdcss.la
 libdvdcss_la_SOURCES = libdvdcss.c css.c ioctl.c @EXTRA_SRC@
 libdvdcss_la_LIBADD = @EXTRA_LIB@
-libdvdcss_la_LDFLAGS = -version-info 2:0:0
+libdvdcss_la_LDFLAGS = -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) -release $(LT_RELEASE)
 
+pkgincludedir = $(includedir)/videolan
 pkginclude_HEADERS = dvdcss.h
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = config.h
