@@ -2,7 +2,7 @@
  * error.c: error management functions
  *****************************************************************************
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: error.c,v 1.6 2003/02/04 11:54:36 massiot Exp $
+ * $Id: error.c,v 1.7 2003/03/09 23:34:18 gbazin Exp $
  *
  * Author: Samuel Hocevar <sam@zoy.org>
  *
@@ -24,6 +24,8 @@
 #include "config.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+
 #ifdef HAVE_SYS_PARAM_H
 #   include <sys/param.h>
 #endif
