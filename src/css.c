@@ -2,7 +2,7 @@
  * css.c: Functions for DVD authentication and descrambling
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: css.c,v 1.23 2002/12/19 15:44:30 sam Exp $
+ * $Id: css.c,v 1.24 2003/02/04 11:54:36 massiot Exp $
  *
  * Author: Stéphane Borel <stef@via.ecp.fr>
  *         Håkan Hjort <d95hjort@dtek.chalmers.se>
@@ -48,7 +48,7 @@
 #endif
 #include <fcntl.h>
 
-#ifdef __MINGW_H
+#ifdef HAVE_LIMITS_H
 #   include <limits.h>
 #endif
 

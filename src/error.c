@@ -2,7 +2,7 @@
  * error.c: error management functions
  *****************************************************************************
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: error.c,v 1.5 2002/12/06 00:16:57 babal Exp $
+ * $Id: error.c,v 1.6 2003/02/04 11:54:36 massiot Exp $
  *
  * Author: Samuel Hocevar <sam@zoy.org>
  *
@@ -28,7 +28,7 @@
 #   include <sys/param.h>
 #endif
 
-#ifdef __MINGW_H
+#ifdef HAVE_LIMITS_H
 #   include <limits.h>
 #endif
 

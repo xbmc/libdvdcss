@@ -2,7 +2,7 @@
  * device.h: DVD device access
  *****************************************************************************
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: device.c,v 1.14 2002/12/19 16:50:50 sam Exp $
+ * $Id: device.c,v 1.15 2003/02/04 11:54:36 massiot Exp $
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -42,7 +42,7 @@
 #   include <unistd.h>
 #endif
 
-#ifdef __MINGW_H
+#ifdef HAVE_LIMITS_H
 #   include <limits.h>
 #endif
 
