@@ -126,6 +126,7 @@ AC_SUBST(EXTRA_LIB)
 AC_OUTPUT([Makefile src/Makefile test/Makefile])
 
 cat << EOF
+
 libdvdcss configuration
 -----------------------
 can be built          : ${CAN_BUILD_LIBDVDCSS}

@@ -6043,8 +6043,6 @@ fi
 done
 
 
-EXTRA_LIB="-lm"
-
 CFLAGS="-D_LARGEFILE64_SOURCE $CFLAGS"
 
 
@@ -6438,6 +6436,7 @@ test "$no_create" = yes || ${CONFIG_SHELL-/bin/sh} $CONFIG_STATUS || exit 1
 
 
 cat << EOF
+
 libdvdcss configuration
 -----------------------
 can be built          : ${CAN_BUILD_LIBDVDCSS}
