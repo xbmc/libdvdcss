@@ -2,7 +2,7 @@
  * libdvdcss.c: DVD reading library.
  *****************************************************************************
  * Copyright (C) 1998-2001 VideoLAN
- * $Id: libdvdcss.c,v 1.5 2002/04/03 15:19:21 sam Exp $
+ * $Id: libdvdcss.c,v 1.6 2002/04/04 23:44:20 gbazin Exp $
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -506,10 +506,25 @@ static int _dvdcss_open ( dvdcss_handle dvdcss, char *psz_target )
     {
         char psz_dvd[7];
         _snprintf( psz_dvd, 7, "\\\\.\\%c:", psz_target[0] );
+
+        /* To have access to ioctls, we need read and write access to the
+         * device. This is only allowed if you have administrator priviledges
+         * so we allow for a fallback method where ioctls are not available but
+         * we at least have read access to the device.
+         * (See Microsoft Q241374: Read and Write Access Required for SCSI
+         * Pass Through Requests) */
         (HANDLE) dvdcss->i_fd =
                 CreateFile( psz_dvd, GENERIC_READ | GENERIC_WRITE,
                                 FILE_SHARE_READ | FILE_SHARE_WRITE,
-                                NULL, OPEN_EXISTING, 0, NULL );
+                                NULL, OPEN_EXISTING,
+                                FILE_FLAG_RANDOM_ACCESS, NULL );
+
+        if( (HANDLE) dvdcss->i_fd == INVALID_HANDLE_VALUE )
+            (HANDLE) dvdcss->i_fd =
+                    CreateFile( psz_dvd, GENERIC_READ, FILE_SHARE_READ,
+                                    NULL, OPEN_EXISTING,
+                                    FILE_FLAG_RANDOM_ACCESS, NULL );
+
         if( (HANDLE) dvdcss->i_fd == INVALID_HANDLE_VALUE )
         {
             _dvdcss_error( dvdcss, "failed opening device" );

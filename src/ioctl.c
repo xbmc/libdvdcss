@@ -2,7 +2,7 @@
  * ioctl.c: DVD ioctl replacement function
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: ioctl.c,v 1.5 2002/04/04 01:26:54 sam Exp $
+ * $Id: ioctl.c,v 1.6 2002/04/04 23:44:20 gbazin Exp $
  *
  * Authors: Markus Kuespert <ltlBeBoy@beosmail.com>
  *          Samuel Hocevar <sam@zoy.org>
@@ -1451,7 +1451,9 @@ int ioctl_ReportRPC( int i_fd, int *p_type, int *p_mask, int *p_scheme )
         key->KeyType    = DvdGetRpcKey;
         key->KeyFlags   = 0;
 
-#warning "Fix ReportRPC for WIN32!"
+#if !defined(_MSC_VER)
+#   warning "Fix ReportRPC for WIN32!"
+#endif
         /* The IOCTL_DVD_READ_KEY might be the right IOCTL */
         i_ret = DeviceIoControl( (HANDLE) i_fd, IOCTL_DVD_READ_KEY, key, 
                 key->KeyLength, key, key->KeyLength, &tmp, NULL ) ? 0 : -1;
