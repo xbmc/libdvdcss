@@ -2,6 +2,21 @@
 # ChangeLog for libdvdcss #
 #=========================#
 
+1.2.3
+**
+
+  * ./src/Makefile.am: -no-undefined is now only used under BeOS because it
+    causes the Win32 compilation to fail.
+  * ./configure.in, src/Makefile.am: used AM_CONDITIONAL to conditionally
+    build the BSDi stuff.
+  * src/css.c, src/device.c, src/ioctl.[ch]: We don't need to be in
+    administrator mode anymore to authenticate the drive on Windows
+    NT/2k/XP. As a result any user can now play a DVD on these OS's
+  * src/ioctl.c: fixed ioctl_ReadTitleKey which wasn't working on Windows
+    NT/2k/XP.
+  * src/css.c: Workaround for a bug in the drive/kernel/ide chipset or
+    whatever which makes disc key decryption fail.
+
 1.2.2
 Sat, 10 Aug 2002 22:15:57 +0200
 

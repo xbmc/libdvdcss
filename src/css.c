@@ -2,7 +2,7 @@
  * css.c: Functions for DVD authentication and descrambling
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: css.c,v 1.16 2002/10/10 12:44:28 gbazin Exp $
+ * $Id: css.c,v 1.17 2002/10/10 21:40:41 massiot Exp $
  *
  * Author: Stéphane Borel <stef@via.ecp.fr>
  *         Håkan Hjort <d95hjort@dtek.chalmers.se>
@@ -391,9 +391,12 @@ int _dvdcss_disckey( dvdcss_t dvdcss )
                 break;
             }
             _dvdcss_debug( dvdcss, "failed to decrypt the disc key, "
-                                   "trying to crack it instead" );
+                                   "faulty drive/kernel? "
+                                   "cracking title keys instead" );
 
-            /* Fallback */
+            /* Fallback, but not to DISC as the disc key might be faulty */
+            dvdcss->i_method = DVDCSS_METHOD_TITLE;
+            break;
 
         case DVDCSS_METHOD_DISC:
 
@@ -407,6 +410,7 @@ int _dvdcss_disckey( dvdcss_t dvdcss )
                 break;
             }
             _dvdcss_debug( dvdcss, "failed to crack the disc key" );
+            memset( p_disc_key, 0, KEY_SIZE );
             dvdcss->i_method = DVDCSS_METHOD_TITLE;
             break;
 
@@ -942,7 +946,7 @@ static int DecryptDiscKey( u8 const *p_struct_disckey, dvd_key_t p_disc_key )
             DecryptKey( 0, p_disc_key, p_struct_disckey, p_verify );
 
             /* If the position / player key pair worked then return. */
-            if( memcmp( p_disc_key, p_verify, 5 ) == 0 )
+            if( memcmp( p_disc_key, p_verify, KEY_SIZE ) == 0 )
             {
                 return 0;
             }
@@ -952,6 +956,7 @@ static int DecryptDiscKey( u8 const *p_struct_disckey, dvd_key_t p_disc_key )
 
     /* Have tried all combinations of positions and keys, 
      * and we still didn't succeed. */
+    memset( p_disc_key, 0, KEY_SIZE );
     return -1;
 }
 
