@@ -10,7 +10,7 @@
 
 /*
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: dvdcss.h,v 1.3 2002/08/10 12:21:28 sam Exp $
+ * $Id: dvdcss.h,v 1.4 2002/08/10 14:27:26 sam Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ extern "C" {
 #endif
 
 /** Library instance handle, to be used for each library call. */
-typedef struct dvdcss_s* dvdcss_handle;
+typedef struct dvdcss_s* dvdcss_t;
 
 
 /** The block size of a DVD. */
@@ -65,22 +65,30 @@ extern char *        dvdcss_interface_2;
 /*
  * Exported prototypes.
  */
-extern dvdcss_handle dvdcss_open  ( char *psz_target );
-extern int           dvdcss_close ( dvdcss_handle );
-extern int           dvdcss_title ( dvdcss_handle,
-                                    int i_block );
-extern int           dvdcss_seek  ( dvdcss_handle,
-                                    int i_blocks,
-                                    int i_flags );
-extern int           dvdcss_read  ( dvdcss_handle,
-                                    void *p_buffer,
-                                    int i_blocks,
-                                    int i_flags );
-extern int           dvdcss_readv ( dvdcss_handle,
-                                    void *p_iovec,
-                                    int i_blocks,
-                                    int i_flags );
-extern char *        dvdcss_error ( dvdcss_handle );
+extern dvdcss_t dvdcss_open  ( char *psz_target );
+extern int      dvdcss_close ( dvdcss_t );
+extern int      dvdcss_seek  ( dvdcss_t,
+                               int i_blocks,
+                               int i_flags );
+extern int      dvdcss_read  ( dvdcss_t,
+                               void *p_buffer,
+                               int i_blocks,
+                               int i_flags );
+extern int      dvdcss_readv ( dvdcss_t,
+                               void *p_iovec,
+                               int i_blocks,
+                               int i_flags );
+extern char *   dvdcss_error ( dvdcss_t );
+
+
+/*
+ * Deprecated stuff.
+ */
+#ifndef _DOXYGEN_SKIP_ME
+#define dvdcss_title(a,b) dvdcss_seek(a,b,DVDCSS_SEEK_KEY)
+#define dvdcss_handle dvdcss_t
+#endif
+
 
 #ifdef __cplusplus
 }

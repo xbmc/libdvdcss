@@ -2,7 +2,7 @@
  * device.h: DVD device access
  *****************************************************************************
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: device.c,v 1.1 2002/08/09 14:10:43 sam Exp $
+ * $Id: device.c,v 1.2 2002/08/10 14:27:26 sam Exp $
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -100,7 +100,7 @@ static inline int readv( int i_fd, struct iovec * p_iovec, int i_count )
 }
 #endif /* WIN32 */
 
-int _dvdcss_use_ioctls( dvdcss_handle dvdcss )
+int _dvdcss_use_ioctls( dvdcss_t dvdcss )
 {
 #if defined( WIN32 )
     /* Some one need to implement this for Windows */
@@ -148,7 +148,7 @@ int _dvdcss_use_ioctls( dvdcss_handle dvdcss )
 #endif
 }
 
-int _dvdcss_open ( dvdcss_handle dvdcss )
+int _dvdcss_open ( dvdcss_t dvdcss )
 {
     char *psz_device = dvdcss->psz_device;
 
@@ -184,7 +184,7 @@ int _dvdcss_open ( dvdcss_handle dvdcss )
     }
     else
     {
-        dvdcss->i_fd = _win32_dvdcss_aopen( psz_device[0], dvdcss );
+        dvdcss->i_fd = _win32_dvdcss_aopen( dvdcss, psz_device[0] );
         if( dvdcss->i_fd == -1 )
         {
             _dvdcss_error( dvdcss, "failed opening device" );
@@ -211,7 +211,7 @@ int _dvdcss_open ( dvdcss_handle dvdcss )
 }
 
 #ifndef WIN32
-int _dvdcss_raw_open ( dvdcss_handle dvdcss, char *psz_device )
+int _dvdcss_raw_open ( dvdcss_t dvdcss, char *psz_device )
 {
     dvdcss->i_raw_fd = open( psz_device, 0 );
 
@@ -229,7 +229,7 @@ int _dvdcss_raw_open ( dvdcss_handle dvdcss, char *psz_device )
 }
 #endif
 
-int _dvdcss_close ( dvdcss_handle dvdcss )
+int _dvdcss_close ( dvdcss_t dvdcss )
 {
 #if defined( WIN32 )
     if( WIN2K )
@@ -263,7 +263,7 @@ int _dvdcss_close ( dvdcss_handle dvdcss )
     return 0;
 }
 
-int _dvdcss_seek ( dvdcss_handle dvdcss, int i_blocks )
+int _dvdcss_seek ( dvdcss_t dvdcss, int i_blocks )
 {
 #if defined( WIN32 )
     dvdcss->i_seekpos = i_blocks;
@@ -312,7 +312,7 @@ int _dvdcss_seek ( dvdcss_handle dvdcss, int i_blocks )
 
 }
 
-int _dvdcss_read ( dvdcss_handle dvdcss, void *p_buffer, int i_blocks )
+int _dvdcss_read ( dvdcss_t dvdcss, void *p_buffer, int i_blocks )
 {
 #if defined( WIN32 ) 
     if( WIN2K )
@@ -349,7 +349,7 @@ int _dvdcss_read ( dvdcss_handle dvdcss, void *p_buffer, int i_blocks )
 
 }
 
-int _dvdcss_readv ( dvdcss_handle dvdcss, struct iovec *p_iovec, int i_blocks )
+int _dvdcss_readv ( dvdcss_t dvdcss, struct iovec *p_iovec, int i_blocks )
 {
     int i_read;
 
@@ -449,7 +449,7 @@ int _win32_dvdcss_readv( int i_fd, struct iovec *p_iovec,
  * _win32_dvdcss_aopen: open dvd drive (load aspi and init w32_aspidev
  *                      structure)
  *****************************************************************************/
-int _win32_dvdcss_aopen( char c_drive, dvdcss_handle dvdcss )
+int _win32_dvdcss_aopen( dvdcss_t dvdcss, char c_drive )
 {
     HMODULE hASPI;
     DWORD dwSupportInfo;

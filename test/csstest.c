@@ -11,15 +11,12 @@
 
 #include <dvdcss/dvdcss.h>
 
-/* Macro to check if a sector is scrambled */
-#define IsSectorScrambled(buf) (((unsigned char*)(buf))[0x14] & 0x30)
-
-/* Print parts of a 2048 bytes buffer */
-static void dumpsector( unsigned char * );
+static int  isscrambled( unsigned char * );
+static void dumpsector ( unsigned char * );
 
 int main( int i_argc, char *ppsz_argv[] )
 {
-    dvdcss_handle dvdcss;
+    dvdcss_t      dvdcss;
     unsigned char p_buffer[ DVDCSS_BLOCK_SIZE ];
     unsigned int  i_sector;
     int           i_ret;
@@ -67,7 +64,7 @@ int main( int i_argc, char *ppsz_argv[] )
     dumpsector( p_buffer );
 
     /* Check if sector was encrypted */
-    if( IsSectorScrambled( p_buffer ) )
+    if( isscrambled( p_buffer ) )
     {
         /* Set the file descriptor position to the previous location */
         /* ... and get the appropriate key for this sector */
@@ -98,9 +95,15 @@ int main( int i_argc, char *ppsz_argv[] )
     }
 
     /* Close the device */
-    dvdcss_close( dvdcss );
+    i_ret = dvdcss_close( dvdcss );
 
-    return 0;
+    return i_ret;
+}
+
+/* Check if a sector is scrambled */
+static int isscrambled( unsigned char *p_buffer )
+{
+    return p_buffer[ 0x14 ] & 0x30;
 }
 
 /* Print parts of a 2048 bytes buffer */

@@ -2,7 +2,7 @@
  * error.c: error management functions
  *****************************************************************************
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: error.c,v 1.1 2002/08/09 14:10:43 sam Exp $
+ * $Id: error.c,v 1.2 2002/08/10 14:27:26 sam Exp $
  *
  * Author: Samuel Hocevar <sam@zoy.org>
  *
@@ -34,7 +34,7 @@
 /*****************************************************************************
  * Error messages
  *****************************************************************************/
-void _dvdcss_error( dvdcss_handle dvdcss, char *psz_string )
+void _dvdcss_error( dvdcss_t dvdcss, char *psz_string )
 {
     if( dvdcss->b_errors )
     {
@@ -47,7 +47,7 @@ void _dvdcss_error( dvdcss_handle dvdcss, char *psz_string )
 /*****************************************************************************
  * Debug messages
  *****************************************************************************/
-void _dvdcss_debug( dvdcss_handle dvdcss, char *psz_string )
+void _dvdcss_debug( dvdcss_t dvdcss, char *psz_string )
 {
     if( dvdcss->b_debug )
     {

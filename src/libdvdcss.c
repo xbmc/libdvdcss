@@ -5,7 +5,7 @@
  *          Håkan Hjort <d95hjort@dtek.chalmers.se>
  *
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: libdvdcss.c,v 1.16 2002/08/10 12:56:03 sam Exp $
+ * $Id: libdvdcss.c,v 1.17 2002/08/10 14:27:26 sam Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,16 +33,52 @@
  * \li portability: currently supported platforms are GNU/Linux, FreeBSD,
  *     NetBSD, OpenBSD, BSD/OS, BeOS, Windows 95/98, Windows NT/2000, MacOS X,
  *     Solaris, HP-UX and OS/2.
+ * \li adaptability: unlike most similar projects, libdvdcss doesn't require
+ *     the region of your drive to be set and will try its best to read from
+ *     the disc even in the case of a region mismatch.
  * \li simplicity: a DVD player can be built around the \e libdvdcss API using
  *     no more than 4 or 5 library calls.
- * \li freedom: \e libdvdcss is released under the General Public License,
- *     ensuring it will stay free, and used only in free software.
- * \li just better: unlike most similar projects, libdvdcss doesn't require
- *     the region of your drive to be set.
  *
- * \section main How to use libdvdcss
+ * \e libdvdcss is free software, released under the General Public License.
+ * This ensures that \e libdvdcss remains free and used only with free
+ * software.
  *
- * The \e libdvdcss API is documented in the dvdcss.h file.
+ * \section api The libdvdcss API
+ *
+ * The complete \e libdvdcss programming interface is documented in the
+ * dvdcss.h file.
+ *
+ * \section env Environment variables
+ *
+ * Some environment variables can be used to change the behaviour of
+ * \e libdvdcss without having to modify the program which uses it. These
+ * variables are:
+ *
+ * \li \b DVDCSS_VERBOSE: sets the verbosity level.
+ *     - \c 0 outputs no messages at all.
+ *     - \c 1 outputs error messages to stderr.
+ *     - \c 2 outputs error messages and debug messages to stderr.
+ *
+ * \li \b DVDCSS_METHOD: sets the authentication and decryption method
+ *     that \e libdvdcss will use to read scrambled discs. Can be one
+ *     of \c title, \c key or \c disc.
+ *     - \c key is the default method. \e libdvdcss will use a set of
+ *       calculated player keys to try and get the disc key. This can fail
+ *       if the drive does not recognize any of the player keys.
+ *     - \c disc is a fallback method when \c key has failed. Instead of
+ *       using player keys, \e libdvdcss will crack the disc key using
+ *       a brute force algorithm. This process is CPU intensive and requires
+ *       64 MB of memory to store temporary data.
+ *     - \c title is the fallback when all other methods have failed. It does
+ *       not rely on a key exchange with the DVD drive, but rather uses a
+ *       crypto attack to guess the title key. On rare cases this may fail
+ *       because there is not enough encrypted data on the disc to perform
+ *       a statistical attack, but in the other hand it is the only way to
+ *       decrypt a DVD stored on a hard disc, or a DVD with the wrong region
+ *       on an RPC2 drive.
+ *
+ * \li \b DVDCSS_RAW_DEVICE: specify the raw device to use.
+ * 
  */
 
 /*
@@ -95,7 +131,7 @@ char * dvdcss_interface_2 = VERSION;
  * dvdcss_open() returns a handle to be used for all subsequent \e libdvdcss
  * calls. If an error occured, NULL is returned.
  */
-extern dvdcss_handle dvdcss_open ( char *psz_target )
+extern dvdcss_t dvdcss_open ( char *psz_target )
 {
     int i_ret;
 
@@ -105,7 +141,7 @@ extern dvdcss_handle dvdcss_open ( char *psz_target )
     char *psz_raw_device = getenv( "DVDCSS_RAW_DEVICE" );
 #endif
 
-    dvdcss_handle dvdcss;
+    dvdcss_t dvdcss;
 
     /*
      *  Allocate the library structure
@@ -239,7 +275,7 @@ extern dvdcss_handle dvdcss_open ( char *psz_target )
  * occured in \e libdvdcss. It can be used to format error messages at your
  * convenience in your application.
  */
-extern char * dvdcss_error ( dvdcss_handle dvdcss )
+extern char * dvdcss_error ( dvdcss_t dvdcss )
 {
     return dvdcss->psz_error;
 }
@@ -268,7 +304,7 @@ extern char * dvdcss_error ( dvdcss_handle dvdcss )
  * deprecated dvdcss_title() call. This flag is typically used when seeking
  * in a new title.
  */
-extern int dvdcss_seek ( dvdcss_handle dvdcss, int i_blocks, int i_flags )
+extern int dvdcss_seek ( dvdcss_t dvdcss, int i_blocks, int i_flags )
 {
     /* title cracking method is too slow to be used at each seek */
     if( ( ( i_flags & DVDCSS_SEEK_MPEG )
@@ -283,21 +319,6 @@ extern int dvdcss_seek ( dvdcss_handle dvdcss, int i_blocks, int i_flags )
     }
 
     return _dvdcss_seek( dvdcss, i_blocks );
-}
-
-/**
- * \brief Deprecated. See dvdcss_seek().
- */
-extern int dvdcss_title ( dvdcss_handle dvdcss, int i_block )
-{
-    fprintf( stderr, "WARNING: dvdcss_title() is DEPRECATED, "
-                     "use dvdcss_seek() instead\n" );
-    if( ! dvdcss->b_scrambled )
-    {
-        return 0;
-    }
-
-    return _dvdcss_title( dvdcss, i_block );
 }
 
 /**
@@ -323,9 +344,9 @@ extern int dvdcss_title ( dvdcss_handle dvdcss, int i_block )
  * \warning dvdcss_read() expects to be able to write \p i_blocks *
  *          #DVDCSS_BLOCK_SIZE bytes in \p p_buffer.
  */
-extern int dvdcss_read ( dvdcss_handle dvdcss, void *p_buffer,
-                                               int i_blocks,
-                                               int i_flags )
+extern int dvdcss_read ( dvdcss_t dvdcss, void *p_buffer,
+                                          int i_blocks,
+                                          int i_flags )
 {
     int i_ret, i_index;
 
@@ -396,9 +417,9 @@ extern int dvdcss_read ( dvdcss_handle dvdcss, void *p_buffer,
  *          Moreover, all iov_len members of the iovec structures should be
  *          multiples of #DVDCSS_BLOCK_SIZE.
  */
-extern int dvdcss_readv ( dvdcss_handle dvdcss, void *p_iovec,
-                                                int i_blocks,
-                                                int i_flags )
+extern int dvdcss_readv ( dvdcss_t dvdcss, void *p_iovec,
+                                           int i_blocks,
+                                           int i_flags )
 {
     struct iovec *_p_iovec = (struct iovec *)p_iovec;
     int i_ret, i_index;
@@ -451,10 +472,10 @@ extern int dvdcss_readv ( dvdcss_handle dvdcss, void *p_iovec,
  * \return zero in case of success, a negative value otherwise.
  *
  * This function closes the DVD device and frees all the memory allocated
- * by \e libdvdcss. On return, the #dvdcss_handle is invalidated and may not be
+ * by \e libdvdcss. On return, the #dvdcss_t is invalidated and may not be
  * used again.
  */
-extern int dvdcss_close ( dvdcss_handle dvdcss )
+extern int dvdcss_close ( dvdcss_t dvdcss )
 {
     dvd_title_t *p_title;
     int i_ret;
@@ -479,5 +500,21 @@ extern int dvdcss_close ( dvdcss_handle dvdcss )
     free( dvdcss );
 
     return 0;
+}
+
+/*
+ *  Deprecated. See dvdcss_seek().
+ */
+#undef dvdcss_title
+extern int dvdcss_title ( dvdcss_t dvdcss, int i_block )
+{
+    fprintf( stderr, "WARNING: dvdcss_title() is DEPRECATED, "
+                     "use dvdcss_seek() instead\n" );
+    if( ! dvdcss->b_scrambled )
+    {
+        return 0;
+    }
+
+    return _dvdcss_title( dvdcss, i_block );
 }
 

@@ -2,7 +2,7 @@
  * css.c: Functions for DVD authentication and descrambling
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: css.c,v 1.13 2002/08/09 22:03:34 sam Exp $
+ * $Id: css.c,v 1.14 2002/08/10 14:27:26 sam Exp $
  *
  * Author: Stéphane Borel <stef@via.ecp.fr>
  *         Håkan Hjort <d95hjort@dtek.chalmers.se>
@@ -51,18 +51,18 @@
 /*****************************************************************************
  * Local prototypes
  *****************************************************************************/
-static int  GetBusKey       ( dvdcss_handle );
-static int  GetASF          ( dvdcss_handle );
+static int  GetBusKey       ( dvdcss_t );
+static int  GetASF          ( dvdcss_t );
 
 static void CryptKey        ( int, int, u8 const *, u8 * );
 static void DecryptKey      ( u8, u8 const *, u8 const *, u8 * );
 
 static int  DecryptDiscKey  ( u8 const *, dvd_key_t );
-static int  CrackDiscKey    ( dvdcss_handle, u8 * );
+static int  CrackDiscKey    ( dvdcss_t, u8 * );
 
 static void DecryptTitleKey ( dvd_key_t, dvd_key_t );
 static int  RecoverTitleKey ( int, u8 const *, u8 const *, u8 const *, u8 * );
-static int  CrackTitleKey   ( dvdcss_handle, int, int, dvd_key_t );
+static int  CrackTitleKey   ( dvdcss_t, int, int, dvd_key_t );
 
 static int  AttackPattern   ( u8 const[], int, u8 * );
 #if 0
@@ -72,7 +72,7 @@ static int  AttackPadding   ( u8 const[], int, u8 * );
 /*****************************************************************************
  * _dvdcss_test: check if the disc is encrypted or not
  *****************************************************************************/
-int _dvdcss_test( dvdcss_handle dvdcss )
+int _dvdcss_test( dvdcss_t dvdcss )
 {
     int i_ret, i_copyright;
 
@@ -107,7 +107,7 @@ int _dvdcss_test( dvdcss_handle dvdcss )
  * that ASF=1 from the start and then later fail with a 'read of scrambled 
  * block without authentication' error.
  *****************************************************************************/
-static int GetBusKey( dvdcss_handle dvdcss )
+static int GetBusKey( dvdcss_t dvdcss )
 {
     u8        p_buffer[10];
     u8        p_challenge[2*KEY_SIZE];
@@ -249,7 +249,7 @@ static int GetBusKey( dvdcss_handle dvdcss )
 /*****************************************************************************
  * PrintKey : debug function that dumps a key value 
  *****************************************************************************/
-static void PrintKey( dvdcss_handle dvdcss, char *prefix, u8 const *data )
+static void PrintKey( dvdcss_t dvdcss, char *prefix, u8 const *data )
 {
     char psz_output[80];
 
@@ -264,7 +264,7 @@ static void PrintKey( dvdcss_handle dvdcss, char *prefix, u8 const *data )
  * This function should only be called by dvdcss_seek and should eventually
  * not be external if possible.
  *****************************************************************************/
-int _dvdcss_title ( dvdcss_handle dvdcss, int i_block )
+int _dvdcss_title ( dvdcss_t dvdcss, int i_block )
 {
     dvd_title_t *p_title;
     dvd_title_t *p_newtitle;
@@ -351,7 +351,7 @@ int _dvdcss_title ( dvdcss_handle dvdcss, int i_block )
  *  -disc key hash crack,
  *  -decryption with player keys if they are available.
  *****************************************************************************/
-int _dvdcss_disckey( dvdcss_handle dvdcss )
+int _dvdcss_disckey( dvdcss_t dvdcss )
 {
     unsigned char p_buffer[2048];
     dvd_key_t p_disc_key;
@@ -434,7 +434,7 @@ int _dvdcss_disckey( dvdcss_handle dvdcss )
 /*****************************************************************************
  * _dvdcss_titlekey: get title key.
  *****************************************************************************/
-int _dvdcss_titlekey( dvdcss_handle dvdcss, int i_pos, dvd_key_t p_title_key )
+int _dvdcss_titlekey( dvdcss_t dvdcss, int i_pos, dvd_key_t p_title_key )
 {
     static u8 p_garbage[ 2048 ];          /* static because we never read it */
     u8  p_key[KEY_SIZE];
@@ -599,7 +599,7 @@ int _dvdcss_unscramble( dvd_key_t p_key, u8 *p_sec )
  *  0 if the device needs to be authenticated,
  *  1 either.
  *****************************************************************************/
-static int GetASF( dvdcss_handle dvdcss )
+static int GetASF( dvdcss_t dvdcss )
 {
     int i_asf = 0;
 
@@ -998,7 +998,7 @@ static int investigate( unsigned char *hash, unsigned char *ckey )
     return memcmp( key, ckey, KEY_SIZE );
 }
 
-static int CrackDiscKey( dvdcss_handle dvdcss, u8 *p_disc_key )
+static int CrackDiscKey( dvdcss_t dvdcss, u8 *p_disc_key )
 {
     unsigned char B[5] = { 0,0,0,0,0 }; /* Second Stage of mangle cipher */
     unsigned char C[5] = { 0,0,0,0,0 }; /* Output Stage of mangle cipher
@@ -1340,7 +1340,7 @@ static int i_tries = 0, i_success = 0;
  * The DVD should have been opened and be in an authenticated state.
  * i_pos is the starting sector, i_len is the maximum number of sectors to read
  *****************************************************************************/
-static int CrackTitleKey( dvdcss_handle dvdcss, int i_pos, int i_len, 
+static int CrackTitleKey( dvdcss_t dvdcss, int i_pos, int i_len, 
                           dvd_key_t p_titlekey )
 {
     u8       p_buf[0x800];
