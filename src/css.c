@@ -2,7 +2,7 @@
  * css.c: Functions for DVD authentification and unscrambling
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: css.c,v 1.9 2002/06/02 16:05:34 sam Exp $
+ * $Id: css.c,v 1.10 2002/07/01 09:59:09 hjort Exp $
  *
  * Author: Stéphane Borel <stef@via.ecp.fr>
  *         Håkan Hjort <d95hjort@dtek.chalmers.se>
@@ -190,7 +190,7 @@ static int CSSGetBusKey( dvdcss_handle dvdcss )
         if( memcmp( p_key_check, p_key1, KEY_SIZE ) == 0 )
         {
             snprintf( psz_warning, sizeof(psz_warning),
-                      "drive authentic, using varient %d", i );
+                      "drive authentic, using variant %d", i );
             _dvdcss_debug( dvdcss, psz_warning );
             i_varient = i;
             break;
