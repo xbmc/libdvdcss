@@ -2,6 +2,17 @@
 # ChangeLog for libdvdcss #
 #=========================#
 
+1.2.8
+Tue, 29 Jul 2003 01:45:04 +0200
+
+  * ./src/css.c: Workaround in CrackTitleKey for strange discs that report read
+    errors seemingly at random.
+    Used macros instead of numerals where appropriate.
+    Fixed spelling here and there.
+  * ./src/device.c: Fixed a bug that prevented encrypted dvds from working
+    under win32.
+  * ./src/libdvdcss.c: if DVDCSS_VERBOSE is greater than 2, do as if it was 2.
+
 1.2.7
 Fri, 13 Jun 2003 02:25:49 +0200
 

@@ -1,3 +1,9 @@
+libdvdcss (1.2.8-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Sam Hocevar (Debian packages) <sam+deb@zoy.org>  Tue, 29 Jul 2003 01:45:04 +0200
+
 libdvdcss (1.2.7-1) unstable; urgency=low
 
   * New upstream release.
