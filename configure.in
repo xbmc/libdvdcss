@@ -1,9 +1,10 @@
 AC_INIT(src/libdvdcss.c)
 
+AC_CANONICAL_SYSTEM
+
 AM_INIT_AUTOMAKE(libdvdcss, 1.1.0)
 AM_CONFIG_HEADER(src/config.h)
 
-AC_CANONICAL_HOST
 AC_PROG_CC
 AC_STDC_HEADERS
 
@@ -14,6 +15,21 @@ AC_C_INLINE
 AC_TYPE_SIZE_T
 
 AC_CHECK_HEADERS(unistd.h)
+
+dnl
+dnl  Check the operating system
+dnl
+case x"${target_os}" in
+  x)
+    SYS=unknown
+    ;;
+  xdarwin*)
+    SYS=darwin
+    ;;
+  x*)
+    SYS=${target_os}
+    ;;
+esac
 
 dnl Check for boolean_t
 AC_CACHE_CHECK([for boolean_t in sys/types.h],
@@ -147,6 +163,11 @@ AC_CHECK_HEADERS(sys/ioctl.h,[
 ])
 
 CFLAGS="-D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -DDVDCSS_DIST $CFLAGS"
+
+if test x$SYS = xdarwin
+then
+  CFLAGS="${CFLAGS} -no-cpp-precomp"
+fi
 
 AC_SUBST(EXTRA_SRC)
 AC_SUBST(EXTRA_LIB)
