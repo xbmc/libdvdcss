@@ -3,7 +3,7 @@
  * Collection of useful common types and macros definitions
  *****************************************************************************
  * Copyright (C) 1998, 1999, 2000 VideoLAN
- * $Id: common.h,v 1.4 2003/03/09 23:34:18 gbazin Exp $
+ * $Id: common.h,v 1.5 2003/04/11 10:00:29 gbazin Exp $
  *
  * Authors: Samuel Hocevar <sam@via.ecp.fr>
  *          Vincent Seguin <seguin@via.ecp.fr>
@@ -46,7 +46,9 @@
 
 #if defined( WIN32 )
 
-#define PATH_MAX MAX_PATH
+#ifndef PATH_MAX
+#   define PATH_MAX MAX_PATH
+#endif
 
 /* several type definitions */
 #   if defined( __MINGW32__ )
