@@ -1,4 +1,5 @@
 README for libdvdcss, a portable abstraction library for DVD decryption
+$Id: README,v 1.3 2003/09/09 12:32:40 sam Exp $
 
 
 Introduction
@@ -34,8 +35,8 @@ variables:
            libcss.
            This is the default method,
   DVDCSS_VERBOSE={0|1|2}: libdvdcss verbosity
-    0: no error messages, no debug messages,
-    1: only error messages (this is the default)
+    0: no error messages, no debug messages (this is the default)
+    1: only error messages
     2: error and debug messages
 
 

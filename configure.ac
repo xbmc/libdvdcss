@@ -188,5 +188,21 @@ AM_CONDITIONAL(SYS_BSDI, test "${SYS_BSDI}" = "1")
 AM_CONDITIONAL(SYS_BSDI_LIBDVD, test "${SYS_BSDI_LIBDVD}" = "1")
 AM_CONDITIONAL(SYS_MSVC, test "${SYS_MSVC}" = "1")
 
-AC_OUTPUT([Makefile src/Makefile src/dvdcss/Makefile test/Makefile debian/Makefile doc/Makefile autotools/Makefile])
+dnl
+dnl  Shall we build documentation?
+dnl
+AC_PATH_PROG(DOXYGEN, doxygen, no)
+AM_CONDITIONAL(DOXYGEN, test "${DOXYGEN}" != "no")
+AC_PATH_PROG(LATEX, latex, no)
+AM_CONDITIONAL(LATEX, test "${LATEX}" != "no")
+
+AC_OUTPUT([
+  Makefile
+  autotools/Makefile
+  debian/Makefile
+  doc/Makefile
+  src/Makefile
+  src/dvdcss/Makefile
+  test/Makefile
+])
 

@@ -1,3 +1,15 @@
+libdvdcss (1.2.8-2) unstable; urgency=low
+
+  * debian/control:
+    + Set policy to 3.6.0. No changes required.
+    + Set debhelper build-dependency to (>= 4.0) because of debian/compat.
+    + Build-depend on doxygen.
+    + Build-depend on tetex-bin so we have latex and dvips.
+  * debian/rules:
+    + Copy the HTML and PostScript documentation to the binary package.
+
+ -- Sam Hocevar (Debian packages) <sam+deb@zoy.org>  Wed,  6 Aug 2003 16:57:46 +0200
+
 libdvdcss (1.2.8-1) unstable; urgency=low
 
   * New upstream release.

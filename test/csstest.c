@@ -29,7 +29,11 @@ int main( int i_argc, char *ppsz_argv[] )
     /* Check for 2 arguments */
     if( i_argc != 3 )
     {
-        printf( "usage: %s <device> <sector>\n", ppsz_argv[0] );
+        printf( "usage: %s <target> <sector>\n", ppsz_argv[0] );
+        printf( "examples:\n" );
+        printf( "  %s /dev/hdc 1024\n", ppsz_argv[0] );
+        printf( "  %s D: 1024\n", ppsz_argv[0] );
+        printf( "  %s scrambledfile.vob 1024\n", ppsz_argv[0] );
         return -1;
     }
 

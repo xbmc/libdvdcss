@@ -6,8 +6,6 @@ configure
 config.log
 config.cache
 config.status
-config.guess
-config.sub
 config.h
 config.h.in
 Makefile
@@ -16,10 +14,4 @@ build-stamp
 stamp-h*
 aclocal.m4
 autom4te.cache
-compile
-depcomp
-install-sh
 libtool
-ltmain.sh
-missing
-mkinstalldirs

@@ -4,12 +4,6 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-# This is the debhelper compatability version to use.
-export DH_COMPAT=3
-
-# Compilation options
-export CONFIG_FLAGS="--prefix=/usr"
-
 build: build-stamp
 build-stamp:
 	dh_testdir
@@ -48,6 +42,10 @@ install: build
 	mv debian/libdvdcss2/usr/lib/*.so debian/libdvdcss2/usr/lib/*a \
 		debian/libdvdcss2-dev/usr/lib/
 	mv debian/libdvdcss2/usr/include debian/libdvdcss2-dev/usr/
+
+	cp -r doc/html debian/libdvdcss2/usr/share/doc/libdvdcss2/
+	cp doc/latex/refman.ps \
+	   debian/libdvdcss2/usr/share/doc/libdvdcss2/libdvdcss.ps
 
 # Build architecture-independent files here.
 binary-indep: build install

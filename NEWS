@@ -1,7 +1,8 @@
-$Id: NEWS,v 1.6 2003/07/29 19:49:13 gbazin Exp $
+$Id: NEWS,v 1.7 2003/09/09 12:32:40 sam Exp $
 
 Changes between 1.2.7 and 1.2.8:
 --------------------------------
+
   * win32 fix for encrypted DVDs.
   * workaround for strange discs that report read errors seemingly at random.
 

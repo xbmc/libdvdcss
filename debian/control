@@ -2,8 +2,8 @@ Source: libdvdcss
 Section: libs
 Priority: optional
 Maintainer: Sam Hocevar (Debian packages) <sam+deb@zoy.org>
-Build-Depends: debhelper (>=3.0)
-Standards-Version: 3.5.10
+Build-Depends: debhelper (>= 4.0), doxygen, tetex-bin
+Standards-Version: 3.6.0
 
 Package: libdvdcss2
 Section: libs
