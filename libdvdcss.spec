@@ -5,10 +5,9 @@
 %define major  	2
 %define libname %{name}%{major}
 
-%define buildfor_rh80 %([[ -e /etc/mandrake-release ]] && echo 0 || echo 1)
+%define buildfor_rh9 %([[ -e /etc/mandrake-release ]] && echo 0 || echo 1)
 
-%if %buildfor_rh80
-%define release %rel
+%if %buildfor_rh9
 # some mdk macros that do not exist in rh
 %define configure2_5x %configure
 %define make %__make
