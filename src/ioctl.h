@@ -2,7 +2,7 @@
  * ioctl.h: DVD ioctl replacement function
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: ioctl.h,v 1.8 2002/10/10 12:44:28 gbazin Exp $
+ * $Id: ioctl.h,v 1.9 2002/10/12 12:41:24 gbazin Exp $
  *
  * Authors: Samuel Hocevar <sam@zoy.org>
  *
@@ -197,6 +197,14 @@ typedef union dvd_authinfo dvd_authinfo;
 #define DVD_DISK_KEY_LENGTH             (2048 + sizeof(DVD_COPY_PROTECT_KEY))
 #define DVD_ASF_LENGTH                  (sizeof(DVD_ASF) + sizeof(DVD_COPY_PROTECT_KEY))
 #define DVD_REGION_LENGTH               (sizeof(DVD_REGION))
+
+#define DVD_COPYRIGHT_MASK              0x00000040
+#define DVD_NOT_COPYRIGHTED             0x00000000
+#define DVD_COPYRIGHTED                 0x00000040
+
+#define DVD_SECTOR_PROTECT_MASK         0x00000020
+#define DVD_SECTOR_NOT_PROTECTED        0x00000000
+#define DVD_SECTOR_PROTECTED            0x00000020
 
 #define SCSI_IOCTL_DATA_OUT             0
 #define SCSI_IOCTL_DATA_IN              1

@@ -2,7 +2,7 @@
  * ioctl.c: DVD ioctl replacement function
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: ioctl.c,v 1.14 2002/10/10 12:44:28 gbazin Exp $
+ * $Id: ioctl.c,v 1.15 2002/10/12 12:41:24 gbazin Exp $
  *
  * Authors: Markus Kuespert <ltlBeBoy@beosmail.com>
  *          Samuel Hocevar <sam@zoy.org>
@@ -251,22 +251,34 @@ int ioctl_ReadCopyright( int i_fd, int i_layer, int *pi_copyright )
         else
         {
             /* We don't have the privileges to send a SCSI_PASS_THROUGH
-               command, let's try the buggy IOCTL_DVD_READ_STRUCTURE anyway */
+               command, let's try to read a title key to check if the DVD is
+               encrypted. */
 
-            DVD_READ_STRUCTURE dvd_struct;
-            DVD_COPYRIGHT_DESCRIPTOR dvd_descr;
+            int i_agid;
+            u8 buffer[DVD_DISK_KEY_LENGTH];
+            PDVD_COPY_PROTECT_KEY key = (PDVD_COPY_PROTECT_KEY) &buffer;
 
-            memset( &dvd_struct, 0, sizeof( DVD_READ_STRUCTURE ) );
+            if( ioctl_ReportAgid( i_fd, &i_agid ) < 0 )
+                return -1;
 
-            dvd_struct.Format = DvdCopyrightDescriptor;
-            dvd_struct.LayerNumber = i_layer;
+            memset( &buffer, 0, sizeof( buffer ) );
 
-            i_ret = DeviceIoControl( (HANDLE) i_fd, IOCTL_DVD_READ_STRUCTURE,
-                                 &dvd_struct, sizeof(DVD_READ_STRUCTURE),
-                                 &dvd_descr, sizeof(DVD_COPYRIGHT_DESCRIPTOR),
-                                 &tmp, NULL ) ? 0 : -1;
+            key->KeyLength  = DVD_DISK_KEY_LENGTH;
+            key->SessionId  = i_agid;
+            key->KeyType    = DvdDiskKey;
+            key->KeyFlags   = 0;
 
-            *pi_copyright = dvd_descr.CopyrightProtectionType;
+            i_ret = DeviceIoControl( (HANDLE) i_fd, IOCTL_DVD_READ_KEY, key, 
+                    key->KeyLength, key, key->KeyLength, &tmp, NULL ) ? 0 : -1;
+            if( i_ret < 0 )
+            {   
+                /* Ok, let's assume the disc is not encrypted */
+                *pi_copyright = 0;
+                i_ret = 0;
+            }
+
+            *pi_copyright = ((key->KeyFlags & DVD_SECTOR_PROTECT_MASK) ==
+                             DVD_SECTOR_PROTECTED) ? 0 : 1;
         }
     }
     else
