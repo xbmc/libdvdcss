@@ -2,7 +2,7 @@
  * device.h: DVD device access
  *****************************************************************************
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: device.c,v 1.7 2002/11/24 17:34:23 sam Exp $
+ * $Id: device.c,v 1.8 2002/12/05 10:24:42 sam Exp $
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -12,7 +12,7 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -33,7 +33,9 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/param.h>
+#ifdef HAVE_SYS_PARAM_H
+#   include <sys/param.h>
+#endif
 #include <fcntl.h>
 
 #ifdef HAVE_UNISTD_H
@@ -100,22 +102,22 @@ int _dvdcss_use_ioctls( dvdcss_t dvdcss )
     {
 	return 1;  /* What to do?  Be conservative and try to use the ioctls */
     }
-    
-    /* Complete this list and check that we test for the right things 
+
+    /* Complete this list and check that we test for the right things
      * (I've assumed for all OSs that 'r', (raw) device, are char devices
      *  and those that don't contain/use an 'r' in the name are block devices)
      *
      * Linux    needs a block device
      * Solaris  needs a char device
-     * Darwin   needs a char device 
+     * Darwin   needs a char device
      * OpenBSD  needs a char device
      * NetBSD   needs a char device
      * FreeBSD  can use either the block or the char device
      * BSD/OS   can use either the block or the char device
      */
-    
+
     /* Check if this is a block/char device */
-    if( S_ISBLK( fileinfo.st_mode ) || 
+    if( S_ISBLK( fileinfo.st_mode ) ||
 	S_ISCHR( fileinfo.st_mode ) )
     {
 	return 1;
@@ -298,7 +300,7 @@ static int aspi_open( dvdcss_t dvdcss, char const * psz_device )
     long (*lpGetSupport)( void );
     long (*lpSendCommand)( void* );
     char c_drive = psz_device[0];
-     
+
     /* load aspi and init w32_aspidev structure */
     hASPI = LoadLibrary( "wnaspi32.dll" );
     if( hASPI == NULL )
@@ -309,7 +311,7 @@ static int aspi_open( dvdcss_t dvdcss, char const * psz_device )
 
     (FARPROC) lpGetSupport = GetProcAddress( hASPI, "GetASPI32SupportInfo" );
     (FARPROC) lpSendCommand = GetProcAddress( hASPI, "SendASPI32Command" );
- 
+
     if(lpGetSupport == NULL || lpSendCommand == NULL )
     {
         _dvdcss_error( dvdcss, "unable to get aspi function pointers" );
@@ -459,7 +461,7 @@ static int aspi_seek( dvdcss_t dvdcss, int i_blocks )
     int i_old_blocks;
     char sz_buf[ DVDCSS_BLOCK_SIZE ];
     struct w32_aspidev *fd = (struct w32_aspidev *) dvdcss->i_fd;
-    
+
     i_old_blocks = fd->i_blocks;
     fd->i_blocks = i_blocks;
 
@@ -481,7 +483,7 @@ static int aspi_seek( dvdcss_t dvdcss, int i_blocks )
 static int libc_read ( dvdcss_t dvdcss, void *p_buffer, int i_blocks )
 {
     int i_ret;
-    /* TODO: partial reads are wrong,i.e 2200/2048 = 1 
+    /* TODO: partial reads are wrong,i.e 2200/2048 = 1
      * but the location has advanced 2200 bytes (lseek possition that is) */
     i_ret = read( dvdcss->i_read_fd, p_buffer,
                   (off_t)i_blocks * DVDCSS_BLOCK_SIZE );
@@ -595,7 +597,7 @@ static int win_readv ( dvdcss_t dvdcss, struct iovec *p_iovec, int i_blocks )
 
     for( i_index = i_blocks; i_index; i_index-- )
     {
-        i_blocks_total += p_iovec[i_index-1].iov_len; 
+        i_blocks_total += p_iovec[i_index-1].iov_len;
     }
 
     if( i_blocks_total <= 0 ) return 0;
@@ -640,7 +642,7 @@ static int win_readv ( dvdcss_t dvdcss, struct iovec *p_iovec, int i_blocks )
          * garbage, this isn't an issue as we return the number of
          * blocks actually read */
         i_blocks_total -= ( p_iovec[i_index].iov_len / DVDCSS_BLOCK_SIZE );
-    } 
+    }
 
     return i_blocks_read;
 }
@@ -665,17 +667,17 @@ static int aspi_read_internal( int i_fd, void *p_data, int i_blocks )
     ssc.SRB_HaId        = LOBYTE( fd->i_sid );
     ssc.SRB_Target      = HIBYTE( fd->i_sid );
     ssc.SRB_SenseLen    = SENSE_LEN;
-    
+
     ssc.SRB_PostProc = (LPVOID) hEvent;
     ssc.SRB_BufPointer  = p_data;
     ssc.SRB_CDBLen      = 12;
-    
+
     ssc.CDBByte[0]      = 0xA8; /* RAW */
     ssc.CDBByte[2]      = (UCHAR) (fd->i_blocks >> 24);
     ssc.CDBByte[3]      = (UCHAR) (fd->i_blocks >> 16) & 0xff;
     ssc.CDBByte[4]      = (UCHAR) (fd->i_blocks >> 8) & 0xff;
     ssc.CDBByte[5]      = (UCHAR) (fd->i_blocks) & 0xff;
-    
+
     /* We have to break down the reads into 64kb pieces (ASPI restriction) */
     if( i_blocks > 32 )
     {
@@ -683,14 +685,15 @@ static int aspi_read_internal( int i_fd, void *p_data, int i_blocks )
         ssc.CDBByte[9] = 32;
         fd->i_blocks  += 32;
 
-        /* Initiate transfer */  
+        /* Initiate transfer */
         ResetEvent( hEvent );
         fd->lpSendCommand( (void*) &ssc );
 
         /* transfer the next 64kb (aspi_read_internal is called recursively)
          * We need to check the status of the read on return */
-        if( aspi_read_internal( i_fd, (u8*) p_data + 32 * DVDCSS_BLOCK_SIZE,
-                                 i_blocks - 32) < 0 )
+        if( aspi_read_internal( i_fd,
+                                (uint8_t*) p_data + 32 * DVDCSS_BLOCK_SIZE,
+                                i_blocks - 32) < 0 )
         {
             return -1;
         }
@@ -702,7 +705,7 @@ static int aspi_read_internal( int i_fd, void *p_data, int i_blocks )
         ssc.CDBByte[9]   = (UCHAR) i_blocks;
         fd->i_blocks += i_blocks;
 
-        /* Initiate transfer */  
+        /* Initiate transfer */
         ResetEvent( hEvent );
         fd->lpSendCommand( (void*) &ssc );
 

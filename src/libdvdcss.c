@@ -5,13 +5,13 @@
  *          Håkan Hjort <d95hjort@dtek.chalmers.se>
  *
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: libdvdcss.c,v 1.20 2002/11/24 17:34:23 sam Exp $
+ * $Id: libdvdcss.c,v 1.21 2002/12/05 10:24:42 sam Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -22,7 +22,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111, USA.
  */
 
-/** 
+/**
  * \mainpage libdvdcss developer documentation
  *
  * \section intro Introduction
@@ -78,7 +78,7 @@
  *       on an RPC2 drive.
  *
  * \li \b DVDCSS_RAW_DEVICE: specify the raw device to use.
- * 
+ *
  * \li \b DVDCSS_CACHE: specify a directory in which to store title key
  *     values. This will speed up descrambling of DVDs which are in the
  *     cache. The DVDCSS_CACHE directory is created if it does not exist,
@@ -96,7 +96,9 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/param.h>
+#ifdef HAVE_SYS_PARAM_H
+#   include <sys/param.h>
+#endif
 #include <fcntl.h>
 #include <errno.h>
 
@@ -244,7 +246,7 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
         free( dvdcss );
         return NULL;
     }
-    
+
     dvdcss->b_scrambled = 1; /* Assume the worst */
     dvdcss->b_ioctls = _dvdcss_use_ioctls( dvdcss );
 
@@ -290,7 +292,7 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
     /* If the cache is enabled, extract a unique disc ID */
     if( psz_cache )
     {
-        u8  p_sector[DVDCSS_BLOCK_SIZE];
+        uint8_t p_sector[DVDCSS_BLOCK_SIZE];
         unsigned char   psz_debug[PATH_MAX+30];
         unsigned char * psz_data;
         int i;
@@ -351,7 +353,11 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
 
         /* We have a disc name or ID, we can create the cache dir */
         i = sprintf( dvdcss->psz_cachefile, "%s", psz_cache );
+#ifndef WIN32
         i_ret = mkdir( dvdcss->psz_cachefile, 0755 );
+#else
+        i_ret = mkdir( dvdcss->psz_cachefile );
+#endif
         if( i_ret < 0 && errno != EEXIST )
         {
             _dvdcss_error( dvdcss, "failed creating cache directory" );
@@ -360,7 +366,11 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
         }
 
         i += sprintf( dvdcss->psz_cachefile + i, "/%s/", psz_data );
+#ifndef WIN32
         i_ret = mkdir( dvdcss->psz_cachefile, 0755 );
+#else
+        i_ret = mkdir( dvdcss->psz_cachefile );
+#endif
         if( i_ret < 0 && errno != EEXIST )
         {
             _dvdcss_error( dvdcss, "failed creating cache subdirectory" );
@@ -427,11 +437,11 @@ extern int dvdcss_seek ( dvdcss_t dvdcss, int i_blocks, int i_flags )
 {
     /* title cracking method is too slow to be used at each seek */
     if( ( ( i_flags & DVDCSS_SEEK_MPEG )
-             && ( dvdcss->i_method != DVDCSS_METHOD_TITLE ) ) 
+             && ( dvdcss->i_method != DVDCSS_METHOD_TITLE ) )
        || ( i_flags & DVDCSS_SEEK_KEY ) )
     {
         /* check the title key */
-        if( _dvdcss_title( dvdcss, i_blocks ) ) 
+        if( _dvdcss_title( dvdcss, i_blocks ) )
         {
             return -1;
         }
@@ -480,31 +490,31 @@ extern int dvdcss_read ( dvdcss_t dvdcss, void *p_buffer,
 
     if( ! memcmp( dvdcss->css.p_title_key, "\0\0\0\0\0", 5 ) )
     {
-        /* For what we believe is an unencrypted title, 
+        /* For what we believe is an unencrypted title,
 	 * check that there are no encrypted blocks */
         for( i_index = i_ret; i_index; i_index-- )
         {
-            if( ((u8*)p_buffer)[0x14] & 0x30 )
+            if( ((uint8_t*)p_buffer)[0x14] & 0x30 )
             {
                 _dvdcss_error( dvdcss, "no key but found encrypted block" );
                 /* Only return the initial range of unscrambled blocks? */
                 /* or fail completely? return 0; */
 		break;
             }
-            p_buffer = (void *) ((u8 *)p_buffer + DVDCSS_BLOCK_SIZE);
+            p_buffer = (void *) ((uint8_t *)p_buffer + DVDCSS_BLOCK_SIZE);
         }
     }
-    else 
+    else
     {
         /* Decrypt the blocks we managed to read */
         for( i_index = i_ret; i_index; i_index-- )
 	{
 	    _dvdcss_unscramble( dvdcss->css.p_title_key, p_buffer );
-	    ((u8*)p_buffer)[0x14] &= 0x8f;
-            p_buffer = (void *) ((u8 *)p_buffer + DVDCSS_BLOCK_SIZE);
+	    ((uint8_t*)p_buffer)[0x14] &= 0x8f;
+            p_buffer = (void *) ((uint8_t *)p_buffer + DVDCSS_BLOCK_SIZE);
 	}
     }
-    
+
     return i_ret;
 }
 
@@ -575,9 +585,9 @@ extern int dvdcss_readv ( dvdcss_t dvdcss, void *p_iovec,
         }
 
         _dvdcss_unscramble( dvdcss->css.p_title_key, iov_base );
-        ((u8*)iov_base)[0x14] &= 0x8f;
+        ((uint8_t*)iov_base)[0x14] &= 0x8f;
 
-        iov_base = (void *) ((u8*)iov_base + DVDCSS_BLOCK_SIZE);
+        iov_base = (void *) ((uint8_t*)iov_base + DVDCSS_BLOCK_SIZE);
         iov_len -= DVDCSS_BLOCK_SIZE;
     }
 

@@ -2,7 +2,7 @@
  * ioctl.h: DVD ioctl replacement function
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: ioctl.h,v 1.12 2002/11/25 18:44:31 jlj Exp $
+ * $Id: ioctl.h,v 1.13 2002/12/05 10:24:42 sam Exp $
  *
  * Authors: Samuel Hocevar <sam@zoy.org>
  *
@@ -22,15 +22,15 @@
  *****************************************************************************/
 
 int ioctl_ReadCopyright     ( int, int, int * );
-int ioctl_ReadDiscKey       ( int, int *, u8 * );
-int ioctl_ReadTitleKey      ( int, int *, int, u8 * );
+int ioctl_ReadDiscKey       ( int, int *, uint8_t * );
+int ioctl_ReadTitleKey      ( int, int *, int, uint8_t * );
 int ioctl_ReportAgid        ( int, int * );
-int ioctl_ReportChallenge   ( int, int *, u8 * );
-int ioctl_ReportKey1        ( int, int *, u8 * );
+int ioctl_ReportChallenge   ( int, int *, uint8_t * );
+int ioctl_ReportKey1        ( int, int *, uint8_t * );
 int ioctl_ReportASF         ( int, int *, int * );
 int ioctl_InvalidateAgid    ( int, int * );
-int ioctl_SendChallenge     ( int, int *, u8 * );
-int ioctl_SendKey2          ( int, int *, u8 * );
+int ioctl_SendChallenge     ( int, int *, uint8_t * );
+int ioctl_SendKey2          ( int, int *, uint8_t * );
 int ioctl_ReportRPC         ( int, int *, int *, int * );
 int ioctl_SendRPC           ( int, int );
 
@@ -44,7 +44,7 @@ int ioctl_SendRPC           ( int, int );
 #if defined( SYS_BEOS )
 #define INIT_RDC( TYPE, SIZE ) \
     raw_device_command rdc; \
-    u8 p_buffer[ (SIZE) ]; \
+    uint8_t p_buffer[ (SIZE) ]; \
     memset( &rdc, 0, sizeof( raw_device_command ) ); \
     rdc.data = (char *)p_buffer; \
     rdc.data_length = (SIZE); \
@@ -57,7 +57,7 @@ int ioctl_SendRPC           ( int, int );
 #if defined( HPUX_SCTL_IO )
 #define INIT_SCTL_IO( TYPE, SIZE ) \
     struct sctl_io sctl_io; \
-    u8 p_buffer[ (SIZE) ]; \
+    uint8_t p_buffer[ (SIZE) ]; \
     memset( &sctl_io, 0, sizeof( sctl_io ) ); \
     sctl_io.data = (void *)p_buffer; \
     sctl_io.data_length = (SIZE); \
@@ -73,7 +73,7 @@ int ioctl_SendRPC           ( int, int );
 #define INIT_USCSI( TYPE, SIZE ) \
     struct uscsi_cmd sc; \
     union scsi_cdb rs_cdb; \
-    u8 p_buffer[ (SIZE) ]; \
+    uint8_t p_buffer[ (SIZE) ]; \
     memset( &sc, 0, sizeof( struct uscsi_cmd ) ); \
     sc.uscsi_cdb = (caddr_t)&rs_cdb; \
     sc.uscsi_bufaddr = p_buffer; \
@@ -102,7 +102,7 @@ int ioctl_SendRPC           ( int, int );
 #define INIT_SPTD( TYPE, SIZE ) \
     DWORD tmp; \
     SCSI_PASS_THROUGH_DIRECT sptd; \
-    u8 p_buffer[ (SIZE) ]; \
+    uint8_t p_buffer[ (SIZE) ]; \
     memset( &sptd, 0, sizeof( SCSI_PASS_THROUGH_DIRECT ) ); \
     sptd.Length = sizeof( SCSI_PASS_THROUGH_DIRECT ); \
     sptd.DataBuffer = p_buffer; \
@@ -115,7 +115,7 @@ int ioctl_SendRPC           ( int, int );
                       (TMP), NULL ) ? 0 : -1)
 #define INIT_SSC( TYPE, SIZE ) \
     struct SRB_ExecSCSICmd ssc; \
-    u8 p_buffer[ (SIZE) ]; \
+    uint8_t p_buffer[ (SIZE) ]; \
     memset( &ssc, 0, sizeof( struct SRB_ExecSCSICmd ) ); \
     ssc.SRB_BufPointer = (char *)p_buffer; \
     ssc.SRB_BufLen = (SIZE); \
@@ -144,7 +144,7 @@ int ioctl_SendRPC           ( int, int );
 #if defined( SYS_OS2 )
 #define INIT_SSC( TYPE, SIZE ) \
     struct OS2_ExecSCSICmd sdc; \
-    u8 p_buffer[ (SIZE) ]; \
+    uint8_t p_buffer[ (SIZE) ]; \
     unsigned long ulParamLen; \
     unsigned long ulDataLen; \
     memset( &sdc, 0, sizeof( OS2_ExecSCSICmd ) ); \

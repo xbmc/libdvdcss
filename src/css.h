@@ -2,7 +2,7 @@
  * css.h: Structures for DVD authentication and unscrambling
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: css.h,v 1.7 2002/08/10 14:27:26 sam Exp $
+ * $Id: css.h,v 1.8 2002/12/05 10:24:42 sam Exp $
  *
  * Author: Stéphane Borel <stef@via.ecp.fr>
  *
@@ -28,7 +28,7 @@
  *****************************************************************************/
 #define KEY_SIZE 5
 
-typedef u8 dvd_key_t[KEY_SIZE];
+typedef uint8_t dvd_key_t[KEY_SIZE];
 
 typedef struct dvd_title_s
 {
@@ -52,5 +52,5 @@ int   _dvdcss_test        ( dvdcss_t );
 int   _dvdcss_title       ( dvdcss_t, int );
 int   _dvdcss_disckey     ( dvdcss_t );
 int   _dvdcss_titlekey    ( dvdcss_t, int , dvd_key_t );
-int   _dvdcss_unscramble  ( u8 *, u8 * );
+int   _dvdcss_unscramble  ( uint8_t *, uint8_t * );
 

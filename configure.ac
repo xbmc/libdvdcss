@@ -16,7 +16,7 @@ AC_C_CONST
 AC_C_INLINE
 AC_TYPE_SIZE_T
 
-AC_CHECK_HEADERS(unistd.h)
+AC_CHECK_HEADERS(unistd.h sys/param.h)
 
 dnl
 dnl  Check the operating system
@@ -24,6 +24,9 @@ dnl
 case x"${target_os}" in
   xdarwin*)
     CFLAGS="${CFLAGS} -no-cpp-precomp"
+    ;;
+  x*cygwin*)
+    AC_DEFINE(SYS_CYGWIN, 1, Have a BeOS system.)
     ;;
   xbeos*)
     AC_DEFINE(SYS_BEOS, 1, Have a BeOS system.)
