@@ -1,6 +1,6 @@
 Source: libdvdcss
 Priority: optional
-Maintainer: Samuel Hocevar <sam@zoy.org>
+Maintainer: Sam Hocevar (Debian packages) <sam+deb@zoy.org>
 Build-Depends: debhelper (>=2.2.0)
 Standards-Version: 3.0.1
 
@@ -18,7 +18,7 @@ Description: a portable abstraction library for DVD decryption
 Package: libdvdcss2-dev
 Section: devel
 Architecture: any
-Depends: libdvdcss2 (= ${Source-Version}), libc6-dev
+Depends: libdvdcss2 (= ${Source-Version})
 Conflicts: libdvdcss0.0.1-dev, libdvdcss0.0.2-dev, libdvdcss0.0.3-dev, libdvdcss1-dev
 Description: development files for libdvdcss2
  libdvdcss is a portable abstraction library for DVD decryption, it

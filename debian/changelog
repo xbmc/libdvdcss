@@ -1,3 +1,11 @@
+libdvdcss (1.2.6-2) unstable; urgency=low
+
+  * Removed libc6-dev from libdvdcss2-dev's dependencies because it is
+    part of build-essential and it isn't even called libc6-dev on all
+    architectures.
+
+ -- Sam Hocevar (Debian packages) <sam+deb@zoy.org>  Tue, 27 May 2003 19:09:27 +0200
+
 libdvdcss (1.2.6-1) unstable; urgency=low
 
   * New upstream release.
