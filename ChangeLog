@@ -4,6 +4,11 @@
 
 HEAD
 
+  * Nothing yet.
+
+1.2.1
+Sun,  2 Jun 2002 18:17:55 +0200
+
   * ./src/ioctl.c, ./src/ioctl.h: QNX port, courtesy of Pascal Levesque.
   * ./src/css.c: applied Håkan's fix for the failure on region mismatch.
   * ALL: switched to libtool 1.4.2a.

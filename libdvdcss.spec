@@ -1,5 +1,5 @@
 %define name 	libdvdcss
-%define version	1.2.0
+%define version	1.2.1
 %define release	2plf
 
 %define major  	2
@@ -93,6 +93,10 @@ rm -rf %buildroot
 %{_includedir}/*
 
 %changelog
+* Sun Jun 02 2002 Samuel Hocevar <sam@zoy.org> 1.2.1-1
+- new upstream release
+- fix for a crash on disc/drive region mismatch
+
 * Mon May 20 2002 Samuel Hocevar <sam@zoy.org> 1.2.0-1
 - new upstream release
 - weird libxalf dependency is gone
