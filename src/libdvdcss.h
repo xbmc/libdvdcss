@@ -2,7 +2,7 @@
  * private.h: private DVD reading library data
  *****************************************************************************
  * Copyright (C) 1998-2001 VideoLAN
- * $Id: libdvdcss.h,v 1.1 2001/12/22 00:08:13 sam Exp $
+ * $Id: libdvdcss.h,v 1.2 2002/04/04 14:21:25 sam Exp $
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -76,7 +76,7 @@ int _dvdcss_read  ( dvdcss_handle, void *p_buffer, int i_blocks );
 #   define DVDCSS_DEBUG( x... ) fprintf( stderr, "libdvdcss debug: %s\n", ##x );
 #endif
 
-static __inline__ void _dvdcss_error( dvdcss_handle dvdcss, char *psz_string )
+static inline void _dvdcss_error( dvdcss_handle dvdcss, char *psz_string )
 {
     if( dvdcss->b_errors )
     {
@@ -86,7 +86,7 @@ static __inline__ void _dvdcss_error( dvdcss_handle dvdcss, char *psz_string )
     dvdcss->psz_error = psz_string;
 }
 
-static __inline__ void _dvdcss_debug( dvdcss_handle dvdcss, char *psz_string )
+static inline void _dvdcss_debug( dvdcss_handle dvdcss, char *psz_string )
 {
     if( dvdcss->b_debug )
     {
