@@ -1,6 +1,7 @@
 AC_INIT(src/libdvdcss.c)
 
 AC_CANONICAL_SYSTEM
+AC_CONFIG_AUX_DIR(.)
 
 AM_INIT_AUTOMAKE(libdvdcss, 1.2.4)
 AM_CONFIG_HEADER(config.h)
