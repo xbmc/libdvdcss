@@ -18,6 +18,31 @@ then
   AC_DEFINE(HAVE_CSSKEYS, 1, css decryption with player keys)
 fi
 
+dnl Check for boolean_t
+AC_CACHE_CHECK([for boolean_t in sys/types.h],
+    [ac_cv_c_boolean_t_sys_types_h],
+    [AC_TRY_COMPILE([#include <sys/types.h>], [boolean_t foo;],
+     ac_cv_c_boolean_t_sys_types_h=yes, ac_cv_c_boolean_t_sys_types_h=no)])
+if test x"$ac_cv_c_boolean_t_sys_types_h" != x"no"; then
+    AC_DEFINE(BOOLEAN_T_IN_SYS_TYPES_H, 1, Define if <sys/types.h> defines boolean_t.)
+fi
+
+AC_CACHE_CHECK([for boolean_t in pthread.h],
+    [ac_cv_c_boolean_t_pthread_h],
+    [AC_TRY_COMPILE([#include <pthread.h>], [boolean_t foo;],
+     ac_cv_c_boolean_t_pthread_h=yes, ac_cv_c_boolean_t_pthread_h=no)])
+if test x"$ac_cv_c_boolean_t_pthread_h" != x"no"; then
+    AC_DEFINE(BOOLEAN_T_IN_PTHREAD_H, 1, Define if <pthread.h> defines boolean_t.)
+fi
+
+AC_CACHE_CHECK([for boolean_t in cthreads.h],
+    [ac_cv_c_boolean_t_cthreads_h],
+    [AC_TRY_COMPILE([#include <cthreads.h>], [boolean_t foo;],
+     ac_cv_c_boolean_t_cthreads_h=yes, ac_cv_c_boolean_t_cthreads_h=no)])
+if test x"$ac_cv_c_boolean_t_cthreads_h" != x"no"; then
+    AC_DEFINE(BOOLEAN_T_IN_CTHREADS_H, 1, Define if <cthreads.h> defines boolean_t.)
+fi
+
 dnl
 dnl  libdvdcss: check for DVD ioctls
 dnl
