@@ -14,6 +14,10 @@ E: stef@via.ecp.fr
 C: stef
 D: original CSS decryption code from vlc
 
+N: Sven Heithecker
+E: sven.heithecker@web.de
+D: cache bug fix for discs with identical content but different keys
+
 N: Håkan Hjort
 E: d95hjort@dtek.chalmers.se
 D: Solaris port of the DVD ioctls

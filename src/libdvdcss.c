@@ -5,7 +5,7 @@
  *          Håkan Hjort <d95hjort@dtek.chalmers.se>
  *
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: libdvdcss.c,v 1.35 2003/09/15 17:12:46 sam Exp $
+ * $Id$
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -319,7 +319,8 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
             psz_cache = NULL;
         }
         /* Check that we can add the ID directory and the block filename */
-        else if( strlen( psz_cache ) + 1 + 32 + 1 + 10 + 1 > PATH_MAX )
+        else if( strlen( psz_cache ) + 1 + 32 + 1 + (KEY_SIZE * 2) + 10 + 1
+                  > PATH_MAX )
         {
             print_error( dvdcss, "cache directory name is too long" );
             psz_cache = NULL;
@@ -377,6 +378,7 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
     {
         uint8_t p_sector[DVDCSS_BLOCK_SIZE];
         unsigned char   psz_debug[PATH_MAX+30];
+        unsigned char   psz_key[1 + KEY_SIZE * 2 + 1];
         unsigned char * psz_title, * psz_serial;
         int i;
 
@@ -443,13 +445,31 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
         {
             if( psz_serial[i] < '0' || psz_serial[i] > '9' )
             {
-                sprintf( psz_serial,
-                         "%.2X%.2X%.2X%.2X%.2X%.2X%.2X%.2X",
+                char psz_tmp[16 + 1];
+                sprintf( psz_tmp,
+                         "%.2x%.2x%.2x%.2x%.2x%.2x%.2x%.2x",
                          psz_serial[0], psz_serial[1], psz_serial[2],
                          psz_serial[3], psz_serial[4], psz_serial[5],
                          psz_serial[6], psz_serial[7] );
+                memcpy( psz_serial, psz_tmp, 16 );
                 break;
             }
+        }
+
+        /* Get disk key, since some discs have got same title, manufacturing
+         * date and serial number, but different keys */
+        if( dvdcss->b_scrambled )
+        {
+             psz_key[0] = '-';
+             for( i = 0; i < KEY_SIZE; i++ )
+             {
+                 sprintf( &psz_key[1+i*2], "%.2x", dvdcss->css.p_disc_key[i] );
+             }
+             psz_key[1 + KEY_SIZE * 2] = '\0';
+        }
+        else
+        {
+             psz_key[0] = 0;
         }
 
         /* We have a disc name or ID, we can create the cache dir */
@@ -466,8 +486,8 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
             goto nocache;
         }
 
-        i += sprintf( dvdcss->psz_cachefile + i, "/%s#%s", psz_title,
-                      psz_serial );
+        i += sprintf( dvdcss->psz_cachefile + i, "/%s-%s%s", psz_title,
+                      psz_serial, psz_key );
 #if !defined( WIN32 ) || defined( SYS_CYGWIN )
         i_ret = mkdir( dvdcss->psz_cachefile, 0755 );
 #else
