@@ -15,7 +15,7 @@ EXTRA_libdvdcss_la_SOURCES = \
 	$(bsdi_extras)
 
 libdvdcss_la_LIBADD = $(bsdi_libadd)
-libdvdcss_la_LDFLAGS = -version-info 2:4:0 $(libtool_flags)
+libdvdcss_la_LDFLAGS = -version-info 2:6:0 $(libtool_flags)
 
 bsdi_extras = bsdi_ioctl.c bsdi_dvd.h
 
