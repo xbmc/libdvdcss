@@ -2,7 +2,7 @@
  * device.h: DVD device access
  *****************************************************************************
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: device.c,v 1.18 2003/09/09 13:17:24 sam Exp $
+ * $Id: device.c,v 1.19 2003/12/11 15:12:42 sam Exp $
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -436,8 +436,8 @@ static int libc_seek( dvdcss_t dvdcss, int i_blocks )
         return i_blocks;
     }
 
-    i_seek = lseek( dvdcss->i_read_fd,
-                    (off_t)i_blocks * (off_t)DVDCSS_BLOCK_SIZE, SEEK_SET );
+    i_seek = (off_t)i_blocks * (off_t)DVDCSS_BLOCK_SIZE;
+    i_seek = lseek( dvdcss->i_read_fd, i_seek, SEEK_SET );
 
     if( i_seek < 0 )
     {
@@ -518,10 +518,10 @@ static int aspi_seek( dvdcss_t dvdcss, int i_blocks )
  *****************************************************************************/
 static int libc_read ( dvdcss_t dvdcss, void *p_buffer, int i_blocks )
 {
-    off_t i_ret;
+    off_t i_size, i_ret;
 
-    i_ret = read( dvdcss->i_read_fd, p_buffer,
-                  (off_t)i_blocks * DVDCSS_BLOCK_SIZE );
+    i_size = (off_t)i_blocks * (off_t)DVDCSS_BLOCK_SIZE;
+    i_ret = read( dvdcss->i_read_fd, p_buffer, i_size );
 
     if( i_ret < 0 )
     {
@@ -531,7 +531,7 @@ static int libc_read ( dvdcss_t dvdcss, void *p_buffer, int i_blocks )
     }
 
     /* Handle partial reads */
-    if( i_ret != (off_t)i_blocks * DVDCSS_BLOCK_SIZE )
+    if( i_ret != i_size )
     {
         int i_seek;
 
