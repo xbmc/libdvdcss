@@ -5,7 +5,7 @@
  *          Håkan Hjort <d95hjort@dtek.chalmers.se>
  *
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: libdvdcss.c,v 1.34 2003/09/09 10:03:48 sam Exp $
+ * $Id: libdvdcss.c,v 1.35 2003/09/15 17:12:46 sam Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -202,7 +202,7 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
     {
         int i = atoi( psz_verbose );
 
-        if( i >= 2 ) dvdcss->b_debug = 1;
+        if( i >= 2 ) dvdcss->b_debug = i;
         if( i >= 1 ) dvdcss->b_errors = 1;
     }
 
