@@ -1,20 +1,21 @@
-# This is borrowed and adapted from Mandrake's Cooker
 %define name 	libdvdcss
 %define version	1.1.1
-%define release	1
-%define major  	2
-%define lib_name %{name}%{major}
+%define release	2plf
 
-Summary:	A library for accessing DVDs like block device, deciphering CSS encryption if needed.
+%define major  	2
+%define libname %{name}%{major}
+
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-
-Source0:	http://www.videolan.org/pub/videolan/libdvcss/%{version}/%{name}-%{version}.tar.gz
+Summary:	Library for accessing DVDs like block device usind deCSS if needed
+Source:		%{name}-%{version}.tar.bz2
 License:	GPL
 Group:		System/Libraries
-URL:		http://videolan.org/
+URL:		http://www.videolan.org/libdvdcss/
+Packager:	Yves Duret <yduret@mandrakesoft.com>
 BuildRoot:	%_tmppath/%name-%version-%release-root
+Conflicts:	libdvdcss0.0.1, libdvdcss0.0.2
 
 %description
 libdvdcss is a simple library designed for accessing DVDs like a block device
@@ -29,79 +30,93 @@ without having to bother about the decryption. The important features are:
  * Just better. Unlike most similar projects, libdvdcss doesn't require the
    region of your drive to be set.
 
-%package -n %{lib_name}
-Summary:        A library for accessing DVDs like block device, deciphering CSS encryption if needed.
+%package -n %{libname}
+Summary:        A library for accessing DVDs like block device usind deCSS if needed
 Group:          System/Libraries
-Provides:       %name
+Provides:       %name = %version-%release
 
-%description -n %{lib_name}
-libdvdcss is a simple library designed for accessing DVDs like a block device 
+%description -n %{libname}
+libdvdcss is a simple library designed for accessing DVDs like a block device
 without having to bother about the decryption. The important features are:
  * Portability. Currently supported platforms are GNU/Linux, FreeBSD, NetBSD,
    OpenBSD, BSD/OS, BeOS, Windows 95/98, Windows NT/2000, MacOS X, Solaris,
    and HP-UX.
- * Simplicity. There are currently 7 functions in the API, and we intend to 
+ * Simplicity. There are currently 7 functions in the API, and we intend to
    keep this number low.
  * Freedom. libdvdcss is released under the General Public License, ensuring
    it will stay free, and used only for free software products.
- * Just better. Unlike most similar projects, libdvdcss doesn't require the 
+ * Just better. Unlike most similar projects, libdvdcss doesn't require the
    region of your drive to be set.
 
-%package -n %{lib_name}-devel
-Summary:        Development tools for programs which will use the libdvdcss library.
+%package -n %{libname}-devel
+Summary:        Development tools for programs which will use the %{name} library
 Group:          Development/C
-Provides:       %name-devel
-Requires:	%{lib_name} = %{version}
+Requires:	%{libname} = %version-%release
+Provides:       %{name}-devel = %version-%release
  
-%description -n %{lib_name}-devel
+%description -n %{libname}-devel
 The %{name}-devel package includes the header files and static libraries
 necessary for developing programs which will manipulate DVDs files using
 the %{name} library.
  
- If you are going to develop programs which will manipulate DVDs,
- you should install %{name}-devel.  You'll also need to have the %name
- package installed.
- 
+If you are going to develop programs which will manipulate DVDs, you
+should install %{name}-devel.  You'll also need to have the %{name}
+package installed.
 
 %prep
 %setup -q
 
 %build
 %configure
-make
+%make
 
 %install
-%makeinstall
+%makeinstall_std
 
 %clean
-rm -fr %buildroot
+rm -rf %buildroot
 
-%post -n %{lib_name} -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
  
-%postun -n %{lib_name} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
 
-%files -n %{lib_name}
-%defattr(-,root,root,-)
-%doc COPYING AUTHORS
+%files -n %{libname}
+%defattr(-,root,root)
+%doc AUTHORS COPYING
 %{_libdir}/*.so.*
 
-%files -n %{lib_name}-devel
+%files -n %{libname}-devel
 %defattr(-,root,root)
-%doc COPYING
+%doc ChangeLog COPYING
 %{_libdir}/*.a
 %{_libdir}/*.so
 %{_includedir}/*
 
 %changelog
-* Sat Apr 06 2002 Samuel Hocevar <sam@zoy.org>
-- version 1.1.1
+* Sun Apr 07 2002 Yves Duret <yduret@mandrakesoft.com> 1.1.1-2plf
+- major version is 2 (aka guillaume sux).
+- spec clean up: do not rm in %prep, %%buildroot, %%makeinstall_std, %%provides %%version-%%release
+- added doc in devel
+- sync with cvs's one (%%description,%%files, conflicts).
+- fix url
 
-* Wed Apr 03 2002 Samuel Hocevar <sam@zoy.org>
-- version 1.1.0
-- first release outside the vlc tree
+* Sat Apr 06 2002 Guillaume Rousse <rousse@ccr.jussieu.fr> 1.1.1-1plf
+- 1.1.1
 
-* Tue Oct 02 2001 Christophe Massiot <massiot@via.ecp.fr>
-- Imported Mandrake's vlc.spec into the CVS
+* Wed Jan 30 2002 Guillaume Rousse <rousse@ccr.jussieu.fr> 1.0.0-3plf 
+- new plf extension
+
+* Wed Dec 05 2001 Guillaume Rousse <g.rousse@linux-mandrake.com> 1.0.0-3mdk
+- removed conflict
+
+* Tue Dec 04 2001 Guillaume Rousse <g.rousse@linux-mandrake.com> 1.0.0-2mdk
+- contributed to PLF by Yves Duret <yduret@mandrakesoft.com>
+- Conflicts: libdvdcss-ogle
+- more doc files
+- no doc file for devel package
+
+* Fri Nov 30 2001 Yves Duret <yduret@mandrakesoft.com> 1.0.0-1mdk
+- version 1.0.0
 
 * Thu Aug 23 2001 Yves Duret <yduret@mandrakesoft.com> 0.0.3-1mdk
 - version 0.0.3
@@ -111,5 +126,3 @@ rm -fr %buildroot
 
 * Tue Jun 19 2001 Yves Duret <yduret@mandrakesoft.com> 0.0.1-1mdk
 - first release and first mdk release
-
-#EOF
