@@ -2,7 +2,7 @@
  * error.c: error management functions
  *****************************************************************************
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: error.c,v 1.4 2002/12/05 10:24:42 sam Exp $
+ * $Id: error.c,v 1.5 2002/12/06 00:16:57 babal Exp $
  *
  * Author: Samuel Hocevar <sam@zoy.org>
  *
@@ -26,6 +26,10 @@
 #include <stdio.h>
 #ifdef HAVE_SYS_PARAM_H
 #   include <sys/param.h>
+#endif
+
+#ifdef __MINGW_H
+#   include <limits.h>
 #endif
 
 #include "dvdcss/dvdcss.h"
