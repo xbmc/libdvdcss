@@ -91,7 +91,7 @@ rm -rf %buildroot
 %{_includedir}/*
 
 %changelog
-* Fri Oct 11 2002 Samuel Hocevar <sam@zoy.org> 1.2.3-1
+* Sun Oct 13 2002 Samuel Hocevar <sam@zoy.org> 1.2.3-1
 - new upstream release
 - fix for drives not allowing to read their disc key
 
