@@ -2,7 +2,7 @@
  * ioctl.c: DVD ioctl replacement function
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: ioctl.c,v 1.15 2002/10/12 12:41:24 gbazin Exp $
+ * $Id: ioctl.c,v 1.16 2002/10/29 18:51:37 gbazin Exp $
  *
  * Authors: Markus Kuespert <ltlBeBoy@beosmail.com>
  *          Samuel Hocevar <sam@zoy.org>
@@ -276,9 +276,9 @@ int ioctl_ReadCopyright( int i_fd, int i_layer, int *pi_copyright )
                 *pi_copyright = 0;
                 i_ret = 0;
             }
-
-            *pi_copyright = ((key->KeyFlags & DVD_SECTOR_PROTECT_MASK) ==
-                             DVD_SECTOR_PROTECTED) ? 0 : 1;
+            else
+                *pi_copyright = ((key->KeyFlags & DVD_SECTOR_PROTECT_MASK) ==
+                                 DVD_SECTOR_PROTECTED) ? 0 : 1;
         }
     }
     else
