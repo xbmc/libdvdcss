@@ -2,7 +2,7 @@
  * libdvdcss.c: DVD reading library.
  *****************************************************************************
  * Copyright (C) 1998-2001 VideoLAN
- * $Id: libdvdcss.c,v 1.11 2002/06/04 07:02:57 sam Exp $
+ * $Id: libdvdcss.c,v 1.12 2002/07/01 13:40:33 hjort Exp $
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -337,7 +337,7 @@ extern int dvdcss_title ( dvdcss_handle dvdcss, int i_block )
     }
     else if( i_ret == 0 )
     {
-        _dvdcss_debug( dvdcss, "unecrypted title" );
+        _dvdcss_debug( dvdcss, "unencrypted title" );
         /* Still store this in the cache, so we don't need to check again. */
     }
 
@@ -358,12 +358,13 @@ extern int dvdcss_title ( dvdcss_handle dvdcss, int i_block )
     p_newtitle->i_startlb = i_block;
     memcpy( p_newtitle->p_key, p_title_key, KEY_SIZE );
 
-    /* Link the new title, either at the beginning or inside the list */
+    /* Link it at the head of the (possibly empty) list */
     if( p_title == NULL )
     {
+        p_newtitle->p_next = dvdcss->p_titles;
         dvdcss->p_titles = p_newtitle;
-        p_newtitle->p_next = NULL;
     }
+    /* Link the new title inside the list */
     else
     {
         p_newtitle->p_next = p_title->p_next;
