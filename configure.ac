@@ -17,7 +17,7 @@ AC_C_CONST
 AC_C_INLINE
 AC_TYPE_SIZE_T
 
-AC_CHECK_HEADERS(unistd.h sys/param.h limits.h)
+AC_CHECK_HEADERS(unistd.h sys/param.h limits.h pwd.h)
 
 dnl
 dnl  Check the operating system
@@ -188,5 +188,5 @@ AM_CONDITIONAL(SYS_BSDI, test "${SYS_BSDI}" = "1")
 AM_CONDITIONAL(SYS_BSDI_LIBDVD, test "${SYS_BSDI_LIBDVD}" = "1")
 AM_CONDITIONAL(SYS_MSVC, test "${SYS_MSVC}" = "1")
 
-AC_OUTPUT([Makefile src/Makefile src/dvdcss/Makefile test/Makefile debian/Makefile doc/Makefile])
+AC_OUTPUT([Makefile src/Makefile src/dvdcss/Makefile test/Makefile debian/Makefile doc/Makefile autotools/Makefile])
 
