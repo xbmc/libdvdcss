@@ -2,7 +2,7 @@
  * ioctl.c: DVD ioctl replacement function
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: ioctl.c,v 1.9 2002/06/02 16:14:48 sam Exp $
+ * $Id: ioctl.c,v 1.10 2002/06/04 07:10:07 sam Exp $
  *
  * Authors: Markus Kuespert <ltlBeBoy@beosmail.com>
  *          Samuel Hocevar <sam@zoy.org>
@@ -1428,6 +1428,17 @@ int ioctl_ReportRPC( int i_fd, int *p_type, int *p_mask, int *p_scheme )
     rdc.command[ 10 ] = DVD_REPORT_RPC;
 
     i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
+
+    *p_type = p_buffer[ 4 ] >> 6;
+    *p_mask = p_buffer[ 5 ];
+    *p_scheme = p_buffer[ 6 ];
+
+#elif defined( HPUX_SCTL_IO )
+    INIT_SCTL_IO( GPCMD_REPORT_KEY, 8 );
+
+    sctl_io.cdb[ 10 ] = DVD_REPORT_RPC;
+
+    i_ret = ioctl( i_fd, SIOC_IO, &sctl_io );
 
     *p_type = p_buffer[ 4 ] >> 6;
     *p_mask = p_buffer[ 5 ];

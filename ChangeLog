@@ -4,6 +4,7 @@
 
 HEAD
 
+  * ./src/ioctl.c: implemented ioctl_ReportKey1 for HP-UX.
   * ./src/libdvdcss.c: Win32 compilation fix.
 
 1.2.1
