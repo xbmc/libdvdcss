@@ -2,7 +2,7 @@
  * css.c: Functions for DVD authentication and descrambling
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: css.c,v 1.17 2002/10/10 21:40:41 massiot Exp $
+ * $Id: css.c,v 1.18 2002/10/18 18:48:58 sam Exp $
  *
  * Author: Stéphane Borel <stef@via.ecp.fr>
  *         Håkan Hjort <d95hjort@dtek.chalmers.se>
@@ -255,7 +255,7 @@ static void PrintKey( dvdcss_t dvdcss, char *prefix, u8 const *data )
 /*****************************************************************************
  * _dvdcss_title: crack or decrypt the current title key if needed
  *****************************************************************************
- * This function should only be called by dvdcss_seek and should eventually
+ * This function should only be called by dvdcss->pf_seek and should eventually
  * not be external if possible.
  *****************************************************************************/
 int _dvdcss_title ( dvdcss_t dvdcss, int i_block )
@@ -519,9 +519,9 @@ int _dvdcss_titlekey( dvdcss_t dvdcss, int i_pos, dvd_key_t p_title_key )
         _dvdcss_debug( dvdcss, "resetting drive and cracking title key" );
 
         /* Read an unscrambled sector and reset the drive */
-        _dvdcss_seek( dvdcss, 0 );
-        _dvdcss_read( dvdcss, p_garbage, 1 );
-        _dvdcss_seek( dvdcss, 0 );
+        dvdcss->pf_seek( dvdcss, 0 );
+        dvdcss->pf_read( dvdcss, p_garbage, 1 );
+        dvdcss->pf_seek( dvdcss, 0 );
         _dvdcss_disckey( dvdcss );
 
         /* Fallback */
@@ -1352,7 +1352,7 @@ static int CrackTitleKey( dvdcss_t dvdcss, int i_pos, int i_len,
 
     do
     {
-        i_ret = _dvdcss_seek( dvdcss, i_pos );
+        i_ret = dvdcss->pf_seek( dvdcss, i_pos );
 
         if( i_ret != i_pos )
         {

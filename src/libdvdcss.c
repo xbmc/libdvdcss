@@ -5,7 +5,7 @@
  *          Håkan Hjort <d95hjort@dtek.chalmers.se>
  *
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: libdvdcss.c,v 1.18 2002/08/10 20:21:54 sam Exp $
+ * $Id: libdvdcss.c,v 1.19 2002/10/18 18:48:59 sam Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -318,7 +318,7 @@ extern int dvdcss_seek ( dvdcss_t dvdcss, int i_blocks, int i_flags )
         }
     }
 
-    return _dvdcss_seek( dvdcss, i_blocks );
+    return dvdcss->pf_seek( dvdcss, i_blocks );
 }
 
 /**
@@ -350,7 +350,7 @@ extern int dvdcss_read ( dvdcss_t dvdcss, void *p_buffer,
 {
     int i_ret, i_index;
 
-    i_ret = _dvdcss_read( dvdcss, p_buffer, i_blocks );
+    i_ret = dvdcss->pf_read( dvdcss, p_buffer, i_blocks );
 
     if( i_ret <= 0
          || !dvdcss->b_scrambled
@@ -426,7 +426,7 @@ extern int dvdcss_readv ( dvdcss_t dvdcss, void *p_iovec,
     void *iov_base;
     size_t iov_len;
 
-    i_ret = _dvdcss_readv( dvdcss, _p_iovec, i_blocks );
+    i_ret = dvdcss->pf_readv( dvdcss, _p_iovec, i_blocks );
 
     if( i_ret <= 0
          || !dvdcss->b_scrambled

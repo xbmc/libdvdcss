@@ -2,7 +2,7 @@
  * private.h: private DVD reading library data
  *****************************************************************************
  * Copyright (C) 1998-2001 VideoLAN
- * $Id: libdvdcss.h,v 1.4 2002/08/10 14:27:26 sam Exp $
+ * $Id: libdvdcss.h,v 1.5 2002/10/18 18:48:59 sam Exp $
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -22,6 +22,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111, USA.
  *****************************************************************************/
 
+struct iovec;
+
 /*****************************************************************************
  * The libdvdcss structure
  *****************************************************************************/
@@ -30,7 +32,13 @@ struct dvdcss_s
     /* File descriptor */
     char * psz_device;
     int    i_fd;
+    int    i_read_fd;
     int    i_seekpos;
+
+    /* File handling */
+    int ( * pf_seek )  ( dvdcss_t, int );
+    int ( * pf_read )  ( dvdcss_t, void *, int );
+    int ( * pf_readv ) ( dvdcss_t, struct iovec *, int );
 
     /* Decryption stuff */
     int          i_method;
@@ -45,13 +53,13 @@ struct dvdcss_s
     int    b_debug;
 
 #ifdef WIN32
+    int    b_file;
     char * p_readv_buffer;
     int    i_readv_buf_size;
 #endif
 
 #ifndef WIN32
     int    i_raw_fd;
-    int    i_read_fd;
 #endif
 };
 
@@ -65,9 +73,6 @@ struct dvdcss_s
 /*****************************************************************************
  * Functions used across the library
  *****************************************************************************/
-int  _dvdcss_seek  ( dvdcss_t, int );
-int  _dvdcss_read  ( dvdcss_t, void *, int );
-
 void _dvdcss_error ( dvdcss_t, char * );
 void _dvdcss_debug ( dvdcss_t, char * );
 
