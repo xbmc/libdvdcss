@@ -2,7 +2,7 @@
  * device.h: DVD device access
  *****************************************************************************
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: device.c,v 1.5 2002/10/18 18:48:59 sam Exp $
+ * $Id: device.c,v 1.6 2002/10/19 09:53:33 gbazin Exp $
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -372,9 +372,30 @@ static int aspi_open( dvdcss_t dvdcss, char const * psz_device )
             if( (srbDiskInfo.SRB_Status == SS_COMP) &&
                 (srbDiskInfo.SRB_Int13HDriveInfo == c_drive) )
             {
-                fd->i_sid = MAKEWORD( i, j );
-                dvdcss->i_fd = (int) fd;
-                return 0;
+                /* Make sure this is a cdrom device */
+                struct SRB_GDEVBlock srbGDEVBlock;
+
+                memset( &srbGDEVBlock, 0, sizeof(struct SRB_GDEVBlock) );
+                srbGDEVBlock.SRB_Cmd    = SC_GET_DEV_TYPE;
+                srbGDEVBlock.SRB_HaId   = i;
+                srbGDEVBlock.SRB_Target = j;
+
+                lpSendCommand( (void*) &srbGDEVBlock );
+
+                if( ( srbGDEVBlock.SRB_Status == SS_COMP ) &&
+                    ( srbGDEVBlock.SRB_DeviceType == DTYPE_CDROM ) )
+                {
+                    fd->i_sid = MAKEWORD( i, j );
+                    dvdcss->i_fd = (int) fd;
+                    return 0;
+                }
+                else
+                {
+                    free( (void*) fd );
+                    FreeLibrary( hASPI );
+                    _dvdcss_error( dvdcss,"this is not a cdrom drive" );
+                    return -1;
+                }
             }
         }
     }
