@@ -2,7 +2,7 @@
  * libdvdcss.c: DVD reading library.
  *****************************************************************************
  * Copyright (C) 1998-2001 VideoLAN
- * $Id: libdvdcss.c,v 1.6 2002/04/04 23:44:20 gbazin Exp $
+ * $Id: libdvdcss.c,v 1.7 2002/05/13 21:22:22 hjort Exp $
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -386,31 +386,33 @@ extern int dvdcss_read ( dvdcss_handle dvdcss, void *p_buffer,
         return i_ret;
     }
 
-    /* For what we believe is an unencrypted title, 
-       check that there are no encrypted blocks */
     if( !( Pkey[0] | Pkey[1] | Pkey[2] | Pkey[3] | Pkey[4] ) ) 
     {
+        /* For what we believe is an unencrypted title, 
+	 * check that there are no encrypted blocks */
         for( i_index = i_ret; i_index; i_index-- )
         {
             if( ((u8*)p_buffer)[0x14] & 0x30 )
             {
                 _dvdcss_error( dvdcss, "no key but found encrypted block" );
                 /* Only return the initial range of unscrambled blocks? */
-                i_ret = i_index;
                 /* or fail completely? return 0; */
+		break;
             }
             (u8*)p_buffer += DVDCSS_BLOCK_SIZE;
         }
     }
-
-    /* Decrypt the blocks we managed to read */
-    for( i_index = i_ret; i_index; i_index-- )
+    else 
     {
-        CSSDescrambleSector( dvdcss->css.p_title_key, p_buffer );
-        ((u8*)p_buffer)[0x14] &= 0x8f;
-        (u8*)p_buffer += DVDCSS_BLOCK_SIZE;
+        /* Decrypt the blocks we managed to read */
+        for( i_index = i_ret; i_index; i_index-- )
+	{
+	    CSSDescrambleSector( dvdcss->css.p_title_key, p_buffer );
+	    ((u8*)p_buffer)[0x14] &= 0x8f;
+	    (u8*)p_buffer += DVDCSS_BLOCK_SIZE;
+	}
     }
-
+    
     return i_ret;
 }
 
@@ -678,7 +680,9 @@ int _dvdcss_read ( dvdcss_handle dvdcss, void *p_buffer, int i_blocks )
 
 #else
     int i_bytes;
-
+    /* TODO: !!! errors are mangled and disarded (-1/2048 = 0)
+     * and partial reads are wrong,i.e 2200/2048 = 1 
+     * but the location has advanced 2200 bytes (lseek possition that is) */
     i_bytes = read( dvdcss->i_read_fd, p_buffer,
                     (size_t)i_blocks * DVDCSS_BLOCK_SIZE );
     return i_bytes / DVDCSS_BLOCK_SIZE;
