@@ -2,7 +2,7 @@
  * css.c: Functions for DVD authentication and descrambling
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: css.c,v 1.24 2003/02/04 11:54:36 massiot Exp $
+ * $Id: css.c,v 1.25 2003/05/16 22:12:48 sam Exp $
  *
  * Author: Stéphane Borel <stef@via.ecp.fr>
  *         Håkan Hjort <d95hjort@dtek.chalmers.se>
@@ -998,7 +998,7 @@ static int DecryptDiscKey( uint8_t const *p_struct_disckey,
         { 0xfc, 0x95, 0xa9, 0x87, 0x35 }
     };
 
-    /* Decrypt disc key with player keys from csskeys.h */
+    /* Decrypt disc key with the above player keys */
     while( n < sizeof(player_keys) / sizeof(dvd_key_t) )
     {
         for( i = 1; i < 409; i++ )
@@ -1008,7 +1008,7 @@ static int DecryptDiscKey( uint8_t const *p_struct_disckey,
                         p_disc_key );
 
             /* The first part in the struct_disckey block is the
-             * 'disc key' encrypted with it self.  Using this we
+             * 'disc key' encrypted with itself.  Using this we
              * can check if we decrypted the correct key. */
             DecryptKey( 0, p_disc_key, p_struct_disckey, p_verify );
 
@@ -1255,7 +1255,7 @@ end:
  * Function designed by Frank Stevenson
  *****************************************************************************
  * Called from Attack* which are in turn called by CrackTitleKey.  Given
- * a guessed(?) plain text and the chiper text.  Returns -1 on failure.
+ * a guessed(?) plain text and the cipher text.  Returns -1 on failure.
  *****************************************************************************/
 static int RecoverTitleKey( int i_start, uint8_t const *p_crypted,
                             uint8_t const *p_decrypted,
