@@ -8,3 +8,4 @@ config.status
 Makefile
 build-stamp
 stamp-h*
+libtool

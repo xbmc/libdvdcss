@@ -93,7 +93,7 @@ rm -rf %buildroot
 %{_includedir}/*
 
 %changelog
-* Mon May 20 2002 Samuel Hocevar <sam@zoy.org>
+* Mon May 20 2002 Samuel Hocevar <sam@zoy.org> 1.2.0-1
 - new upstream release
 - weird libxalf dependency is gone
 
