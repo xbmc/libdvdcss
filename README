@@ -26,13 +26,13 @@ variables:
            key and may even fail. With this method, the key is only checked
            at the beginning of each title, so it won't work if the key
            changes in the middle of a title.
-           This is the default method,
     disc: the disc key is first cracked ; then all title keys can be
            decrypted instantly, which allows us to check them often,
     key: the same as "disc" if you don't have a file with player keys at
            compilation time. If you do, the decryption of the disc key
            will be faster with this method. It is the one that was used by
            libcss.
+           This is the default method,
   DVDCSS_VERBOSE={0|1|2}: libdvdcss verbosity
     0: no error messages, no debug messages,
     1: only error messages (this is the default)
