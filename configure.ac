@@ -17,7 +17,7 @@ AC_C_CONST
 AC_C_INLINE
 AC_TYPE_SIZE_T
 
-AC_CHECK_HEADERS(unistd.h sys/param.h limits.h pwd.h)
+AC_CHECK_HEADERS(unistd.h sys/param.h limits.h pwd.h errno.h)
 
 dnl
 dnl  Check the operating system

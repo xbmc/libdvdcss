@@ -2,7 +2,7 @@
  * device.h: DVD device access
  *****************************************************************************
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: device.c,v 1.17 2003/09/09 10:03:48 sam Exp $
+ * $Id: device.c,v 1.18 2003/09/09 13:17:24 sam Exp $
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -31,6 +31,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef HAVE_ERRNO_H
+#   include <errno.h>
+#endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #ifdef HAVE_SYS_PARAM_H
@@ -135,12 +138,9 @@ int _dvdcss_use_ioctls( dvdcss_t dvdcss )
 
 int _dvdcss_open ( dvdcss_t dvdcss )
 {
-    char psz_debug[200];
     char const *psz_device = dvdcss->psz_device;
 
-    snprintf( psz_debug, 199, "opening target `%s'", psz_device );
-    psz_debug[199] = '\0';
-    print_debug( dvdcss, psz_debug );
+    print_debug( dvdcss, "opening target `%s'", psz_device );
 
 #if defined( WIN32 )
     /* If device is not "X:", we are actually opening a file. */
@@ -184,7 +184,9 @@ int _dvdcss_raw_open ( dvdcss_t dvdcss, char const *psz_device )
 
     if( dvdcss->i_raw_fd == -1 )
     {
-        print_error( dvdcss, "failed opening raw device, continuing" );
+        print_debug( dvdcss, "cannot open %s (%s)",
+                             psz_device, strerror(errno) );
+        print_error( dvdcss, "failed to open raw device, but continuing" );
         return -1;
     }
     else
@@ -253,7 +255,9 @@ static int libc_open ( dvdcss_t dvdcss, char const *psz_device )
 
     if( dvdcss->i_fd == -1 )
     {
-        print_error( dvdcss, "failed opening device" );
+        print_debug( dvdcss, "cannot open %s (%s)",
+                             psz_device, strerror(errno) );
+        print_error( dvdcss, "failed to open device" );
         return -1;
     }
 

@@ -2,7 +2,7 @@
  * css.c: Functions for DVD authentication and descrambling
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: css.c,v 1.27 2003/09/09 10:03:48 sam Exp $
+ * $Id: css.c,v 1.28 2003/09/09 13:17:24 sam Exp $
  *
  * Author: Stéphane Borel <stef@via.ecp.fr>
  *         Håkan Hjort <d95hjort@dtek.chalmers.se>
@@ -147,17 +147,16 @@ static int GetBusKey( dvdcss_t dvdcss )
     i_ret = ioctl_ReportAgid( dvdcss->i_fd, &dvdcss->css.i_agid );
 
     /* We might have to reset hung authentication processes in the drive
-       by invalidating the corresponding AGID'.  As long as we haven't got
-       an AGID, invalidate one (in sequence) and try again. */
+     * by invalidating the corresponding AGID'.  As long as we haven't got
+     * an AGID, invalidate one (in sequence) and try again. */
     for( i = 0; i_ret == -1 && i < 4 ; ++i )
     {
-        sprintf( psz_warning,
-                 "ioctl ReportAgid failed, invalidating AGID %d", i );
-        print_debug( dvdcss, psz_warning );
+        print_debug( dvdcss, "ioctl ReportAgid failed, "
+                             "invalidating AGID %d", i );
 
         /* This is really _not good_, should be handled by the OS.
-           Invalidating an AGID could make another process fail some
-           where in it's authentication process. */
+         * Invalidating an AGID could make another process fail somewhere
+         * in its authentication process. */
         dvdcss->css.i_agid = i;
         ioctl_InvalidateAgid( dvdcss->i_fd, &dvdcss->css.i_agid );
 
@@ -213,9 +212,7 @@ static int GetBusKey( dvdcss_t dvdcss )
 
         if( memcmp( p_key_check, p_key1, KEY_SIZE ) == 0 )
         {
-            snprintf( psz_warning, sizeof(psz_warning),
-                      "drive authenticated, using variant %d", i );
-            print_debug( dvdcss, psz_warning );
+            print_debug( dvdcss, "drive authenticated, using variant %d", i );
             i_variant = i;
             break;
         }
@@ -275,11 +272,8 @@ static int GetBusKey( dvdcss_t dvdcss )
  *****************************************************************************/
 static void PrintKey( dvdcss_t dvdcss, char *prefix, uint8_t const *data )
 {
-    char psz_output[80];
-
-    sprintf( psz_output, "%s%02x:%02x:%02x:%02x:%02x", prefix,
-             data[0], data[1], data[2], data[3], data[4] );
-    print_debug( dvdcss, psz_output );
+    print_debug( dvdcss, "%s%02x:%02x:%02x:%02x:%02x", prefix,
+                 data[0], data[1], data[2], data[3], data[4] );
 }
 
 /*****************************************************************************
@@ -509,7 +503,8 @@ int _dvdcss_titlekey( dvdcss_t dvdcss, int i_pos, dvd_key_t p_title_key )
          * read the title key and decrypt it.
          */
 
-        print_debug( dvdcss, "getting title key the classic way" );
+        print_debug( dvdcss, "getting title key at block %i the classic way",
+                             i_pos );
 
         /* We need to authenticate again every time to get a new session key */
         if( GetBusKey( dvdcss ) < 0 )
@@ -1413,7 +1408,7 @@ static int CrackTitleKey( dvdcss_t dvdcss, int i_pos, int i_len,
     int b_read_error = 0;
     int i_ret;
 
-    print_debug( dvdcss, "cracking title key" );
+    print_debug( dvdcss, "cracking title key at block %i", i_pos );
 
     i_tries = 0;
     i_success = 0;
@@ -1439,8 +1434,8 @@ static int CrackTitleKey( dvdcss_t dvdcss, int i_pos, int i_len,
             }
             else if( !b_read_error )
             {
-                print_debug( dvdcss, "read error, resorting to secret "
-                                     "arcanes to recover" );
+                print_debug( dvdcss, "read error at block %i, resorting to "
+                                     "secret arcanes to recover", i_pos );
 
                 /* Reset the drive before trying to continue */
                 _dvdcss_close( dvdcss );
@@ -1457,7 +1452,8 @@ static int CrackTitleKey( dvdcss_t dvdcss, int i_pos, int i_len,
          * For now, allow all blocks that begin with a start code. */
         if( memcmp( p_buf, p_packstart, 3 ) )
         {
-            print_debug( dvdcss, "non MPEG block found (end of title)" );
+            print_debug( dvdcss, "non MPEG block found at block %i "
+                                 "(end of title)", i_pos );
             break;
         }
 
@@ -1491,7 +1487,7 @@ static int CrackTitleKey( dvdcss_t dvdcss, int i_pos, int i_len,
         /* Emit a progress indication now and then. */
         if( !( i_reads & 0xfff ) )
         {
-            print_debug( dvdcss, "still cracking..." );
+            print_debug( dvdcss, "at block %i, still cracking...", i_pos );
         }
 
         /* Stop after 2000 blocks if we haven't seen any encrypted blocks. */
