@@ -3,4 +3,4 @@ Makefile
 *.lo
 *.la
 stamp-h*
-test
+csstest
