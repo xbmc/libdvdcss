@@ -2,7 +2,7 @@
  * css.c: Functions for DVD authentification and unscrambling
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: css.c,v 1.8 2002/05/16 20:12:04 hjort Exp $
+ * $Id: css.c,v 1.9 2002/06/02 16:05:34 sam Exp $
  *
  * Author: Stéphane Borel <stef@via.ecp.fr>
  *         Håkan Hjort <d95hjort@dtek.chalmers.se>
@@ -295,7 +295,7 @@ int CSSGetDiscKey( dvdcss_handle dvdcss )
         return -1;
     }
 
-    /* Unencrypt disc key using bus key */
+    /* Decrypt disc key using bus key */
     for( i = 0 ; i < 2048 ; i++ )
     {
         p_buffer[ i ] ^= dvdcss->css.p_bus_key[ 4 - (i % KEY_SIZE) ];
@@ -345,17 +345,11 @@ int CSSGetTitleKey( dvdcss_handle dvdcss, int i_pos, dvd_key_t p_title_key )
     u8  p_key[KEY_SIZE];
     int i, i_ret = 0;
 
-    if( ( dvdcss->i_method == DVDCSS_METHOD_TITLE )
-        || ( dvdcss->b_ioctls == 0 ) )
+    if( dvdcss->b_ioctls && ( dvdcss->i_method == DVDCSS_METHOD_KEY || 
+			      dvdcss->i_method == DVDCSS_METHOD_DISC ) )
     {
-        /* For now, the limit is 9Gb / 2048 =  4718592 sectors. */
-        i_ret = CSSTitleCrack( dvdcss, i_pos, 4718592, p_key);
-    }
-    else
-    {
-        /* 
-         * if we are here we have a decrypted disc key and ioctls are available
-         * so we can read the title key and decrypt it.
+        /* We have a decrypted Disc key and the ioctls are available,
+         * read the title key and decrypt it.
          */
 
         _dvdcss_debug( dvdcss, "decrypting title key with disc key" );
@@ -380,43 +374,66 @@ int CSSGetTitleKey( dvdcss_handle dvdcss, int i_pos, dvd_key_t p_title_key )
             case -1:
                 /* An error getting the ASF status, something must be wrong. */
                 // ioctl_InvalidateAgid( dvdcss->i_fd, &dvdcss->css.i_agid );
-                return -1;
+                _dvdcss_debug( dvdcss, "lost ASF reqesting Title key" );
+                i_ret = -1;
+		break;
 
             case 0:
-                /* This might either be an title that has no key, 
+                /* This might either be a title that has no key, 
                  * or we encountered a region error. */
-                _dvdcss_debug( dvdcss, "Lost ASF reqesting Title key" );
-                return i_ret;
+                _dvdcss_debug( dvdcss, "lost ASF reqesting Title key" );
+                break;
 
             case 1:
-                /* Drive status is ok, check if we got the title key. */
-                if( i_ret )
-                {
-                    /* The request failed but we didn't lose ASF. */
-                  //ioctl_InvalidateAgid( dvdcss->i_fd, &dvdcss->css.i_agid );
-                    return i_ret;
-                }
+                /* Drive status is ok. */
+		/* If the title key request failed, but we did not loose ASF,
+		 * we might stil have the AGID.  Other code assume that we
+		 * will not after this so invalidate it(?). */
+		if( i_ret < 0 )
+		{
+		  //ioctl_InvalidateAgid( dvdcss->i_fd, &dvdcss->css.i_agid );
+		}
                 break;
         }
+	
+	if( !( i_ret < 0 ) )
+	{
+	    /* Decrypt title key using the bus key */
+	    for( i = 0 ; i < KEY_SIZE ; i++ )
+	    {
+		p_key[ i ] ^= dvdcss->css.p_bus_key[ 4 - (i % KEY_SIZE) ];
+	    }
 
-        /* Unencrypt title key using the bus key */
-        for( i = 0 ; i < KEY_SIZE ; i++ )
-        {
-            p_key[ i ] ^= dvdcss->css.p_bus_key[ 4 - (i % KEY_SIZE) ];
-        }
+	    /* If p_key is all zero then there realy wasn't any key pressent
+	     * even though we got to read it without an error. */
+	    if( !( p_key[0] | p_key[1] | p_key[2] | p_key[3] | p_key[4] ) )
+	    {
+		i_ret = 0;
+	    }
+	    else
+	    {
+		CSSDecryptTitleKey( dvdcss->css.p_disc_key, p_key );
+		i_ret = 1;
+	    }
 
-        /* If p_key is all zero then there realy wasn't any key pressent
-         * even though we got to read it without an error. */
-        if( !( p_key[0] | p_key[1] | p_key[2] | p_key[3] | p_key[4] ) )
-        {
-            i_ret = 0;
-        }
-        else
-        {
-            CSSDecryptTitleKey( dvdcss->css.p_disc_key, p_key );
-            i_ret = 1;
-        }
+	    /* All went well either there wasn't a key or we have it now. */
+	    memcpy( p_title_key, p_key, KEY_SIZE );
+	    CSSPrintKey( dvdcss, p_title_key );
+	    
+	    return i_ret;
+	}
+
+	/* The title key request failed */
+	_dvdcss_debug( dvdcss, "Reverting to cracking the Title key" );
+
+	/* FALL THROUGH */
     }
+    
+    /* METHOD is TITLE, we can't use the ioctls or requesting the title key
+     * failed above.  For these cases we try to crack the key instead. */
+    
+    /* For now, the read limit is 9Gb / 2048 =  4718592 sectors. */
+    i_ret = CSSTitleCrack( dvdcss, i_pos, 4718592, p_key);
 
     memcpy( p_title_key, p_key, KEY_SIZE );
     CSSPrintKey( dvdcss, p_title_key );
