@@ -2,7 +2,7 @@
  * libdvdcss.c: DVD reading library.
  *****************************************************************************
  * Copyright (C) 1998-2001 VideoLAN
- * $Id: libdvdcss.c,v 1.2 2001/12/22 00:52:46 sam Exp $
+ * $Id: libdvdcss.c,v 1.3 2002/03/09 17:57:53 hjort Exp $
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -50,7 +50,6 @@
 #include "common.h"
 #include "css.h"
 #include "libdvdcss.h"
-#include "csstables.h"
 #include "ioctl.h"
 
 /*****************************************************************************
@@ -291,6 +290,7 @@ extern int dvdcss_title ( dvdcss_handle dvdcss, int i_block )
 {
     dvd_title_t *p_title;
     dvd_title_t *p_newtitle;
+    dvd_key_t    p_title_key;
     int          i_ret;
 
     if( ! dvdcss->b_encrypted )
@@ -316,17 +316,17 @@ extern int dvdcss_title ( dvdcss_handle dvdcss, int i_block )
     }
 
     /* Crack or decrypt CSS title key for current VTS */
-    i_ret = CSSGetTitleKey( dvdcss, i_block );
+    i_ret = CSSGetTitleKey( dvdcss, i_block, p_title_key );
 
     if( i_ret < 0 )
     {
         _dvdcss_error( dvdcss, "fatal error in vts css key" );
         return i_ret;
     }
-    else if( i_ret > 0 )
+    else if( i_ret == 0 )
     {
-        _dvdcss_error( dvdcss, "decryption unavailable" );
-        return -1;
+        _dvdcss_debug( dvdcss, "unecrypted title" );
+        /* Still store this in the cache, so we don't need to check again. */
     }
 
     /* Find our spot in the list */
@@ -344,7 +344,7 @@ extern int dvdcss_title ( dvdcss_handle dvdcss, int i_block )
     /* Write in the new title and its key */
     p_newtitle = malloc( sizeof( dvd_title_t ) );
     p_newtitle->i_startlb = i_block;
-    memcpy( p_newtitle->p_key, dvdcss->css.p_title_key, KEY_SIZE );
+    memcpy( p_newtitle->p_key, p_title_key, KEY_SIZE );
 
     /* Link the new title, either at the beginning or inside the list */
     if( p_title == NULL )
@@ -358,6 +358,7 @@ extern int dvdcss_title ( dvdcss_handle dvdcss, int i_block )
         p_title->p_next = p_newtitle;
     }
 
+    memcpy( dvdcss->css.p_title_key, p_title_key, KEY_SIZE );
     return 0;
 }
 
