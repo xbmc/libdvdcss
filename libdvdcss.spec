@@ -5,13 +5,14 @@
 %define major  	2
 %define libname %{name}%{major}
 
-%define redhat80 0
-%if %redhat80
+%define buildfor_rh80 %([[ -e /etc/mandrake-release ]] && echo 0 || echo 1)
+
+%if %buildfor_rh80
 %define release %rel
 # some mdk macros that do not exist in rh
-%define configure2_5x CFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=/usr
+%define configure2_5x %configure
 %define make %__make
-%define makeinstall_std %__make DESTDIR="$RPM_BUILD_ROOT" install
+%define makeinstall_std %makeinstall
 # adjust define for Redhat.
 %endif
 
@@ -83,7 +84,7 @@ package installed.
 %makeinstall_std
 
 %clean
-rm -rf %buildroot
+[ %buildroot != "/" ] && rm -Rf %buildroot
 
 %post -n %{libname} -p /sbin/ldconfig
  
