@@ -38,6 +38,10 @@ N: Markus Kuespert
 E: ltlBeBoy@beosmail.com
 D: BeOS port of the DVD ioctls
 
+N: Pascal Levesque
+E: Pascal.Levesque@mindready.com
+D: QNX port
+
 N: Steven M. Schultz
 E: sms@TO.GD-ES.COM
 D: BSD/OS port

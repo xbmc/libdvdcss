@@ -4,6 +4,7 @@
 
 HEAD
 
+  * ./src/ioctl.c, ./src/ioctl.h: QNX port, courtesy of Pascal Levesque.
   * ./src/css.c: applied Håkan's fix for the failure on region mismatch.
   * ALL: switched to libtool 1.4.2a.
   * ./src/libdvdcss.c: fixed an uninitialized variable.

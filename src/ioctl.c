@@ -2,7 +2,7 @@
  * ioctl.c: DVD ioctl replacement function
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: ioctl.c,v 1.8 2002/05/05 22:21:51 jlj Exp $
+ * $Id: ioctl.c,v 1.9 2002/06/02 16:14:48 sam Exp $
  *
  * Authors: Markus Kuespert <ltlBeBoy@beosmail.com>
  *          Samuel Hocevar <sam@zoy.org>
@@ -75,6 +75,10 @@
 #ifdef DARWIN_DVD_IOCTL
 #   include <IOKit/storage/IODVDMediaBSDClient.h>
 #endif
+#ifdef __QNXNTO__
+#   include <sys/mman.h>
+#   include <sys/dcmd_cam.h>
+#endif
 
 #include "common.h"
 
@@ -107,6 +111,13 @@ static void SolarisInitUSCSI( struct uscsi_cmd *p_sc, int i_type );
 #if defined( WIN32 )
 static void WinInitSSC ( struct SRB_ExecSCSICmd *, int );
 static int  WinSendSSC ( int, struct SRB_ExecSCSICmd * );
+#endif
+
+/*****************************************************************************
+ * Local prototypes, QNX specific
+ *****************************************************************************/
+#if defined( __QNXNTO__ )
+static void QNXInitCPT ( CAM_PASS_THRU *, int );
 #endif
 
 /*****************************************************************************
@@ -230,14 +241,15 @@ int ioctl_ReadCopyright( int i_fd, int i_layer, int *pi_copyright )
     }
 
 #elif defined( __QNXNTO__ )
-    /*
-        QNX RTOS currently doesn't have a CAM
-        interface (they're working on it though).
-        Assume DVD is not encrypted.
-    */
 
-    *pi_copyright = 0;
-    i_ret = 0;
+    INIT_CPT( GPCMD_READ_DVD_STRUCTURE, 8 );
+
+    p_cpt->cam_cdb[ 6 ] = i_layer;
+    p_cpt->cam_cdb[ 7 ] = DVD_STRUCT_COPYRIGHT;
+
+    i_ret = devctl(i_fd, DCMD_CAM_PASS_THRU, p_cpt, structSize, NULL);
+
+    *pi_copyright = p_buffer[4];
 
 #else
 #   error "DVD ioctls are unavailable on this system"
@@ -384,6 +396,17 @@ int ioctl_ReadDiscKey( int i_fd, int *pi_agid, u8 *p_key )
         memcpy( p_key, p_buffer + 4, DVD_DISCKEY_SIZE );
     }
 
+#elif defined( __QNXNTO__ )
+
+    INIT_CPT( GPCMD_READ_DVD_STRUCTURE, DVD_DISCKEY_SIZE + 4 );
+
+    p_cpt->cam_cdb[ 7 ] = DVD_STRUCT_DISCKEY;
+    p_cpt->cam_cdb[ 10 ] = *pi_agid << 6;
+
+    i_ret = devctl(i_fd, DCMD_CAM_PASS_THRU, p_cpt, structSize, NULL);
+
+    memcpy( p_key, p_buffer + 4, DVD_DISCKEY_SIZE );
+
 #else
 #   error "DVD ioctls are unavailable on this system"
 
@@ -518,6 +541,20 @@ int ioctl_ReadTitleKey( int i_fd, int *pi_agid, int i_pos, u8 *p_key )
         memcpy( p_key, p_buffer + 5, DVD_KEY_SIZE );
     }
 
+#elif defined( __QNXNTO__ )
+
+    INIT_CPT( GPCMD_REPORT_KEY, 12 );
+
+    p_cpt->cam_cdb[ 2 ] = ( i_pos >> 24 ) & 0xff;
+    p_cpt->cam_cdb[ 3 ] = ( i_pos >> 16 ) & 0xff;
+    p_cpt->cam_cdb[ 4 ] = ( i_pos >>  8 ) & 0xff;
+    p_cpt->cam_cdb[ 5 ] = ( i_pos       ) & 0xff;
+    p_cpt->cam_cdb[ 10 ] = DVD_REPORT_TITLE_KEY | (*pi_agid << 6);
+
+    i_ret = devctl(i_fd, DCMD_CAM_PASS_THRU, p_cpt, structSize, NULL);
+
+    memcpy( p_key, p_buffer + 5, DVD_KEY_SIZE );
+
 #else
 #   error "DVD ioctls are unavailable on this system"
 
@@ -620,6 +657,16 @@ int ioctl_ReportAgid( int i_fd, int *pi_agid )
 
         *pi_agid = p_buffer[ 7 ] >> 6;
     }
+
+#elif defined( __QNXNTO__ )
+
+    INIT_CPT( GPCMD_REPORT_KEY, 8 );
+
+    p_cpt->cam_cdb[ 10 ] = DVD_REPORT_AGID | (*pi_agid << 6);
+
+    i_ret = devctl(i_fd, DCMD_CAM_PASS_THRU, p_cpt, structSize, NULL);
+
+    *pi_agid = p_buffer[ 7 ] >> 6;
 
 #else
 #   error "DVD ioctls are unavailable on this system"
@@ -734,6 +781,16 @@ int ioctl_ReportChallenge( int i_fd, int *pi_agid, u8 *p_challenge )
         memcpy( p_challenge, p_buffer + 4, DVD_CHALLENGE_SIZE );
     }
 
+#elif defined( __QNXNTO__ )
+
+    INIT_CPT( GPCMD_REPORT_KEY, 16 );
+
+    p_cpt->cam_cdb[ 10 ] = DVD_REPORT_CHALLENGE | (*pi_agid << 6);
+
+    i_ret = devctl(i_fd, DCMD_CAM_PASS_THRU, p_cpt, structSize, NULL);
+
+    memcpy( p_challenge, p_buffer + 4, DVD_CHALLENGE_SIZE );
+
 #else
 #   error "DVD ioctls are unavailable on this system"
 
@@ -846,6 +903,16 @@ int ioctl_ReportASF( int i_fd, int *pi_remove_me, int *pi_asf )
         *pi_asf = p_buffer[ 7 ] & 1;
     }
 
+#elif defined( __QNXNTO__ )
+
+    INIT_CPT( GPCMD_REPORT_KEY, 8 );
+
+    p_cpt->cam_cdb[ 10 ] = DVD_REPORT_ASF;
+
+    i_ret = devctl(i_fd, DCMD_CAM_PASS_THRU, p_cpt, structSize, NULL);
+
+    *pi_asf = p_buffer[ 7 ] & 1;
+
 #else
 #   error "DVD ioctls are unavailable on this system"
 
@@ -954,6 +1021,16 @@ int ioctl_ReportKey1( int i_fd, int *pi_agid, u8 *p_key )
         memcpy( p_key, p_buffer + 4, DVD_KEY_SIZE );
     }
 
+#elif defined( __QNXNTO__ )
+
+    INIT_CPT( GPCMD_REPORT_KEY, 12 );
+
+    p_cpt->cam_cdb[ 10 ] = DVD_REPORT_KEY1 | (*pi_agid << 6);
+
+    i_ret = devctl(i_fd, DCMD_CAM_PASS_THRU, p_cpt, structSize, NULL);
+
+    memcpy( p_key, p_buffer + 4, DVD_KEY_SIZE );
+
 #else
 #   error "DVD ioctls are unavailable on this system"
 
@@ -1044,6 +1121,14 @@ int ioctl_InvalidateAgid( int i_fd, int *pi_agid )
 
         i_ret = WinSendSSC( i_fd, &ssc );
     }
+
+#elif defined( __QNXNTO__ )
+
+    INIT_CPT( GPCMD_REPORT_KEY, 0 );
+
+    p_cpt->cam_cdb[ 10 ] = DVD_INVALIDATE_AGID | (*pi_agid << 6);
+
+    i_ret = devctl(i_fd, DCMD_CAM_PASS_THRU, p_cpt, structSize, NULL);
 
 #else
 #   error "DVD ioctls are unavailable on this system"
@@ -1159,6 +1244,17 @@ int ioctl_SendChallenge( int i_fd, int *pi_agid, u8 *p_challenge )
         return WinSendSSC( i_fd, &ssc );
     }
 
+#elif defined( __QNXNTO__ )
+
+    INIT_CPT( GPCMD_SEND_KEY, 16 );
+
+    p_cpt->cam_cdb[ 10 ] = DVD_SEND_CHALLENGE | (*pi_agid << 6);
+
+    p_buffer[ 1 ] = 0xe;
+    memcpy( p_buffer + 4, p_challenge, DVD_CHALLENGE_SIZE );
+
+    i_ret = devctl(i_fd, DCMD_CAM_PASS_THRU, p_cpt, structSize, NULL);
+
 #else
 #   error "DVD ioctls are unavailable on this system"
 
@@ -1272,6 +1368,17 @@ int ioctl_SendKey2( int i_fd, int *pi_agid, u8 *p_key )
 
         return WinSendSSC( i_fd, &ssc );
     }
+
+#elif defined( __QNXNTO__ )
+
+    INIT_CPT( GPCMD_SEND_KEY, 12 );
+
+    p_cpt->cam_cdb[ 10 ] = DVD_SEND_KEY2 | (*pi_agid << 6);
+
+    p_buffer[ 1 ] = 0xa;
+    memcpy( p_buffer + 4, p_key, DVD_KEY_SIZE );
+
+    i_ret = devctl(i_fd, DCMD_CAM_PASS_THRU, p_cpt, structSize, NULL);
 
 #else
 #   error "DVD ioctls are unavailable on this system"
@@ -1393,6 +1500,18 @@ int ioctl_ReportRPC( int i_fd, int *p_type, int *p_mask, int *p_scheme )
         *p_mask = p_buffer[ 5 ];
         *p_scheme = p_buffer[ 6 ];
     }
+
+#elif defined( __QNXNTO__ )
+
+    INIT_CPT( GPCMD_REPORT_KEY, 8 );
+
+    p_cpt->cam_cdb[ 10 ] = DVD_REPORT_RPC;
+
+    i_ret = devctl(i_fd, DCMD_CAM_PASS_THRU, p_cpt, structSize, NULL);
+
+    *p_type = p_buffer[ 4 ] >> 6;
+    *p_mask = p_buffer[ 5 ];
+    *p_scheme = p_buffer[ 6 ];
 
 #else
 #   error "DVD ioctls are unavailable on this system"
@@ -1569,6 +1688,37 @@ static int WinSendSSC( int i_fd, struct SRB_ExecSCSICmd *p_ssc )
     CloseHandle( hEvent );
 
     return p_ssc->SRB_Status == SS_COMP ? 0 : -1;
+}
+#endif
+
+#if defined( __QNXNTO__ )
+/*****************************************************************************
+ * QNXInitCPT: initialize a ssc structure for the win32 aspi layer
+ *****************************************************************************
+ * This function initializes a ssc raw device command structure for future
+ * use, either a read command or a write command.
+ *****************************************************************************/
+static void QNXInitCPT( CAM_PASS_THRU * p_cpt, int i_type )
+{
+    switch( i_type )
+    {
+        case GPCMD_SEND_KEY:
+            p_cpt->cam_flags = CAM_DIR_OUT;
+            break;
+
+        case GPCMD_READ_DVD_STRUCTURE:
+        case GPCMD_REPORT_KEY:
+            p_cpt->cam_flags = CAM_DIR_IN;
+            break;
+    }
+
+    p_cpt->cam_cdb[0] = i_type;
+
+    p_cpt->cam_cdb[ 8 ] = (p_cpt->cam_dxfer_len >> 8) & 0xff;
+    p_cpt->cam_cdb[ 9 ] =  p_cpt->cam_dxfer_len       & 0xff;
+    p_cpt->cam_cdb_len = 12;
+
+	p_cpt->cam_timeout = CAM_TIME_DEFAULT;
 }
 #endif
 

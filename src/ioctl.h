@@ -2,7 +2,7 @@
  * ioctl.h: DVD ioctl replacement function
  *****************************************************************************
  * Copyright (C) 1999-2001 VideoLAN
- * $Id: ioctl.h,v 1.3 2002/05/05 22:21:51 jlj Exp $
+ * $Id: ioctl.h,v 1.4 2002/06/02 16:14:48 sam Exp $
  *
  * Authors: Samuel Hocevar <sam@zoy.org>
  *
@@ -107,6 +107,22 @@ int ioctl_SendKey2          ( int, int *, u8 * );
 #endif
 
 /*****************************************************************************
+ * Common macro, QNX specific
+ *****************************************************************************/
+#if defined( __QNXNTO__ )
+#define INIT_CPT( TYPE, SIZE ) \
+    CAM_PASS_THRU * p_cpt; \
+    uint8_t * p_buffer; \
+    int structSize = sizeof( CAM_PASS_THRU ) + (SIZE); \
+    p_cpt = (CAM_PASS_THRU *) malloc ( structSize ); \
+    p_buffer = (uint8_t *) p_cpt + sizeof( CAM_PASS_THRU ); \
+    memset( p_cpt, 0, structSize ); \
+      p_cpt->cam_data_ptr = sizeof( CAM_PASS_THRU ); \
+      p_cpt->cam_dxfer_len = (SIZE); \
+    QNXInitCPT( p_cpt, (TYPE) );
+#endif
+
+/*****************************************************************************
  * Additional types, OpenBSD specific
  *****************************************************************************/
 #if defined( HAVE_OPENBSD_DVD_STRUCT )
@@ -117,7 +133,7 @@ typedef union dvd_authinfo dvd_authinfo;
 /*****************************************************************************
  * Various DVD I/O tables
  *****************************************************************************/
-#if defined( SYS_BEOS ) || defined( WIN32 ) || defined ( SOLARIS_USCSI ) || defined ( HPUX_SCTL_IO )
+#if defined( SYS_BEOS ) || defined( WIN32 ) || defined ( SOLARIS_USCSI ) || defined ( HPUX_SCTL_IO ) || defined ( __QNXNTO__ )
     /* The generic packet command opcodes for CD/DVD Logical Units,
      * From Table 57 of the SFF8090 Ver. 3 (Mt. Fuji) draft standard. */
 #   define GPCMD_READ_DVD_STRUCTURE 0xad
