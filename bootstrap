@@ -1,7 +1,8 @@
 #! /bin/sh
 set -x
 
-rm -f aclocal.m4 configure config.guess config.log config.sub ltmain.sh libtool ltconfig missing mkinstalldirs depcomp install-sh
+rm -f aclocal.m4 configure config.guess config.log config.sub compile ltmain.sh libtool ltconfig missing mkinstalldirs depcomp install-sh
+(cd autotools && rm -f config.guess config.sub missing mkinstalldirs compile ltmain.sh depcomp install-sh)
 
 # Check for automake
 amvers="none"
@@ -33,7 +34,7 @@ fi
 if test x$amvers = xnone
 then
   set +x
-  echo "you need automake version 1.5 or later"
+  echo "bootstrap: you need automake version 1.5 or later"
   exit 1
 fi
 
@@ -44,6 +45,13 @@ then
 else
   glibtoolize --force --copy || exit 1
 fi
+
+if test -f ltmain.sh
+then
+  echo "bootstrap: working around a minor libtool issue"
+  mv ltmain.sh autotools/
+fi
+
 autoheader || exit 1
 #add --include-deps if you want to bootstrap with any other compiler than gcc
 #automake${amvers} --add-missing --copy --include-deps || exit 1

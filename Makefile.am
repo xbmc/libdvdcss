@@ -1,4 +1,4 @@
-SUBDIRS = src test
+SUBDIRS = src test autotools
 DIST_SUBDIRS = $(SUBDIRS) debian doc
 
 EXTRA_DIST = libdvdcss.spec bootstrap
