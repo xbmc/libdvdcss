@@ -258,7 +258,7 @@ typedef struct {
 #define CDSL_NONE               ((int) (~0U>>1)-1)
 #define CDSL_CURRENT            ((int) (~0U>>1))
 
-struct cdrom_msf 
+struct cdrom_msf
 {
 	__u8	cdmsf_min0;	/* start minute */
 	__u8	cdmsf_sec0;	/* start second */
@@ -268,26 +268,26 @@ struct cdrom_msf
 	__u8	cdmsf_frame1;	/* end frame */
 };
 
-struct	cdrom_tochdr 	
+struct	cdrom_tochdr
 	{
 	__u8	cdth_trk0;	/* start track */
 	__u8	cdth_trk1;	/* end track */
 	};
 
-struct cdrom_msf0		
+struct cdrom_msf0
 {
 	__u8	minute;
 	__u8	second;
 	__u8	frame;
 };
 
-union cdrom_addr		
+union cdrom_addr
 {
 	struct cdrom_msf0	msf;
 	int			lba;
 };
 
-struct cdrom_tocentry 
+struct cdrom_tocentry
 {
 	__u8	cdte_track;
 	__u8	cdte_adr	:4;

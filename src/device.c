@@ -2,7 +2,7 @@
  * device.h: DVD device access
  *****************************************************************************
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: device.c,v 1.10 2002/12/10 10:38:12 sam Exp $
+ * $Id: device.c,v 1.11 2002/12/11 13:12:10 sam Exp $
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -91,11 +91,11 @@ int _dvdcss_use_ioctls( dvdcss_t dvdcss )
     /* FIXME: implement this for Windows */
     if( WIN2K )
     {
-	return 1;	
+        return 1;
     }
     else
     {
-	return 1;	
+        return 1;
     }
 #else
     struct stat fileinfo;
@@ -104,7 +104,7 @@ int _dvdcss_use_ioctls( dvdcss_t dvdcss )
     ret = fstat( dvdcss->i_fd, &fileinfo );
     if( ret < 0 )
     {
-	return 1;  /* What to do?  Be conservative and try to use the ioctls */
+        return 1;  /* What to do?  Be conservative and try to use the ioctls */
     }
 
     /* Complete this list and check that we test for the right things
@@ -122,13 +122,13 @@ int _dvdcss_use_ioctls( dvdcss_t dvdcss )
 
     /* Check if this is a block/char device */
     if( S_ISBLK( fileinfo.st_mode ) ||
-	S_ISCHR( fileinfo.st_mode ) )
+        S_ISCHR( fileinfo.st_mode ) )
     {
-	return 1;
+        return 1;
     }
     else
     {
-	return 0;
+        return 0;
     }
 #endif
 }

@@ -429,7 +429,7 @@ static int scsi_cmd(int fd, cgc_t *cgc)
 		cp = suc.suc_sus.sus_sense;
 		fprintf(stderr,"scsistatus = %x cmd = %x\n",
 			scsistatus, cgc->cdb[0]);
-		fprintf(stderr, "sense %x %x %x %x %x %x %x %x %x %x %x %x %x %x %x %x\n", 
+		fprintf(stderr, "sense %x %x %x %x %x %x %x %x %x %x %x %x %x %x %x %x\n",
 			cp[0], cp[1], cp[2], cp[3], cp[4], cp[5],
 			cp[6], cp[7], cp[8], cp[9], cp[10], cp[11],
 			cp[12], cp[13], cp[14], cp[15]);
@@ -580,9 +580,9 @@ cdrom_ioctl(int fd, u_long cmd, void *arg)
 				tocentry->cdte_addr.msf.frame = buffer[11];
 				}
 			else
-				tocentry->cdte_addr.lba = (((((buffer[8] << 8) 
+				tocentry->cdte_addr.lba = (((((buffer[8] << 8)
 						+ buffer[9]) << 8)
-						+ buffer[10]) << 8) 
+						+ buffer[10]) << 8)
 						+ buffer[11];
 			break;
 			}
@@ -593,7 +593,7 @@ cdrom_ioctl(int fd, u_long cmd, void *arg)
 			ret = cdrom_tray_move(fd, 0);
 			break;
 /*
- * This sucks but emulates the expected behaviour.  Instead of the return 
+ * This sucks but emulates the expected behaviour.  Instead of the return
  * value being the actual status a success/fail indicator should have been
  * returned and the 3rd arg to the ioctl should have been an 'int *' to update
  * with the actual status.

@@ -5,7 +5,7 @@
  *          Håkan Hjort <d95hjort@dtek.chalmers.se>
  *
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: libdvdcss.c,v 1.23 2002/12/10 10:38:12 sam Exp $
+ * $Id: libdvdcss.c,v 1.24 2002/12/11 13:12:10 sam Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -261,19 +261,19 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
     if( dvdcss->b_ioctls )
     {
         i_ret = _dvdcss_test( dvdcss );
-	if( i_ret < 0 )
-	{
-	    /* Disable the CSS ioctls and hope that it works? */
+        if( i_ret < 0 )
+        {
+            /* Disable the CSS ioctls and hope that it works? */
             _dvdcss_debug( dvdcss,
                            "could not check whether the disc was scrambled" );
-	    dvdcss->b_ioctls = 0;
-	}
-	else
-	{
+            dvdcss->b_ioctls = 0;
+        }
+        else
+        {
             _dvdcss_debug( dvdcss, i_ret ? "disc is scrambled"
                                          : "disc is unscrambled" );
-	    dvdcss->b_scrambled = i_ret;
-	}
+            dvdcss->b_scrambled = i_ret;
+        }
     }
 
     /* If disc is CSS protected and the ioctls work, authenticate the drive */
@@ -499,7 +499,7 @@ extern int dvdcss_read ( dvdcss_t dvdcss, void *p_buffer,
     if( ! memcmp( dvdcss->css.p_title_key, "\0\0\0\0\0", 5 ) )
     {
         /* For what we believe is an unencrypted title,
-	 * check that there are no encrypted blocks */
+         * check that there are no encrypted blocks */
         for( i_index = i_ret; i_index; i_index-- )
         {
             if( ((uint8_t*)p_buffer)[0x14] & 0x30 )
@@ -507,7 +507,7 @@ extern int dvdcss_read ( dvdcss_t dvdcss, void *p_buffer,
                 _dvdcss_error( dvdcss, "no key but found encrypted block" );
                 /* Only return the initial range of unscrambled blocks? */
                 /* or fail completely? return 0; */
-		break;
+                break;
             }
             p_buffer = (void *) ((uint8_t *)p_buffer + DVDCSS_BLOCK_SIZE);
         }
@@ -516,11 +516,11 @@ extern int dvdcss_read ( dvdcss_t dvdcss, void *p_buffer,
     {
         /* Decrypt the blocks we managed to read */
         for( i_index = i_ret; i_index; i_index-- )
-	{
-	    _dvdcss_unscramble( dvdcss->css.p_title_key, p_buffer );
-	    ((uint8_t*)p_buffer)[0x14] &= 0x8f;
+        {
+            _dvdcss_unscramble( dvdcss->css.p_title_key, p_buffer );
+            ((uint8_t*)p_buffer)[0x14] &= 0x8f;
             p_buffer = (void *) ((uint8_t *)p_buffer + DVDCSS_BLOCK_SIZE);
-	}
+        }
     }
 
     return i_ret;
