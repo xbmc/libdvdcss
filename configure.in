@@ -139,5 +139,5 @@ CFLAGS="-D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -DDVDCSS_DIST $CFLAGS"
 AC_SUBST(EXTRA_LIB)
 AC_SUBST(EXTRA_SOURCES)
 
-AC_OUTPUT([Makefile src/Makefile src/dvdcss/Makefile test/Makefile debian/Makefile])
+AC_OUTPUT([Makefile src/Makefile src/dvdcss/Makefile test/Makefile debian/Makefile doc/Makefile])
 

@@ -5,7 +5,7 @@
  *          Håkan Hjort <d95hjort@dtek.chalmers.se>
  *
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: libdvdcss.c,v 1.15 2002/08/10 12:21:28 sam Exp $
+ * $Id: libdvdcss.c,v 1.16 2002/08/10 12:56:03 sam Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,26 @@
  */
 
 /** 
+ * \mainpage libdvdcss developer documentation
+ *
+ * \section intro Introduction
+ *
+ * \e libdvdcss is a simple library designed for accessing DVDs like a block
+ * device without having to bother about the decryption. The important features
+ * are:
+ * \li portability: currently supported platforms are GNU/Linux, FreeBSD,
+ *     NetBSD, OpenBSD, BSD/OS, BeOS, Windows 95/98, Windows NT/2000, MacOS X,
+ *     Solaris, HP-UX and OS/2.
+ * \li simplicity: a DVD player can be built around the \e libdvdcss API using
+ *     no more than 4 or 5 library calls.
+ * \li freedom: \e libdvdcss is released under the General Public License,
+ *     ensuring it will stay free, and used only in free software.
+ * \li just better: unlike most similar projects, libdvdcss doesn't require
+ *     the region of your drive to be set.
+ *
+ * \section main How to use libdvdcss
+ *
+ * The \e libdvdcss API is documented in the dvdcss.h file.
  */
 
 /*
