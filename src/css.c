@@ -314,7 +314,7 @@ int _dvdcss_disckey( dvdcss_t dvdcss )
         case DVDCSS_METHOD_KEY:
 
             /* Decrypt disc key with player key. */
-            print_debug( dvdcss, "decrypting disc key with player keys" );
+            PrintKey( dvdcss, "decrypting disc key ", p_buffer );
             if( ! DecryptDiscKey( dvdcss, p_buffer, p_disc_key ) )
             {
                 PrintKey( dvdcss, "decrypted disc key is ", p_disc_key );
@@ -331,9 +331,8 @@ int _dvdcss_disckey( dvdcss_t dvdcss )
         case DVDCSS_METHOD_DISC:
 
             /* Crack Disc key to be able to use it */
-            print_debug( dvdcss, "cracking disc key from key hash ..."
-                                 " this will take some time" );
             memcpy( p_disc_key, p_buffer, KEY_SIZE );
+            PrintKey( dvdcss, "cracking disc key ", p_disc_key );
             if( ! CrackDiscKey( dvdcss, p_disc_key ) )
             {
                 PrintKey( dvdcss, "cracked disc key is ", p_disc_key );
@@ -1065,7 +1064,9 @@ static int DecryptDiscKey( dvdcss_t dvdcss, uint8_t const *p_struct_disckey,
  *****************************************************************************/
 static void DecryptTitleKey( dvd_key_t p_disc_key, dvd_key_t p_titlekey )
 {
+    PrintKey( dvdcss, "original disc key ", p_disc_key );
     DecryptKey( 0xff, p_disc_key, p_titlekey, p_titlekey );
+    PrintKey( dvdcss, "decrypted title key ", p_titlekey );
 }
 
 /*****************************************************************************
@@ -1110,12 +1111,9 @@ static int CrackDiscKey( dvdcss_t dvdcss, uint8_t *p_disc_key )
     unsigned int*  BigTable;    /* LFSR2 startstate indexed by
                                  * 1,2,5 output byte */
 
-    print_debug( dvdcss, "cracking disc key" );
-
     /*
      * Prepare tables for hash reversal
      */
-
 
     /* initialize lookup tables for k[1] */
     K1table = malloc( 65536 * K1TABLEWIDTH );
