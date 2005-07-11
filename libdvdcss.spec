@@ -1,5 +1,5 @@
 %define name 	libdvdcss
-%define version	1.2.8
+%define version	1.2.9
 %define release	1
 
 %define major  	2
@@ -103,6 +103,9 @@ package installed.
 %{_includedir}/*
 
 %changelog
+* Mon Jul 11 2005 Sam Hocevar <sam@zoy.org> 1.2.9-1
+- new upstream release
+
 * Tue Jul 29 2003 Sam Hocevar <sam@zoy.org> 1.2.8-1
 - new upstream release
 

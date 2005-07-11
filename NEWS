@@ -1,4 +1,12 @@
-$Id: NEWS,v 1.7 2003/09/09 12:32:40 sam Exp $
+$Id$
+
+Changes between 1.2.8 and 1.2.9:
+--------------------------------
+
+  * more robust key caching
+  * support for cache directory tags
+  * improved seeking on win32
+  * support for Solaris libsmedia library
 
 Changes between 1.2.7 and 1.2.8:
 --------------------------------
