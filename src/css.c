@@ -435,7 +435,7 @@ int _dvdcss_titlekey( dvdcss_t dvdcss, int i_pos, dvd_key_t p_title_key )
             else
             {
                 PrintKey( dvdcss, "initial disc key ", dvdcss->css.p_disc_key );
-                DecryptTitleKey( dvdcss, dvdcss->css.p_disc_key, p_key );
+                DecryptTitleKey( dvdcss->css.p_disc_key, p_key );
                 PrintKey( dvdcss, "decrypted title key ", p_key );
                 i_ret = 1;
             }
