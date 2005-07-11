@@ -1,8 +1,10 @@
 libdvdcss (1.2.9-1) unstable; urgency=low
 
   * New upstream release.
+  * debian/control:
+    + Set policy to 3.6.2.1.
 
- -- Sam Hocevar (Debian packages) <sam+deb@zoy.org>  Mon, 11 Jul 2005 14:14:28 +0200
+ -- Sam Hocevar (Debian packages) <sam+deb@zoy.org>  Mon, 11 Jul 2005 15:05:38 +0300
 
 libdvdcss (1.2.8-2) unstable; urgency=low
 

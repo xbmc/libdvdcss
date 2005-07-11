@@ -3,7 +3,7 @@ Section: libs
 Priority: optional
 Maintainer: Sam Hocevar (Debian packages) <sam+deb@zoy.org>
 Build-Depends: debhelper (>= 4.0), doxygen, tetex-bin
-Standards-Version: 3.6.0
+Standards-Version: 3.6.2.1
 
 Package: libdvdcss2
 Section: libs
