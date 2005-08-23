@@ -361,8 +361,8 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories 
 # with spaces.
 
-INPUT                  = ../src/dvdcss/dvdcss.h \
-                         ../src/libdvdcss.c
+INPUT                  = @TOP_SRCDIR@/src/dvdcss/dvdcss.h \
+                         @TOP_SRCDIR@/src/libdvdcss.c
 
 # If the value of the INPUT tag contains directories, you can use the 
 # FILE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp 
@@ -524,13 +524,13 @@ HTML_FILE_EXTENSION    = .html
 # each generated HTML page. If it is left blank doxygen will generate a 
 # standard header.
 
-HTML_HEADER            = header.html
+HTML_HEADER            = @SRCDIR@/header.html
 
 # The HTML_FOOTER tag can be used to specify a personal HTML footer for 
 # each generated HTML page. If it is left blank doxygen will generate a 
 # standard footer.
 
-HTML_FOOTER            = footer.html
+HTML_FOOTER            = @SRCDIR@/footer.html
 
 # The HTML_STYLESHEET tag can be used to specify a user-defined cascading 
 # style sheet that is used by each HTML page. It can be used to 
