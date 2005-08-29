@@ -55,6 +55,15 @@
 #   include <sys/uio.h>                                      /* struct iovec */
 #endif
 
+#ifdef DARWIN_DVD_IOCTL
+#   include <paths.h>
+#   include <IOKit/IOKitLib.h>
+#   include <IOKit/IOBSD.h>
+#   include <IOKit/storage/IOMedia.h>
+#   include <IOKit/storage/IOCDMedia.h>
+#   include <IOKit/storage/IODVDMedia.h>
+#endif
+
 #include "dvdcss/dvdcss.h"
 
 #include "common.h"
@@ -141,6 +150,12 @@ void _dvdcss_check ( dvdcss_t dvdcss )
 #if defined( WIN32 )
     DWORD drives;
     int i;
+#elif defined( DARWIN_DVD_IOCTL )
+    io_object_t next_media;
+    mach_port_t master_port;
+    kern_return_t kern_result;
+    io_iterator_t media_iterator;
+    CFMutableDictionaryRef classes_to_match;
 #else
     char *ppsz_devices[] = { "/dev/dvd", "/dev/cdrom", "/dev/hdc", NULL };
     int i, i_fd;
@@ -181,6 +196,74 @@ void _dvdcss_check ( dvdcss_t dvdcss )
         dvdcss->psz_device = strdup( psz_device );
         return;
     }
+#elif defined( DARWIN_DVD_IOCTL )
+
+    kern_result = IOMasterPort( MACH_PORT_NULL, &master_port );
+    if( kern_result != KERN_SUCCESS )
+    {
+        return;
+    }
+
+    classes_to_match = IOServiceMatching( psz_class );
+    if( classes_to_match == NULL )
+    {
+        return;
+    }
+
+    CFDictionarySetValue( classes_to_match, CFSTR( kIOMediaEjectableKey ),
+                          kCFBooleanTrue );
+
+    kern_result = IOServiceGetMatchingServices( master_port, classes_to_match,
+                                                &media_iterator );
+    if( kern_result != KERN_SUCCESS )
+    {
+        return;
+    }
+
+    next_media = IOIteratorNext( media_iterator );
+    if( next_media != NULL )
+    {
+        char psz_buf[0x32];
+        size_t i_pathlen;
+        CFTypeRef psz_path;
+
+        do
+        {
+            psz_path = IORegistryEntryCreateCFProperty( next_media,
+                                                        CFSTR( kIOBSDNameKey ),
+                                                        kCFAllocatorDefault,
+                                                        0 );
+            if( psz_path == NULL )
+            {
+                IOObjectRelease( next_media );
+                continue;
+            }
+
+            snprintf( psz_buf, sizeof(psz_buf), "%s%c", _PATH_DEV, 'r' );
+            i_pathlen = strlen( psz_buf );
+
+            if( CFStringGetCString( psz_path,
+                                    (char*)&psz_buf + i_pathlen,
+                                    sizeof(psz_buf) - i_pathlen,
+                                    kCFStringEncodingASCII ) )
+            {
+                print_debug( dvdcss, "defaulting to drive `%s'", psz_buf );
+                CFRelease( psz_path );
+                IOObjectRelease( next_media );
+                IOObjectRelease( media_iterator );
+                free( dvdcss->psz_device );
+                dvdcss->psz_device = strdup( psz_buf );
+                return;
+            }
+
+            CFRelease( psz_path );
+
+            IOObjectRelease( next_media );
+
+        } while( ( next_media = IOIteratorNext( media_iterator ) ) != NULL );
+    }
+
+    IOObjectRelease( media_iterator );
 #else
     for( i = 0; ppsz_devices[i]; i++ )
     {
