@@ -330,6 +330,7 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
     /*
      *  Open device
      */
+    _dvdcss_check( dvdcss );
     i_ret = _dvdcss_open( dvdcss );
     if( i_ret < 0 )
     {

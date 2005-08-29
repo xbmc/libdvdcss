@@ -136,6 +136,69 @@ int _dvdcss_use_ioctls( dvdcss_t dvdcss )
 #endif
 }
 
+void _dvdcss_check ( dvdcss_t dvdcss )
+{
+#if defined( WIN32 )
+    DWORD drives;
+    int i;
+#else
+    char *ppsz_devices[] = { "/dev/dvd", "/dev/cdrom", "/dev/hdc", NULL };
+    int i, i_fd;
+#endif
+
+    /* If the device name is non-null, return */
+    if( dvdcss->psz_device[0] )
+    {
+        return;
+    }
+
+#if defined( WIN32 )
+    drives = GetLogicalDrives();
+
+    for( i = 0; drives; i++ )
+    {
+        char psz_device[5];
+        DWORD cur = 1 << i;
+        UINT i_ret;
+
+        if( (drives & cur) == 0 )
+        {
+            continue;
+        }
+        drives &= ~cur;
+
+        sprintf( psz_device, "%c:\\", 'A' + i );
+        i_ret = GetDriveType( psz_device );
+        if( i_ret != DRIVE_CDROM )
+        {
+            continue;
+        }
+
+        /* FIXME: we want to differenciate between CD and DVD drives
+         * using DeviceIoControl() */
+        print_debug( dvdcss, "defaulting to drive `%s'", psz_device );
+        free( dvdcss->psz_device );
+        dvdcss->psz_device = strdup( psz_device );
+        return;
+    }
+#else
+    for( i = 0; ppsz_devices[i]; i++ )
+    {
+        i_fd = open( ppsz_devices[i], 0 );
+        if( i_fd != -1 )
+        {
+            print_debug( dvdcss, "defaulting to drive `%s'", ppsz_devices[i] );
+            close( i_fd );
+            free( dvdcss->psz_device );
+            dvdcss->psz_device = strdup( ppsz_devices[i] );
+            return;
+        }
+    }
+#endif
+
+    print_error( dvdcss, "could not find a suitable default drive" );
+}
+
 int _dvdcss_open ( dvdcss_t dvdcss )
 {
     char const *psz_device = dvdcss->psz_device;
