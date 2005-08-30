@@ -57,6 +57,7 @@
 
 #ifdef DARWIN_DVD_IOCTL
 #   include <paths.h>
+#   include <CoreFoundation/CoreFoundation.h>
 #   include <IOKit/IOKitLib.h>
 #   include <IOKit/IOBSD.h>
 #   include <IOKit/storage/IOMedia.h>
@@ -204,7 +205,7 @@ void _dvdcss_check ( dvdcss_t dvdcss )
         return;
     }
 
-    classes_to_match = IOServiceMatching( psz_class );
+    classes_to_match = IOServiceMatching( kIODVDMediaClass );
     if( classes_to_match == NULL )
     {
         return;
