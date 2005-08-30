@@ -137,6 +137,7 @@ AC_CHECK_HEADERS(sys/ioctl.h,[
   dnl
   AC_CHECK_HEADER(IOKit/storage/IODVDMediaBSDClient.h,[
     AC_DEFINE(DARWIN_DVD_IOCTL, 1, Have IOKit DVD IOCTL headers)
+    DVDCSS_LDFLAGS="-Wl,-framework -Wl,CoreFoundation -Wl,-framework -Wl,IOKit"
   ])
   dnl
   dnl Final tests to check what was detected
@@ -196,6 +197,7 @@ AM_CONDITIONAL(DOXYGEN, test "${DOXYGEN}" != "no")
 AC_PATH_PROG(LATEX, latex, no)
 AM_CONDITIONAL(LATEX, test "${LATEX}" != "no")
 
+AC_SUBST(DVDCSS_LDFLAGS)
 AC_OUTPUT([
   Makefile
   debian/Makefile
