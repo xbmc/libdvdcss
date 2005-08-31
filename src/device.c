@@ -190,6 +190,9 @@ void _dvdcss_check ( dvdcss_t dvdcss )
             continue;
         }
 
+        /* Remove trailing backslash */
+        psz_device[2] = '\0';
+
         /* FIXME: we want to differenciate between CD and DVD drives
          * using DeviceIoControl() */
         print_debug( dvdcss, "defaulting to drive `%s'", psz_device );
