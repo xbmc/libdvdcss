@@ -41,10 +41,10 @@ fi
 
 # Check for libtool
 libtoolize="no"
-if libtoolize --version >/dev/null 2>&1; then
-  libtoolize="libtoolize"
-elif glibtoolize --version >/dev/null 2>&1; then
+if glibtoolize --version >/dev/null 2>&1; then
   libtoolize="glibtoolize"
+elif libtoolize --version >/dev/null 2>&1; then
+  libtoolize="libtoolize"
 fi
 
 if test "$libtoolize" = "no"; then
