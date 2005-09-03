@@ -166,7 +166,7 @@ AC_CACHE_CHECK([if \$CC accepts -Wall],
     [ac_cv_c_Wall],
     [CFLAGS="-Wall ${CFLAGS_save}"
      AC_TRY_COMPILE([],,ac_cv_c_Wall=yes, ac_cv_c_Wall=no)])
-if test "x${ac_cv_c_Wall}" != "xno"; then
+if test "${ac_cv_c_Wall}" != "no"; then
     CFLAGS_save="-Wall ${CFLAGS_save}"
 fi
 
@@ -174,7 +174,7 @@ AC_CACHE_CHECK([if \$CC accepts -Wsign-compare],
     [ac_cv_c_Wsign_compare],
     [CFLAGS="-Wsign-compare ${CFLAGS_save}"
      AC_TRY_COMPILE([],,ac_cv_c_Wsign_compare=yes, ac_cv_c_Wsign_compare=no)])
-if test "x${ac_cv_c_Wsign_compare}" != "xno"; then
+if test "${ac_cv_c_Wsign_compare}" != "no"; then
     CFLAGS_save="-Wsign-compare ${CFLAGS_save}"
 fi
 
@@ -192,9 +192,15 @@ AM_CONDITIONAL(SYS_MSVC, test "${SYS_MSVC}" = "1")
 dnl
 dnl  Shall we build documentation?
 dnl
-AC_PATH_PROG(DOXYGEN, doxygen, no)
+AC_ARG_ENABLE([doc], AC_HELP_STRING([--disable-doc], [do not build API documentation with Doxygen]))
+if test "$enable_doc" != "no"; then
+  AC_PATH_PROG(DOXYGEN, doxygen, no)
+  AC_PATH_PROG(LATEX, latex, no)
+else
+  DOXYGEN="no"
+  LATEX="no"
+fi
 AM_CONDITIONAL(DOXYGEN, test "${DOXYGEN}" != "no")
-AC_PATH_PROG(LATEX, latex, no)
 AM_CONDITIONAL(LATEX, test "${LATEX}" != "no")
 
 AC_SUBST(DVDCSS_LDFLAGS)
