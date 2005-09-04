@@ -57,12 +57,11 @@ typedef struct dvdcss_s* dvdcss_t;
 
 
 #if defined(WIN32)
-#ifdef LIBDVDCSS_EXPORTS
+#if defined(LIBDVDCSS_EXPORT)
 #define LIBDVDCSS_EXPORT __declspec(dllexport) extern
-#else
+#elif defined(LIBDVDCSS_IMPORT)
 #define LIBDVDCSS_EXPORT __declspec(dllimport) extern
-#endif
-#else /* not WIN32 */
+#else
 #define LIBDVDCSS_EXPORT extern
 #endif
 
