@@ -46,11 +46,11 @@
 
 #if defined( WIN32 )
 
-#ifndef PATH_MAX
-#   define PATH_MAX MAX_PATH
-#endif
+#   ifndef PATH_MAX
+#      define PATH_MAX MAX_PATH
+#   endif
 
-#define lseek _lseeki64
+#   define lseek64 _lseeki64
 
 /* several type definitions */
 #   if defined( __MINGW32__ )
@@ -76,6 +76,10 @@ typedef __int64 off_t;
 #   ifndef snprintf
 #       define snprintf _snprintf  /* snprintf not defined in mingw32 (bug?) */
 #   endif
+
+#else
+
+#   define lseek64 lseek
 
 #endif
 
