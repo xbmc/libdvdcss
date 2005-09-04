@@ -2,7 +2,7 @@
  * error.c: error management functions
  *****************************************************************************
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: error.c,v 1.8 2003/09/09 10:03:48 sam Exp $
+ * $Id$
  *
  * Author: Samuel Hocevar <sam@zoy.org>
  *
