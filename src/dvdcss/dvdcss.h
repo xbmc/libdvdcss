@@ -56,7 +56,6 @@ typedef struct dvdcss_s* dvdcss_t;
 #define DVDCSS_SEEK_KEY        (1 << 1)
 
 
-#if defined(WIN32)
 #if defined(LIBDVDCSS_EXPORT)
 #define LIBDVDCSS_EXPORT __declspec(dllexport) extern
 #elif defined(LIBDVDCSS_IMPORT)

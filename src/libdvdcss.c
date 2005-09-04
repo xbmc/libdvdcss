@@ -142,7 +142,7 @@
  * The variable itself contains the exact version number of the library,
  * which can be useful for specific feature needs.
  */
-char * dvdcss_interface_2 = VERSION;
+LIBDVDCSS_EXPORT char * dvdcss_interface_2 = VERSION;
 
 /**
  * \brief Open a DVD device or directory and return a dvdcss instance.
@@ -158,7 +158,7 @@ char * dvdcss_interface_2 = VERSION;
  * dvdcss_open() returns a handle to be used for all subsequent \e libdvdcss
  * calls. If an error occured, NULL is returned.
  */
-extern dvdcss_t dvdcss_open ( char *psz_target )
+LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
 {
     char psz_buffer[PATH_MAX];
     int i_ret;
@@ -554,7 +554,7 @@ extern dvdcss_t dvdcss_open ( char *psz_target )
  * occured in \e libdvdcss. It can be used to format error messages at your
  * convenience in your application.
  */
-extern char * dvdcss_error ( dvdcss_t dvdcss )
+LIBDVDCSS_EXPORT char * dvdcss_error ( dvdcss_t dvdcss )
 {
     return dvdcss->psz_error;
 }
@@ -583,7 +583,7 @@ extern char * dvdcss_error ( dvdcss_t dvdcss )
  * deprecated dvdcss_title() call. This flag is typically used when seeking
  * in a new title.
  */
-extern int dvdcss_seek ( dvdcss_t dvdcss, int i_blocks, int i_flags )
+LIBDVDCSS_EXPORT int dvdcss_seek ( dvdcss_t dvdcss, int i_blocks, int i_flags )
 {
     /* title cracking method is too slow to be used at each seek */
     if( ( ( i_flags & DVDCSS_SEEK_MPEG )
@@ -623,7 +623,7 @@ extern int dvdcss_seek ( dvdcss_t dvdcss, int i_blocks, int i_flags )
  * \warning dvdcss_read() expects to be able to write \p i_blocks *
  *          #DVDCSS_BLOCK_SIZE bytes in \p p_buffer.
  */
-extern int dvdcss_read ( dvdcss_t dvdcss, void *p_buffer,
+LIBDVDCSS_EXPORT int dvdcss_read ( dvdcss_t dvdcss, void *p_buffer,
                                           int i_blocks,
                                           int i_flags )
 {
@@ -696,7 +696,7 @@ extern int dvdcss_read ( dvdcss_t dvdcss, void *p_buffer,
  *          Moreover, all iov_len members of the iovec structures should be
  *          multiples of #DVDCSS_BLOCK_SIZE.
  */
-extern int dvdcss_readv ( dvdcss_t dvdcss, void *p_iovec,
+LIBDVDCSS_EXPORT int dvdcss_readv ( dvdcss_t dvdcss, void *p_iovec,
                                            int i_blocks,
                                            int i_flags )
 {
@@ -754,7 +754,7 @@ extern int dvdcss_readv ( dvdcss_t dvdcss, void *p_iovec,
  * by \e libdvdcss. On return, the #dvdcss_t is invalidated and may not be
  * used again.
  */
-extern int dvdcss_close ( dvdcss_t dvdcss )
+LIBDVDCSS_EXPORT int dvdcss_close ( dvdcss_t dvdcss )
 {
     dvd_title_t *p_title;
     int i_ret;
@@ -785,7 +785,7 @@ extern int dvdcss_close ( dvdcss_t dvdcss )
  *  Deprecated. See dvdcss_seek().
  */
 #undef dvdcss_title
-extern int dvdcss_title ( dvdcss_t dvdcss, int i_block )
+LIBDVDCSS_EXPORT int dvdcss_title ( dvdcss_t dvdcss, int i_block )
 {
     return _dvdcss_title( dvdcss, i_block );
 }
