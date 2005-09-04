@@ -10,7 +10,7 @@
 
 /*
  * Copyright (C) 1998-2002 VideoLAN
- * $Id: dvdcss.h,v 1.5 2002/12/11 13:12:10 sam Exp $
+ * $Id$
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,29 +56,39 @@ typedef struct dvdcss_s* dvdcss_t;
 #define DVDCSS_SEEK_KEY        (1 << 1)
 
 
+#if defined(WIN32)
+#ifdef LIBDVDCSS_EXPORTS
+#define LIBDVDCSS_EXPORT __declspec(dllexport) extern
+#else
+#define LIBDVDCSS_EXPORT __declspec(dllimport) extern
+#endif
+#else /* not WIN32 */
+#define LIBDVDCSS_EXPORT extern
+#endif
+
 /*
  * Our version number. The variable name contains the interface version.
  */
-extern char *        dvdcss_interface_2;
+LIBDVDCSS_EXPORT char *        dvdcss_interface_2;
 
 
 /*
  * Exported prototypes.
  */
-extern dvdcss_t dvdcss_open  ( char *psz_target );
-extern int      dvdcss_close ( dvdcss_t );
-extern int      dvdcss_seek  ( dvdcss_t,
+LIBDVDCSS_EXPORT dvdcss_t dvdcss_open  ( char *psz_target );
+LIBDVDCSS_EXPORT int      dvdcss_close ( dvdcss_t );
+LIBDVDCSS_EXPORT int      dvdcss_seek  ( dvdcss_t,
                                int i_blocks,
                                int i_flags );
-extern int      dvdcss_read  ( dvdcss_t,
+LIBDVDCSS_EXPORT int      dvdcss_read  ( dvdcss_t,
                                void *p_buffer,
                                int i_blocks,
                                int i_flags );
-extern int      dvdcss_readv ( dvdcss_t,
+LIBDVDCSS_EXPORT int      dvdcss_readv ( dvdcss_t,
                                void *p_iovec,
                                int i_blocks,
                                int i_flags );
-extern char *   dvdcss_error ( dvdcss_t );
+LIBDVDCSS_EXPORT char *   dvdcss_error ( dvdcss_t );
 
 
 /*
