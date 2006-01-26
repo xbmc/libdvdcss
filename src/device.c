@@ -1,11 +1,11 @@
 /*****************************************************************************
  * device.h: DVD device access
  *****************************************************************************
- * Copyright (C) 1998-2002 VideoLAN
+ * Copyright (C) 1998-2006 VideoLAN
  * $Id$
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
- *          Samuel Hocevar <sam@zoy.org>
+ *          Sam Hocevar <sam@zoy.org>
  *          Håkan Hjort <d95hjort@dtek.chalmers.se>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -225,46 +225,48 @@ void _dvdcss_check ( dvdcss_t dvdcss )
     }
 
     next_media = IOIteratorNext( media_iterator );
-    if( next_media != NULL )
+    for( ; ; )
     {
         char psz_buf[0x32];
         size_t i_pathlen;
         CFTypeRef psz_path;
 
-        do
+        next_media = IOIteratorNext( media_iterator );
+        if( next_media == 0 )
         {
-            psz_path = IORegistryEntryCreateCFProperty( next_media,
-                                                        CFSTR( kIOBSDNameKey ),
-                                                        kCFAllocatorDefault,
-                                                        0 );
-            if( psz_path == NULL )
-            {
-                IOObjectRelease( next_media );
-                continue;
-            }
+            break;
+        }
 
-            snprintf( psz_buf, sizeof(psz_buf), "%s%c", _PATH_DEV, 'r' );
-            i_pathlen = strlen( psz_buf );
-
-            if( CFStringGetCString( psz_path,
-                                    (char*)&psz_buf + i_pathlen,
-                                    sizeof(psz_buf) - i_pathlen,
-                                    kCFStringEncodingASCII ) )
-            {
-                print_debug( dvdcss, "defaulting to drive `%s'", psz_buf );
-                CFRelease( psz_path );
-                IOObjectRelease( next_media );
-                IOObjectRelease( media_iterator );
-                free( dvdcss->psz_device );
-                dvdcss->psz_device = strdup( psz_buf );
-                return;
-            }
-
-            CFRelease( psz_path );
-
+        psz_path = IORegistryEntryCreateCFProperty( next_media,
+                                                    CFSTR( kIOBSDNameKey ),
+                                                    kCFAllocatorDefault,
+                                                    0 );
+        if( psz_path == NULL )
+        {
             IOObjectRelease( next_media );
+            continue;
+        }
 
-        } while( ( next_media = IOIteratorNext( media_iterator ) ) != NULL );
+        snprintf( psz_buf, sizeof(psz_buf), "%s%c", _PATH_DEV, 'r' );
+        i_pathlen = strlen( psz_buf );
+
+        if( CFStringGetCString( psz_path,
+                                (char*)&psz_buf + i_pathlen,
+                                sizeof(psz_buf) - i_pathlen,
+                                kCFStringEncodingASCII ) )
+        {
+            print_debug( dvdcss, "defaulting to drive `%s'", psz_buf );
+            CFRelease( psz_path );
+            IOObjectRelease( next_media );
+            IOObjectRelease( media_iterator );
+            free( dvdcss->psz_device );
+            dvdcss->psz_device = strdup( psz_buf );
+            return;
+        }
+
+        CFRelease( psz_path );
+
+        IOObjectRelease( next_media );
     }
 
     IOObjectRelease( media_iterator );
