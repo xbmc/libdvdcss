@@ -206,7 +206,6 @@ AM_CONDITIONAL(LATEX, test "${LATEX}" != "no")
 AC_SUBST(DVDCSS_LDFLAGS)
 AC_OUTPUT([
   Makefile
-  debian/Makefile
   doc/Makefile
   src/Makefile
   src/dvdcss/Makefile
