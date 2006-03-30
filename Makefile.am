@@ -1,5 +1,5 @@
 SUBDIRS = src test doc
-DIST_SUBDIRS = $(SUBDIRS) debian
+DIST_SUBDIRS = $(SUBDIRS)
 
 EXTRA_DIST = libdvdcss.spec bootstrap
 
