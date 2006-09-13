@@ -295,8 +295,11 @@ int _dvdcss_open ( dvdcss_t dvdcss )
     print_debug( dvdcss, "opening target `%s'", psz_device );
 
 #if defined( WIN32 )
-    /* If device is not "X:", we are actually opening a file. */
-    dvdcss->b_file = !psz_device[0] || psz_device[1] != ':' || psz_device[2];
+    dvdcss->b_file = 1;
+    /* If device is "X:" or "X:\", we are not actually opening a file. */
+    if (psz_device[0] && psz_device[1] == ':' &&
+       (!psz_device[2] || (psz_device[2] == '\\' && !psz_device[3])))
+        dvdcss->b_file = 0;
 
     /* Initialize readv temporary buffer */
     dvdcss->p_readv_buffer   = NULL;
