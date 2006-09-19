@@ -142,7 +142,8 @@
  * The variable itself contains the exact version number of the library,
  * which can be useful for specific feature needs.
  */
-LIBDVDCSS_EXPORT char * dvdcss_interface_2 = VERSION;
+LIBDVDCSS_EXPORT char * dvdcss_interface_2;
+char * dvdcss_interface_2 = VERSION;
 
 /**
  * \brief Open a DVD device or directory and return a dvdcss instance.
@@ -385,7 +386,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
             "# This file is a cache directory tag created by libdvdcss.\r\n"
             "# For information about cache directory tags, see:\r\n"
             "#   http://www.brynosaurus.com/cachedir/\r\n";
-        unsigned char psz_tagfile[PATH_MAX+1+12+1];
+        char psz_tagfile[PATH_MAX + 1 + 12 + 1];
         int i_fd;
 
         sprintf( psz_tagfile, "%s/CACHEDIR.TAG", psz_cache );
@@ -401,9 +402,9 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
     if( psz_cache )
     {
         uint8_t p_sector[DVDCSS_BLOCK_SIZE];
-        unsigned char   psz_debug[PATH_MAX+30];
-        unsigned char   psz_key[1 + KEY_SIZE * 2 + 1];
-        unsigned char * psz_title, * psz_serial;
+        char psz_debug[PATH_MAX + 30];
+        char psz_key[1 + KEY_SIZE * 2 + 1];
+        char *psz_title, *psz_serial;
         int i;
 
         /* We read sector 0. If it starts with 0x000001ba (BE), we are
@@ -444,7 +445,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
         }
 
         /* Get the disc title */
-        psz_title = p_sector + 40;
+        psz_title = (char *)p_sector + 40;
         psz_title[32] = '\0';
 
         for( i = 0 ; i < 32 ; i++ )
@@ -461,7 +462,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
         }
 
         /* Get the date + serial */
-        psz_serial = p_sector + 813;
+        psz_serial = (char *)p_sector + 813;
         psz_serial[16] = '\0';
 
         /* Check that all characters are digits, otherwise convert. */
@@ -469,7 +470,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
         {
             if( psz_serial[i] < '0' || psz_serial[i] > '9' )
             {
-                unsigned char psz_tmp[16 + 1];
+                char psz_tmp[16 + 1];
                 sprintf( psz_tmp,
                          "%.2x%.2x%.2x%.2x%.2x%.2x%.2x%.2x",
                          psz_serial[0], psz_serial[1], psz_serial[2],
