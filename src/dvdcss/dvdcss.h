@@ -88,6 +88,8 @@ LIBDVDCSS_EXPORT int      dvdcss_readv ( dvdcss_t,
                                int i_flags );
 LIBDVDCSS_EXPORT char *   dvdcss_error ( dvdcss_t );
 
+LIBDVDCSS_EXPORT int      dvdcss_is_scrambled ( dvdcss_t );
+
 
 /*
  * Deprecated stuff.

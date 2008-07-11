@@ -795,4 +795,16 @@ LIBDVDCSS_EXPORT int dvdcss_title ( dvdcss_t dvdcss, int i_block )
     return _dvdcss_title( dvdcss, i_block );
 }
 
+/**
+ * \brief Return 1 if the DVD is scrambled, 0 otherwise.
+ *
+ * \param dvdcss a \e libdvdcss instance.
+ * \return 1 if the DVD is scrambled, 0 otherwise.
+ *
+ * This function returns whether the DVD is scrambled.
+ */
+LIBDVDCSS_EXPORT int dvdcss_is_scrambled ( dvdcss_t dvdcss )
+{
+    return dvdcss->b_scrambled;
+}
 
