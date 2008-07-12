@@ -377,6 +377,10 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
             return NULL;
         }
     }
+    else
+    {
+        memset( dvdcss->css.p_disc_key, 0, KEY_SIZE );
+    }
 
     /* If the cache is enabled, write the cache directory tag */
     if( psz_cache )

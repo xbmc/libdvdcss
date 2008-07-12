@@ -325,6 +325,7 @@ int _dvdcss_disckey( dvdcss_t dvdcss )
                                  "cracking title keys instead" );
 
             /* Fallback, but not to DISC as the disc key might be faulty */
+            memset( p_disc_key, 0, KEY_SIZE );
             dvdcss->i_method = DVDCSS_METHOD_TITLE;
             break;
 
