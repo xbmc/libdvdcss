@@ -4,8 +4,8 @@
  * Copyright (C) 1999-2003 VideoLAN
  * $Id$
  *
- * Authors: Stéphane Borel <stef@via.ecp.fr>
- *          Håkan Hjort <d95hjort@dtek.chalmers.se>
+ * Authors: StÃ©phane Borel <stef@via.ecp.fr>
+ *          HÃ¥kan Hjort <d95hjort@dtek.chalmers.se>
  *
  * based on:
  *  - css-auth by Derek Fawcus <derek@spider.com>
