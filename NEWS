@@ -1,5 +1,14 @@
 $Id$
 
+Changes between 1.2.9 and 1.2.10:
+---------------------------------
+
+  * DVD drive autodetection.
+  * new dvdcss_is_scrambled() function.
+  * various failure recovery improvements.
+  * accept "X:\" as a device name, as well as "X:".
+  * various bug fixes.
+
 Changes between 1.2.8 and 1.2.9:
 --------------------------------
 
