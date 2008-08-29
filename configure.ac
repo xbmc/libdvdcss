@@ -210,5 +210,6 @@ AC_OUTPUT([
   src/Makefile
   src/dvdcss/Makefile
   test/Makefile
+  src/libdvdcss.pc
 ])
 

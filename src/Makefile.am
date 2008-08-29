@@ -32,3 +32,6 @@ else
 libtool_flags = -no-undefined
 endif
 
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = libdvdcss.pc
+
