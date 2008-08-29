@@ -117,7 +117,7 @@ package installed.
 - new upstream release
 - small bug fixes
 
-* Tue Jan 28 2003 Samuel Hocevar <sam@zoy.org> 1.2.5-1
+* Tue Jan 28 2003 Sam Hocevar <sam@zoy.org> 1.2.5-1
 - new upstream release
 - improved robustness in case of read errors
 - key cache support
@@ -130,19 +130,19 @@ package installed.
 - new upstream release
 - fixes for Win32
 
-* Sun Oct 13 2002 Samuel Hocevar <sam@zoy.org> 1.2.3-1
+* Sun Oct 13 2002 Sam Hocevar <sam@zoy.org> 1.2.3-1
 - new upstream release
 - fix for drives not allowing to read their disc key
 
-* Sat Aug 10 2002 Samuel Hocevar <sam@zoy.org> 1.2.2-1
+* Sat Aug 10 2002 Sam Hocevar <sam@zoy.org> 1.2.2-1
 - new upstream release
 - even more fixes for the disc/drive region mismatch problem
 
-* Sun Jun 02 2002 Samuel Hocevar <sam@zoy.org> 1.2.1-1
+* Sun Jun 02 2002 Sam Hocevar <sam@zoy.org> 1.2.1-1
 - new upstream release
 - fix for a crash on disc/drive region mismatch
 
-* Mon May 20 2002 Samuel Hocevar <sam@zoy.org> 1.2.0-1
+* Mon May 20 2002 Sam Hocevar <sam@zoy.org> 1.2.0-1
 - new upstream release
 - weird libxalf dependency is gone
 

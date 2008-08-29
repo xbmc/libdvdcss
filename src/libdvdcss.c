@@ -1,10 +1,10 @@
 /* libdvdcss.c: DVD reading library.
  *
  * Authors: Stéphane Borel <stef@via.ecp.fr>
- *          Samuel Hocevar <sam@zoy.org>
+ *          Sam Hocevar <sam@zoy.org>
  *          Håkan Hjort <d95hjort@dtek.chalmers.se>
  *
- * Copyright (C) 1998-2002 VideoLAN
+ * Copyright (C) 1998-2008 VideoLAN
  * $Id$
  *
  * This program is free software; you can redistribute it and/or modify

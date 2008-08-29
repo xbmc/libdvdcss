@@ -1,6 +1,6 @@
 /* csstest.c - test program for libdvdcss
  *
- * Samuel Hocevar <sam@zoy.org> - June 2001
+ * Sam Hocevar <sam@zoy.org> - June 2001
  *   Updated on Nov 13th 2001 for libdvdcss version 1.0.0
  *   Additional error checks on Aug 9th 2002
  *   Aligned data reads on Jan 28th 2003
