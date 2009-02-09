@@ -39,6 +39,10 @@ C: jlj
 D: Win32 port
 D: Fixes to the Darwin port
 
+N: KO Myung-Hun
+E: komh@chollian.net
+D: OS/2 port
+
 N: Markus Kuespert
 E: ltlBeBoy@beosmail.com
 D: BeOS port of the DVD ioctls

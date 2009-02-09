@@ -38,6 +38,10 @@ case x"${target_os}" in
   xbeos*)
     AC_DEFINE(SYS_BEOS, 1, Have a BeOS system.)
     ;;
+  xos2*)
+    LDFLAGS="-Zbin-files"
+    AC_DEFINE(SYS_OS2, 1, Have a OS/2 system.)
+    ;;
   x*msvc*)
     SYS_MSVC=1
     ;;
