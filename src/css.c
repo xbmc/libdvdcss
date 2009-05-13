@@ -131,6 +131,9 @@ int _dvdcss_test( dvdcss_t dvdcss )
         return -1;
     }
 
+    print_debug( dvdcss, "disc reports copyright information 0x%x",
+                         i_copyright );
+
     i_ret = ioctl_ReportRPC( dvdcss->i_fd, &i_type, &i_mask, &i_rpc);
 
     if( i_ret < 0 )
