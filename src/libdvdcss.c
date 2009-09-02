@@ -91,13 +91,6 @@
  *     will use the default value which is "${HOME}/.dvdcss/" under Unix and
  *     "C:\Documents and Settings\$USER\Application Data\dvdcss\" under Win32.
  *     The special value "off" disables caching.
- *
- * \li \b DVDCSS_IGNORE_RPC: by default, libdvdcss will refuse to access
- *     a scrambled disc if the drive reports itself as RPC-II with no
- *     region set, because such drives are designed to prevent access to
- *     both the decryption key and the DVD data, rendering any decryption
- *     method useless. Setting this environment variable to \c 1 will
- *     bypass this check and try to access the drive anyway.
  */
 
 /*
@@ -176,7 +169,6 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
 #if !defined(WIN32) && !defined(SYS_OS2)
     char *psz_raw_device = getenv( "DVDCSS_RAW_DEVICE" );
 #endif
-    char *psz_ignore_rpc = getenv( "DVDCSS_IGNORE_RPC" );
 
     dvdcss_t dvdcss;
 
@@ -202,7 +194,6 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
     dvdcss->psz_cachefile[0] = '\0';
     dvdcss->b_debug = 0;
     dvdcss->b_errors = 0;
-    dvdcss->b_ignore_rpc = 0;
 
     /*
      *  Find verbosity from DVDCSS_VERBOSE environment variable
@@ -372,18 +363,16 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
 
     dvdcss->b_scrambled = 1; /* Assume the worst */
     dvdcss->b_ioctls = _dvdcss_use_ioctls( dvdcss );
-    dvdcss->b_ignore_rpc = psz_ignore_rpc ? atoi( psz_ignore_rpc ) : 0;
 
     if( dvdcss->b_ioctls )
     {
         i_ret = _dvdcss_test( dvdcss );
 
-        if( i_ret == -3 && !dvdcss->b_ignore_rpc )
+        if( i_ret == -3 )
         {
-            /* Scrambled disk, RPC-II drive, no region set: bail out */
-            free( dvdcss->psz_device );
-            free( dvdcss );
-            return NULL;
+            print_debug( dvdcss, "scrambled disc on a region-free RPC-II "
+                                 "drive: possible failure, but continuing "
+                                 "anyway" );
         }
         else if( i_ret < 0 )
         {

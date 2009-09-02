@@ -45,7 +45,6 @@ struct dvdcss_s
     css_t        css;
     int          b_ioctls;
     int          b_scrambled;
-    int          b_ignore_rpc;
     dvd_title_t *p_titles;
 
     /* Key cache directory and pointer to the filename */
