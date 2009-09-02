@@ -69,6 +69,8 @@
 #   define INCL_DOS
 #   define INCL_DOSDEVIOCTL
 #   include <os2.h>
+#   include <io.h>                                              /* setmode() */
+#   include <fcntl.h>                                           /* O_BINARY  */
 #endif
 
 #include "dvdcss/dvdcss.h"
@@ -672,16 +674,18 @@ static int os2_open ( dvdcss_t dvdcss, char const *psz_device )
 
     psz_dvd[0] = psz_device[0];
 
-    rc = DosOpen( ( PSZ )psz_dvd, &hfile, &ulAction, 0, FILE_NORMAL,
-                  OPEN_ACTION_OPEN_IF_EXISTS | OPEN_ACTION_FAIL_IF_NEW,
-                  OPEN_ACCESS_READONLY | OPEN_SHARE_DENYNONE | OPEN_FLAGS_DASD,
-                  NULL );
+    rc = DosOpenL( ( PSZ )psz_dvd, &hfile, &ulAction, 0, FILE_NORMAL,
+                   OPEN_ACTION_OPEN_IF_EXISTS | OPEN_ACTION_FAIL_IF_NEW,
+                   OPEN_ACCESS_READONLY | OPEN_SHARE_DENYNONE | OPEN_FLAGS_DASD,
+                   NULL );
 
     if( rc )
     {
         print_error( dvdcss, "failed to open device" );
         return -1;
     }
+
+    setmode( hfile, O_BINARY );
 
     dvdcss->i_fd = dvdcss->i_read_fd = hfile;
 
