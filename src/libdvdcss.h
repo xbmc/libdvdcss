@@ -22,6 +22,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *****************************************************************************/
 
+#ifndef DVDCSS_LIBDVDCSS_H
+#define DVDCSS_LIBDVDCSS_H
+
 struct iovec;
 
 /*****************************************************************************
@@ -102,3 +105,4 @@ __forceinline void print_debug(dvdcss_t dvdcss, const char *msg,...)
 
 void _print_error ( dvdcss_t, char * );
 
+#endif /* DVDCSS_LIBDVDCSS_H */

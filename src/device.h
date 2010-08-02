@@ -23,6 +23,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *****************************************************************************/
 
+#ifndef DVDCSS_DEVICE_H
+#define DVDCSS_DEVICE_H
+
 /*****************************************************************************
  * iovec structure: vectored data entry
  *****************************************************************************/
@@ -56,3 +59,4 @@ int  _dvdcss_close      ( dvdcss_t );
 int _dvdcss_raw_open     ( dvdcss_t, char const * );
 #endif
 
+#endif /* DVDCSS_DEVICE_H */
