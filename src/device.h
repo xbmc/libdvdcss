@@ -36,6 +36,8 @@
 #   include <sys/uio.h>                                      /* struct iovec */
 #endif
 
+#include "dvdcss/dvdcss.h"
+
 #if defined( WIN32 ) && !defined( SYS_CYGWIN )
 struct iovec
 {

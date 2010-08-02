@@ -30,6 +30,8 @@
 #ifndef DVDCSS_CSS_H
 #define DVDCSS_CSS_H
 
+#include "dvdcss/dvdcss.h"
+
 #define KEY_SIZE 5
 
 typedef uint8_t dvd_key_t[KEY_SIZE];
