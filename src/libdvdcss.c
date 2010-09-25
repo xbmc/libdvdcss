@@ -389,6 +389,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
         }
     }
 
+    memset( dvdcss->css.p_disc_key, 0, KEY_SIZE );
     /* If disc is CSS protected and the ioctls work, authenticate the drive */
     if( dvdcss->b_scrambled && dvdcss->b_ioctls )
     {
@@ -398,10 +399,6 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
         {
             print_debug( dvdcss, "could not get disc key" );
         }
-    }
-    else
-    {
-        memset( dvdcss->css.p_disc_key, 0, KEY_SIZE );
     }
 
     /* If the cache is enabled, write the cache directory tag */
