@@ -18,12 +18,12 @@ See the INSTALL or INSTALL.libdvdcss file for this.
 Running lidvdcss
 ================
 
-The behaviourof the library can be affected by changing two environment
+The behaviour of the library can be affected by changing two environment
 variables:
   DVDCSS_METHOD={title|disc|key}: method for key decryption
     title: decrypted title key is guessed from the encrypted sectors of
            the stream. Thus it should work with a file as well as the
-           DVD device. But it sometimes takes much time to decrypt a title
+           DVD device. But it sometimes takes too much time to decrypt a title
            key and may even fail. With this method, the key is only checked
            at the beginning of each title, so it won't work if the key
            changes in the middle of a title.
@@ -33,7 +33,7 @@ variables:
            compilation time. If you do, the decryption of the disc key
            will be faster with this method. It is the one that was used by
            libcss.
-           This is the default method,
+           This is the default method.
   DVDCSS_VERBOSE={0|1|2}: libdvdcss verbosity
     0: no error messages, no debug messages (this is the default)
     1: only error messages
