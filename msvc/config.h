@@ -40,7 +40,7 @@
 #define STDC_HEADERS 1
 /* #undef SYS_BEOS */
 /* #undef SYS_CYGWIN */
-#define VERSION "1.2.10"
+#define VERSION "1.2.11"
 /* #undef const */
 /* #undef inline */
 /* #undef size_t */
