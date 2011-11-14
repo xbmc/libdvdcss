@@ -10,6 +10,12 @@ A typical way to configure libdvdcss is:
 
 See `./configure --help' for more information.
 
+
+If you got libdvdcss from its version control system, please bootstrap first:
+ 
+   ./bootstrap
+
+
 Building libdvdcss
 ==================
 
