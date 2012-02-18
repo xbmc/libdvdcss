@@ -138,8 +138,8 @@ int _dvdcss_test( dvdcss_t dvdcss )
 
     if( i_ret < 0 )
     {
-        print_error( dvdcss, "css error: could not get RPC status" );
-        return -2;
+        print_error( dvdcss, "css error: could not get RPC status. Assuming RPC-I drive." );
+        i_type = i_mask = i_rpc = 0;
     }
 
     switch( i_rpc )
