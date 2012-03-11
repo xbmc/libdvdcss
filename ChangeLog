@@ -1,3 +1,39 @@
+------------------------------------------------------------------------
+r251 | jb | 2012-03-11 13:33:49 +0000 (Sun, 11 Mar 2012) | 3 lines
+Changed paths:
+   M /trunk/NEWS
+   M /trunk/configure.ac
+   M /trunk/doc/doxygen.cfg.in
+
+Prepare 1.2.12
+
+
+------------------------------------------------------------------------
+r250 | jb | 2012-03-11 12:37:40 +0000 (Sun, 11 Mar 2012) | 3 lines
+Changed paths:
+   M /trunk/AUTHORS
+
+Update Authors file
+
+
+------------------------------------------------------------------------
+r249 | jb | 2012-02-18 16:22:03 +0000 (Sat, 18 Feb 2012) | 4 lines
+Changed paths:
+   M /trunk/src/css.c
+
+If unsure, assume the drive is of RPC-I type
+
+This can happen when patched drives do not answer to ioctl_ReportRPC correctly
+
+------------------------------------------------------------------------
+r247 | jb | 2011-11-14 10:40:05 +0000 (Mon, 14 Nov 2011) | 3 lines
+Changed paths:
+   M /trunk/ChangeLog
+
+Update Changelog
+
+
+------------------------------------------------------------------------
 r246 | jb | 2011-11-14 10:27:32 +0000 (Mon, 14 Nov 2011) | 3 lines
 Changed paths:
    M /trunk/NEWS
@@ -80,7 +116,7 @@ Changed paths:
 
 Fix a small memleak
 
-Reported by Th?\195?\169lesphonse Bigorneault
+Reported by Thélesphonse Bigorneault
 
 
 ------------------------------------------------------------------------
@@ -173,7 +209,7 @@ Changed paths:
 
 Try other methods also if GetBusKey fails instead of failing completely
 
-Patch from MPlayer, from Reimar D?\195?\182ffinger, forwarded by Diego Biurrun
+Patch from MPlayer, from Reimar Döffinger, forwarded by Diego Biurrun
 
 
 ------------------------------------------------------------------------
@@ -274,6 +310,7 @@ Update the FSF address.
 
 Patch by Diego Biurrun
 
+
 ------------------------------------------------------------------------
 r218 | sam | 2008-08-29 19:00:14 +0000 (Fri, 29 Aug 2008) | 2 lines
 Changed paths:
@@ -284,7 +321,6 @@ Changed paths:
 
   * Bump version number to 1.2.10.
   * Update NEWS and ChangeLog.
-
 ------------------------------------------------------------------------
 r217 | sam | 2008-08-29 18:57:52 +0000 (Fri, 29 Aug 2008) | 2 lines
 Changed paths:
@@ -2455,3 +2491,4 @@ Changed paths:
 
   * Initial commit. Hope it'll work.
 
+------------------------------------------------------------------------
