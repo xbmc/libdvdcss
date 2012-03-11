@@ -1,5 +1,11 @@
 $Id$
 
+Changes between 1.2.11 and 1.2.12:
+----------------------------------
+
+  * fix regression on RPC-I drives handling.
+
+
 Changes between 1.2.10 and 1.2.11:
 ----------------------------------
 
