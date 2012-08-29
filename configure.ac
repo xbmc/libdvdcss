@@ -185,6 +185,24 @@ fi
 CFLAGS="${CFLAGS_save}"
 
 dnl
+dnl  Check if the compiler supports ELF visibility
+dnl
+CFLAGS_save="$CFLAGS"
+
+AC_CACHE_CHECK([if \$CC supports ELF visibility],
+    [ac_cv_c_visibility],
+    [CFLAGS="-fvisibility=hidden ${CFLAGS_save}"
+     AC_TRY_COMPILE([],
+                    [__attribute__((visibility("default"))) extern int visible],
+                    ac_cv_c_visibility=yes, ac_cv_c_visibility=no)])
+if test "${ac_cv_c_visibility}" != "no"; then
+    CFLAGS_save="-fvisibility=hidden ${CFLAGS_save}";
+    AC_DEFINE(HAVE_VISIBILITY, 1, Support ELF visibility.)
+fi
+
+CFLAGS="${CFLAGS_save}"
+
+dnl
 dnl  Use 64 bits offsets
 dnl
 CFLAGS="-D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -DDVDCSS_DIST ${CFLAGS}"
