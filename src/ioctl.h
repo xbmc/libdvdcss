@@ -168,30 +168,28 @@ typedef union dvd_authinfo dvd_authinfo;
 /*****************************************************************************
  * Various DVD I/O tables
  *****************************************************************************/
-#if defined( SYS_BEOS ) || defined( WIN32 ) || defined ( SOLARIS_USCSI ) || defined ( HPUX_SCTL_IO ) || defined ( __QNXNTO__ ) || defined ( SYS_OS2 )
-    /* The generic packet command opcodes for CD/DVD Logical Units,
-     * From Table 57 of the SFF8090 Ver. 3 (Mt. Fuji) draft standard. */
-#   define GPCMD_READ_DVD_STRUCTURE 0xad
-#   define GPCMD_REPORT_KEY         0xa4
-#   define GPCMD_SEND_KEY           0xa3
-    /* DVD struct types */
-#   define DVD_STRUCT_PHYSICAL      0x00
-#   define DVD_STRUCT_COPYRIGHT     0x01
-#   define DVD_STRUCT_DISCKEY       0x02
-#   define DVD_STRUCT_BCA           0x03
-#   define DVD_STRUCT_MANUFACT      0x04
-    /* Key formats */
-#   define DVD_REPORT_AGID          0x00
-#   define DVD_REPORT_CHALLENGE     0x01
-#   define DVD_SEND_CHALLENGE       0x01
-#   define DVD_REPORT_KEY1          0x02
-#   define DVD_SEND_KEY2            0x03
-#   define DVD_REPORT_TITLE_KEY     0x04
-#   define DVD_REPORT_ASF           0x05
-#   define DVD_SEND_RPC             0x06
-#   define DVD_REPORT_RPC           0x08
-#   define DVD_INVALIDATE_AGID      0x3f
-#endif
+/* The generic packet command opcodes for CD/DVD Logical Units,
+ * From Table 57 of the SFF8090 Ver. 3 (Mt. Fuji) draft standard. */
+#define GPCMD_READ_DVD_STRUCTURE 0xad
+#define GPCMD_REPORT_KEY         0xa4
+#define GPCMD_SEND_KEY           0xa3
+ /* DVD struct types */
+#define DVD_STRUCT_PHYSICAL      0x00
+#define DVD_STRUCT_COPYRIGHT     0x01
+#define DVD_STRUCT_DISCKEY       0x02
+#define DVD_STRUCT_BCA           0x03
+#define DVD_STRUCT_MANUFACT      0x04
+ /* Key formats */
+#define DVD_REPORT_AGID          0x00
+#define DVD_REPORT_CHALLENGE     0x01
+#define DVD_SEND_CHALLENGE       0x01
+#define DVD_REPORT_KEY1          0x02
+#define DVD_SEND_KEY2            0x03
+#define DVD_REPORT_TITLE_KEY     0x04
+#define DVD_REPORT_ASF           0x05
+#define DVD_SEND_RPC             0x06
+#define DVD_REPORT_RPC           0x08
+#define DVD_INVALIDATE_AGID      0x3f
 
 /*****************************************************************************
  * win32 ioctl specific
