@@ -34,11 +34,6 @@
 #   include <stdint.h>
 #elif defined( HAVE_INTTYPES_H )
 #   include <inttypes.h>
-#elif defined( SYS_CYGWIN )
-#   include <sys/types.h>
-    /* Cygwin only defines half of these... */
-    typedef u_int8_t            uint8_t;
-    typedef u_int32_t           uint32_t;
 #else
     /* Fallback types (very x86-centric, sorry) */
     typedef unsigned char       uint8_t;
