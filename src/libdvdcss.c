@@ -132,6 +132,10 @@
 #include "ioctl.h"
 #include "device.h"
 
+#if defined(WIN32)
+#define mkdir(a, b) _mkdir(a)
+#endif
+
 /**
  * \brief Symbol for version checks.
  *
@@ -521,11 +525,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
 
         /* We have a disc name or ID, we can create the cache dir */
         i = sprintf( dvdcss->psz_cachefile, "%s", psz_cache );
-#if !defined( WIN32 ) || defined( SYS_CYGWIN )
         i_ret = mkdir( dvdcss->psz_cachefile, 0755 );
-#else
-        i_ret = mkdir( dvdcss->psz_cachefile );
-#endif
         if( i_ret < 0 && errno != EEXIST )
         {
             print_error( dvdcss, "failed creating cache directory" );
@@ -535,11 +535,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
 
         i += sprintf( dvdcss->psz_cachefile + i, "/%s-%s%s", psz_title,
                       psz_serial, psz_key );
-#if !defined( WIN32 ) || defined( SYS_CYGWIN )
         i_ret = mkdir( dvdcss->psz_cachefile, 0755 );
-#else
-        i_ret = mkdir( dvdcss->psz_cachefile );
-#endif
         if( i_ret < 0 && errno != EEXIST )
         {
             print_error( dvdcss, "failed creating cache subdirectory" );
