@@ -27,8 +27,7 @@
 
 #include "dvdcss/dvdcss.h"
 #include "css.h"
-
-struct iovec;
+#include "device.h"
 
 /*****************************************************************************
  * The libdvdcss structure
@@ -68,7 +67,7 @@ struct dvdcss_s
     int    i_readv_buf_size;
 #endif
 
-#if !defined(WIN32) && !defined(__OS2__)
+#ifdef DVDCSS_RAW_OPEN
     int    i_raw_fd;
 #endif
 };

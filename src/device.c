@@ -410,7 +410,7 @@ int _dvdcss_open ( dvdcss_t dvdcss )
     }
 }
 
-#if !defined(WIN32) && !defined(__OS2__)
+#ifdef DVDCSS_RAW_OPEN
 int _dvdcss_raw_open ( dvdcss_t dvdcss, char const *psz_device )
 {
     dvdcss->i_raw_fd = open( psz_device, 0 );
@@ -463,7 +463,7 @@ int _dvdcss_close ( dvdcss_t dvdcss )
 #else
     close( dvdcss->i_fd );
 
-#ifndef __OS2__
+#ifdef DVDCSS_RAW_OPEN
     if( dvdcss->i_raw_fd >= 0 )
     {
         close( dvdcss->i_raw_fd );

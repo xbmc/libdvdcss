@@ -45,6 +45,11 @@ struct iovec
 
 #include "dvdcss/dvdcss.h"
 
+#if !defined(WIN32) && !defined(__OS2__)
+#   define DVDCSS_RAW_OPEN
+#endif
+
+
 /*****************************************************************************
  * Device reading prototypes
  *****************************************************************************/
