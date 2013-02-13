@@ -120,10 +120,6 @@
 #   include <limits.h>
 #endif
 
-#ifdef HAVE_DIRECT_H
-#   include <direct.h>
-#endif
-
 #include "dvdcss/dvdcss.h"
 
 #include "common.h"
@@ -132,7 +128,8 @@
 #include "ioctl.h"
 #include "device.h"
 
-#if defined(WIN32)
+#if defined(WIN32) && !defined(__CYGWIN__)
+#include <direct.h>
 #define mkdir(a, b) _mkdir(a)
 #endif
 
@@ -242,7 +239,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
      */
     if( psz_cache == NULL || psz_cache[0] == '\0' )
     {
-#ifdef HAVE_DIRECT_H
+#if defined(WIN32) && !defined(__CYGWIN__)
         typedef HRESULT( WINAPI *SHGETFOLDERPATH )
                        ( HWND, int, HANDLE, DWORD, LPTSTR );
 

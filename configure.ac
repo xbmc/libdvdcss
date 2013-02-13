@@ -48,9 +48,6 @@ CAN_BUILD_LIBDVDCSS=0
 
 dnl  for windoze
 AC_CHECK_HEADERS(windows.h,[
-  AC_CHECK_HEADERS(direct.h,,,[
-  #include <windows.h>
-  ])
   AC_CHECK_HEADERS(winioctl.h,[
     CAN_BUILD_LIBDVDCSS=1
   ],,[

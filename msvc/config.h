@@ -7,7 +7,6 @@
 /* #undef DVD_STRUCT_IN_SYS_CDIO_H */
 /* #undef DVD_STRUCT_IN_SYS_DVDIO_H */
 /* #undef HAVE_BSD_DVD_STRUCT */
-#define HAVE_DIRECT_H 1
 #define HAVE_DLFCN_H 1
 /* #undef HAVE_DVD_H */
 /* #undef HAVE_INTTYPES_H */
