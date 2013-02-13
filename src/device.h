@@ -29,7 +29,7 @@
 /*****************************************************************************
  * iovec structure: vectored data entry
  *****************************************************************************/
-#if defined( WIN32 ) && !defined( SYS_CYGWIN )
+#if defined( WIN32 ) && !defined( __CYGWIN__ )
 #   include <io.h>                                                 /* read() */
 #else
 #   include <sys/types.h>
@@ -38,7 +38,7 @@
 
 #include "dvdcss/dvdcss.h"
 
-#if defined( WIN32 ) && !defined( SYS_CYGWIN )
+#if defined( WIN32 ) && !defined( __CYGWIN__ )
 struct iovec
 {
     void *iov_base;     /* Pointer to data. */

@@ -27,12 +27,6 @@ case x"${target_os}" in
     CFLAGS="${CFLAGS} -no-cpp-precomp"
     ;;
   x*cygwin*)
-    dnl Check if we are using the mno-cygwin mode in which case we are
-    dnl actually dealing with a mingw32 compiler.
-    AC_EGREP_CPP(yes, [#ifndef WIN32
-                       yes
-                       #endif],
-                 AC_DEFINE(SYS_CYGWIN, 1, Have a Cygwin system.))
     AC_DEFINE(WIN32, 1, Using Win32.)
     ;;
   xbeos*)
