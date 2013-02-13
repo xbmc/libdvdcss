@@ -49,12 +49,6 @@
 #   include <limits.h>
 #endif
 
-#if defined( WIN32 ) && !defined( __CYGWIN__ )
-#   include <io.h>                                                 /* read() */
-#else
-#   include <sys/uio.h>                                      /* struct iovec */
-#endif
-
 #ifdef DARWIN_DVD_IOCTL
 #   include <paths.h>
 #   include <CoreFoundation/CoreFoundation.h>

@@ -26,10 +26,12 @@
 #ifndef DVDCSS_DEVICE_H
 #define DVDCSS_DEVICE_H
 
+#include "config.h"
+
 /*****************************************************************************
  * iovec structure: vectored data entry
  *****************************************************************************/
-#if defined( WIN32 ) && !defined( __CYGWIN__ )
+#ifndef HAVE_SYS_UIO_H
 #   include <io.h>                                                 /* read() */
 struct iovec
 {
