@@ -170,7 +170,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
     char *psz_method = getenv( "DVDCSS_METHOD" );
     char *psz_verbose = getenv( "DVDCSS_VERBOSE" );
     char *psz_cache = getenv( "DVDCSS_CACHE" );
-#if !defined(WIN32) && !defined(SYS_OS2)
+#if !defined(WIN32) && !defined(__OS2__)
     char *psz_raw_device = getenv( "DVDCSS_RAW_DEVICE" );
 #endif
 
@@ -188,7 +188,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
     /*
      *  Initialize structure with default values
      */
-#if !defined(WIN32) && !defined(SYS_OS2)
+#if !defined(WIN32) && !defined(__OS2__)
     dvdcss->i_raw_fd = -1;
 #endif
     dvdcss->p_titles = NULL;
@@ -312,7 +312,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
         {
             int home_pos = 0;
 
-#ifdef SYS_OS2
+#ifdef __OS2__
             if( *psz_home == '/' || *psz_home == '\\')
             {
                 char *psz_unixroot = getenv("UNIXROOT");
@@ -552,7 +552,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
     }
     nocache:
 
-#if !defined(WIN32) && !defined(SYS_OS2)
+#if !defined(WIN32) && !defined(__OS2__)
     if( psz_raw_device != NULL )
     {
         _dvdcss_raw_open( dvdcss, psz_raw_device );

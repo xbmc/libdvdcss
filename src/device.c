@@ -65,7 +65,7 @@
 #   include <IOKit/storage/IODVDMedia.h>
 #endif
 
-#ifdef SYS_OS2
+#ifdef __OS2__
 #   define INCL_DOS
 #   define INCL_DOSDEVIOCTL
 #   include <os2.h>
@@ -99,7 +99,7 @@ static int aspi_read  ( dvdcss_t, void *, int );
 static int win_readv  ( dvdcss_t, struct iovec *, int );
 
 static int aspi_read_internal  ( int, void *, int );
-#elif defined( SYS_OS2 )
+#elif defined( __OS2__ )
 static int os2_open ( dvdcss_t, char const * );
 /* just use macros for libc */
 #   define os2_seek     libc_seek
@@ -124,7 +124,7 @@ int _dvdcss_use_ioctls( dvdcss_t dvdcss )
     {
         return 1;
     }
-#elif defined( SYS_OS2 )
+#elif defined( __OS2__ )
     ULONG ulMode;
 
     if( DosQueryFHState( dvdcss->i_fd, &ulMode ) != 0 )
@@ -181,7 +181,7 @@ void _dvdcss_check ( dvdcss_t dvdcss )
     kern_return_t kern_result;
     io_iterator_t media_iterator;
     CFMutableDictionaryRef classes_to_match;
-#elif defined( SYS_OS2 )
+#elif defined( __OS2__ )
 #pragma pack( 1 )
     struct
     {
@@ -316,7 +316,7 @@ void _dvdcss_check ( dvdcss_t dvdcss )
     }
 
     IOObjectRelease( media_iterator );
-#elif defined( SYS_OS2 )
+#elif defined( __OS2__ )
     for( i = 0; i < 26; i++ )
     {
         param.bCmdInfo = 0;
@@ -394,7 +394,7 @@ int _dvdcss_open ( dvdcss_t dvdcss )
         return aspi_open( dvdcss, psz_device );
     }
     else
-#elif defined( SYS_OS2 )
+#elif defined( __OS2__ )
     /* If device is "X:" or "X:\", we are not actually opening a file. */
     if( psz_device[0] && psz_device[1] == ':' &&
         ( !psz_device[2] || ( psz_device[2] == '\\' && !psz_device[3] ) ) )
@@ -416,7 +416,7 @@ int _dvdcss_open ( dvdcss_t dvdcss )
     }
 }
 
-#if !defined(WIN32) && !defined(SYS_OS2)
+#if !defined(WIN32) && !defined(__OS2__)
 int _dvdcss_raw_open ( dvdcss_t dvdcss, char const *psz_device )
 {
     dvdcss->i_raw_fd = open( psz_device, 0 );
@@ -469,7 +469,7 @@ int _dvdcss_close ( dvdcss_t dvdcss )
 #else
     close( dvdcss->i_fd );
 
-#ifndef SYS_OS2
+#ifndef __OS2__
     if( dvdcss->i_raw_fd >= 0 )
     {
         close( dvdcss->i_raw_fd );
@@ -488,7 +488,7 @@ int _dvdcss_close ( dvdcss_t dvdcss )
  *****************************************************************************/
 static int libc_open ( dvdcss_t dvdcss, char const *psz_device )
 {
-#if !defined( WIN32 ) && !defined( SYS_OS2 )
+#if !defined( WIN32 ) && !defined( __OS2__ )
     dvdcss->i_fd = dvdcss->i_read_fd = open( psz_device, 0 );
 #else
     dvdcss->i_fd = dvdcss->i_read_fd = open( psz_device, O_BINARY );
@@ -664,7 +664,7 @@ static int aspi_open( dvdcss_t dvdcss, char const * psz_device )
 }
 #endif
 
-#ifdef SYS_OS2
+#ifdef __OS2__
 static int os2_open ( dvdcss_t dvdcss, char const *psz_device )
 {
     char  psz_dvd[] = "X:";

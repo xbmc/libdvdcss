@@ -144,7 +144,7 @@ int ioctl_SendRPC           ( int, int );
 /*****************************************************************************
  * Common macro, OS2 specific
  *****************************************************************************/
-#if defined( SYS_OS2 )
+#if defined( __OS2__ )
 #define INIT_SSC( TYPE, SIZE ) \
     struct OS2_ExecSCSICmd sdc; \
     uint8_t p_buffer[ (SIZE)+1 ]; \
@@ -406,7 +406,7 @@ struct SRB_ExecSCSICmd
 /*****************************************************************************
  * OS2 ioctl specific
  *****************************************************************************/
-#if defined( SYS_OS2 )
+#if defined( __OS2__ )
 
 #define CDROMDISK_EXECMD      0x7A
 

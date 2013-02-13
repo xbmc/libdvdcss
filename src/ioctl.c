@@ -41,7 +41,7 @@
 #if defined( WIN32 )
 #   include <windows.h>
 #   include <winioctl.h>
-#elif defined ( SYS_OS2 )
+#elif defined ( __OS2__ )
 #   define INCL_DOSFILEMGR
 #   define INCL_DOSDEVICES
 #   define INCL_DOSDEVIOCTL
@@ -135,7 +135,7 @@ static void QNXInitCPT ( CAM_PASS_THRU *, int );
 /*****************************************************************************
  * Local prototypes, OS2 specific
  *****************************************************************************/
-#if defined( SYS_OS2 )
+#if defined( __OS2__ )
 static void OS2InitSDC( struct OS2_ExecSCSICmd *, int );
 #endif
 
@@ -257,7 +257,7 @@ int ioctl_ReadCopyright( int i_fd, int i_layer, int *pi_copyright )
 
     *pi_copyright = p_buffer[4];
 
-#elif defined( SYS_OS2 )
+#elif defined( __OS2__ )
     INIT_SSC( GPCMD_READ_DVD_STRUCTURE, 8 );
 
     sdc.command[ 6 ] = i_layer;
@@ -425,7 +425,7 @@ int ioctl_ReadDiscKey( int i_fd, int *pi_agid, uint8_t *p_key )
 
     memcpy( p_key, p_buffer + 4, DVD_DISCKEY_SIZE );
 
-#elif defined ( SYS_OS2 )
+#elif defined ( __OS2__ )
     INIT_SSC( GPCMD_READ_DVD_STRUCTURE, DVD_DISCKEY_SIZE + 4 );
 
     sdc.command[ 7 ]  = DVD_STRUCT_DISCKEY;
@@ -591,7 +591,7 @@ int ioctl_ReadTitleKey( int i_fd, int *pi_agid, int i_pos, uint8_t *p_key )
 
     memcpy( p_key, p_buffer + 5, DVD_KEY_SIZE );
 
-#elif defined( SYS_OS2 )
+#elif defined( __OS2__ )
     INIT_SSC( GPCMD_REPORT_KEY, 12 );
 
     sdc.command[ 2 ] = ( i_pos >> 24 ) & 0xff;
@@ -719,7 +719,7 @@ int ioctl_ReportAgid( int i_fd, int *pi_agid )
 
     *pi_agid = p_buffer[ 7 ] >> 6;
 
-#elif defined( SYS_OS2 )
+#elif defined( __OS2__ )
     INIT_SSC( GPCMD_REPORT_KEY, 8 );
 
     sdc.command[ 10 ] = DVD_REPORT_AGID | (*pi_agid << 6);
@@ -853,7 +853,7 @@ int ioctl_ReportChallenge( int i_fd, int *pi_agid, uint8_t *p_challenge )
 
     memcpy( p_challenge, p_buffer + 4, DVD_CHALLENGE_SIZE );
 
-#elif defined( SYS_OS2 )
+#elif defined( __OS2__ )
     INIT_SSC( GPCMD_REPORT_KEY, 16 );
 
     sdc.command[ 10 ] = DVD_REPORT_CHALLENGE | (*pi_agid << 6);
@@ -986,7 +986,7 @@ int ioctl_ReportASF( int i_fd, int *pi_remove_me, int *pi_asf )
 
     *pi_asf = p_buffer[ 7 ] & 1;
 
-#elif defined( SYS_OS2 )
+#elif defined( __OS2__ )
     INIT_SSC( GPCMD_REPORT_KEY, 8 );
 
     sdc.command[ 10 ] = DVD_REPORT_ASF;
@@ -1115,7 +1115,7 @@ int ioctl_ReportKey1( int i_fd, int *pi_agid, uint8_t *p_key )
 
     memcpy( p_key, p_buffer + 4, DVD_KEY_SIZE );
 
-#elif defined( SYS_OS2 )
+#elif defined( __OS2__ )
     INIT_SSC( GPCMD_REPORT_KEY, 12 );
 
     sdc.command[ 10 ] = DVD_REPORT_KEY1 | (*pi_agid << 6);
@@ -1225,7 +1225,7 @@ int ioctl_InvalidateAgid( int i_fd, int *pi_agid )
 
     i_ret = devctl(i_fd, DCMD_CAM_PASS_THRU, p_cpt, structSize, NULL);
 
-#elif defined( SYS_OS2 )
+#elif defined( __OS2__ )
     INIT_SSC( GPCMD_REPORT_KEY, 1 );
 
     sdc.data_length = 0;
@@ -1362,7 +1362,7 @@ int ioctl_SendChallenge( int i_fd, int *pi_agid, uint8_t *p_challenge )
 
     i_ret = devctl(i_fd, DCMD_CAM_PASS_THRU, p_cpt, structSize, NULL);
 
-#elif defined( SYS_OS2 )
+#elif defined( __OS2__ )
     INIT_SSC( GPCMD_SEND_KEY, 16 );
 
     sdc.command[ 10 ] = DVD_SEND_CHALLENGE | (*pi_agid << 6);
@@ -1499,7 +1499,7 @@ int ioctl_SendKey2( int i_fd, int *pi_agid, uint8_t *p_key )
 
     i_ret = devctl(i_fd, DCMD_CAM_PASS_THRU, p_cpt, structSize, NULL);
 
-#elif defined( SYS_OS2 )
+#elif defined( __OS2__ )
     INIT_SSC( GPCMD_SEND_KEY, 12 );
 
     sdc.command[ 10 ] = DVD_SEND_KEY2 | (*pi_agid << 6);
@@ -1653,7 +1653,7 @@ int ioctl_ReportRPC( int i_fd, int *p_type, int *p_mask, int *p_scheme )
     *p_mask = p_buffer[ 5 ];
     *p_scheme = p_buffer[ 6 ];
 
-#elif defined( SYS_OS2 )
+#elif defined( __OS2__ )
     INIT_SSC( GPCMD_REPORT_KEY, 8 );
 
     sdc.command[ 10 ] = DVD_REPORT_RPC;
@@ -1781,7 +1781,7 @@ int ioctl_SendRPC( int i_fd, int i_pdrc )
 
     i_ret = devctl(i_fd, DCMD_CAM_PASS_THRU, p_cpt, structSize, NULL);
 
-#elif defined( SYS_OS2 )
+#elif defined( __OS2__ )
     INIT_SSC( GPCMD_SEND_KEY, 8 );
 
     sdc.command[ 10 ] = DVD_SEND_RPC;
@@ -2093,7 +2093,7 @@ static void QNXInitCPT( CAM_PASS_THRU * p_cpt, int i_type )
 }
 #endif
 
-#if defined( SYS_OS2 )
+#if defined( __OS2__ )
 /*****************************************************************************
  * OS2InitSDC: initialize a SDC structure for the Execute SCSI-command
  *****************************************************************************
