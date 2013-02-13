@@ -68,7 +68,7 @@
 #ifdef DVD_STRUCT_IN_BSDI_DVDIOCTL_DVD_H
 #   include "bsdi_dvd.h"
 #endif
-#ifdef SYS_BEOS
+#ifdef __BEOS__
 #   include <malloc.h>
 #   include <scsi.h>
 #endif
@@ -97,7 +97,7 @@
 /*****************************************************************************
  * Local prototypes, BeOS specific
  *****************************************************************************/
-#if defined( SYS_BEOS )
+#if defined( __BEOS__ )
 static void BeInitRDC ( raw_device_command *, int );
 #endif
 
@@ -168,7 +168,7 @@ int ioctl_ReadCopyright( int i_fd, int i_layer, int *pi_copyright )
 
     *pi_copyright = dvd.cpst;
 
-#elif defined( SYS_BEOS )
+#elif defined( __BEOS__ )
     INIT_RDC( GPCMD_READ_DVD_STRUCTURE, 8 );
 
     rdc.command[ 6 ] = i_layer;
@@ -317,7 +317,7 @@ int ioctl_ReadDiscKey( int i_fd, int *pi_agid, uint8_t *p_key )
 
     memcpy( p_key, dvd.data, DVD_DISCKEY_SIZE );
 
-#elif defined( SYS_BEOS )
+#elif defined( __BEOS__ )
     INIT_RDC( GPCMD_READ_DVD_STRUCTURE, DVD_DISCKEY_SIZE + 4 );
 
     rdc.command[ 7 ]  = DVD_STRUCT_DISCKEY;
@@ -480,7 +480,7 @@ int ioctl_ReadTitleKey( int i_fd, int *pi_agid, int i_pos, uint8_t *p_key )
 
     memcpy( p_key, auth_info.keychal, DVD_KEY_SIZE );
 
-#elif defined( SYS_BEOS )
+#elif defined( __BEOS__ )
     INIT_RDC( GPCMD_REPORT_KEY, 12 );
 
     rdc.command[ 2 ] = ( i_pos >> 24 ) & 0xff;
@@ -644,7 +644,7 @@ int ioctl_ReportAgid( int i_fd, int *pi_agid )
 
     *pi_agid = auth_info.agid;
 
-#elif defined( SYS_BEOS )
+#elif defined( __BEOS__ )
     INIT_RDC( GPCMD_REPORT_KEY, 8 );
 
     rdc.command[ 10 ] = DVD_REPORT_AGID | (*pi_agid << 6);
@@ -766,7 +766,7 @@ int ioctl_ReportChallenge( int i_fd, int *pi_agid, uint8_t *p_challenge )
 
     memcpy( p_challenge, auth_info.keychal, DVD_CHALLENGE_SIZE );
 
-#elif defined( SYS_BEOS )
+#elif defined( __BEOS__ )
     INIT_RDC( GPCMD_REPORT_KEY, 16 );
 
     rdc.command[ 10 ] = DVD_REPORT_CHALLENGE | (*pi_agid << 6);
@@ -900,7 +900,7 @@ int ioctl_ReportASF( int i_fd, int *pi_remove_me, int *pi_asf )
 
     *pi_asf = auth_info.asf;
 
-#elif defined( SYS_BEOS )
+#elif defined( __BEOS__ )
     INIT_RDC( GPCMD_REPORT_KEY, 8 );
 
     rdc.command[ 10 ] = DVD_REPORT_ASF;
@@ -1033,7 +1033,7 @@ int ioctl_ReportKey1( int i_fd, int *pi_agid, uint8_t *p_key )
 
     memcpy( p_key, auth_info.keychal, DVD_KEY_SIZE );
 
-#elif defined( SYS_BEOS )
+#elif defined( __BEOS__ )
     INIT_RDC( GPCMD_REPORT_KEY, 12 );
 
     rdc.command[ 10 ] = DVD_REPORT_KEY1 | (*pi_agid << 6);
@@ -1158,7 +1158,7 @@ int ioctl_InvalidateAgid( int i_fd, int *pi_agid )
 
     i_ret = ioctl( i_fd, DVDIOCREPORTKEY, &auth_info );
 
-#elif defined( SYS_BEOS )
+#elif defined( __BEOS__ )
     INIT_RDC( GPCMD_REPORT_KEY, 0 );
 
     rdc.command[ 10 ] = DVD_INVALIDATE_AGID | (*pi_agid << 6);
@@ -1273,7 +1273,7 @@ int ioctl_SendChallenge( int i_fd, int *pi_agid, uint8_t *p_challenge )
 
     i_ret = ioctl( i_fd, DVDIOCSENDKEY, &auth_info );
 
-#elif defined( SYS_BEOS )
+#elif defined( __BEOS__ )
     INIT_RDC( GPCMD_SEND_KEY, 16 );
 
     rdc.command[ 10 ] = DVD_SEND_CHALLENGE | (*pi_agid << 6);
@@ -1410,7 +1410,7 @@ int ioctl_SendKey2( int i_fd, int *pi_agid, uint8_t *p_key )
 
     i_ret = ioctl( i_fd, DVDIOCSENDKEY, &auth_info );
 
-#elif defined( SYS_BEOS )
+#elif defined( __BEOS__ )
     INIT_RDC( GPCMD_SEND_KEY, 12 );
 
     rdc.command[ 10 ] = DVD_SEND_KEY2 | (*pi_agid << 6);
@@ -1553,7 +1553,7 @@ int ioctl_ReportRPC( int i_fd, int *p_type, int *p_mask, int *p_scheme )
     *p_mask = auth_info.region; // ??
     *p_scheme = auth_info.rpc_scheme;
 
-#elif defined( SYS_BEOS )
+#elif defined( __BEOS__ )
     INIT_RDC( GPCMD_REPORT_KEY, 8 );
 
     rdc.command[ 10 ] = DVD_REPORT_RPC;
@@ -1702,7 +1702,7 @@ int ioctl_SendRPC( int i_fd, int i_pdrc )
 
     i_ret = ioctl( i_fd, DVDIOCSENDKEY, &auth_info );
 
-#elif defined( SYS_BEOS )
+#elif defined( __BEOS__ )
     INIT_RDC( GPCMD_SEND_KEY, 8 );
 
     rdc.command[ 10 ] = DVD_SEND_RPC;
@@ -1802,7 +1802,7 @@ int ioctl_SendRPC( int i_fd, int i_pdrc )
 
 /* Local prototypes */
 
-#if defined( SYS_BEOS )
+#if defined( __BEOS__ )
 /*****************************************************************************
  * BeInitRDC: initialize a RDC structure for the BeOS kernel
  *****************************************************************************

@@ -44,7 +44,7 @@ int ioctl_SendRPC           ( int, int );
 /*****************************************************************************
  * Common macro, BeOS specific
  *****************************************************************************/
-#if defined( SYS_BEOS )
+#if defined( __BEOS__ )
 #define INIT_RDC( TYPE, SIZE ) \
     raw_device_command rdc; \
     uint8_t p_buffer[ (SIZE)+1 ]; \

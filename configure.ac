@@ -29,9 +29,6 @@ case x"${target_os}" in
   x*cygwin*)
     AC_DEFINE(WIN32, 1, Using Win32.)
     ;;
-  xbeos*)
-    AC_DEFINE(SYS_BEOS, 1, Have a BeOS system.)
-    ;;
   xos2*)
     LDFLAGS="-Zbin-files"
     ;;

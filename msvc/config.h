@@ -38,7 +38,6 @@
 #define PACKAGE_VERSION ""
 /* #undef SOLARIS_USCSI */
 #define STDC_HEADERS 1
-/* #undef SYS_BEOS */
 #define VERSION "1.2.11"
 /* #undef const */
 /* #undef inline */
