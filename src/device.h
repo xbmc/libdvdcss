@@ -31,20 +31,17 @@
  *****************************************************************************/
 #if defined( WIN32 ) && !defined( __CYGWIN__ )
 #   include <io.h>                                                 /* read() */
+struct iovec
+{
+    void *iov_base;     /* Pointer to data. */
+    size_t iov_len;     /* Length of data.  */
+};
 #else
 #   include <sys/types.h>
 #   include <sys/uio.h>                                      /* struct iovec */
 #endif
 
 #include "dvdcss/dvdcss.h"
-
-#if defined( WIN32 ) && !defined( __CYGWIN__ )
-struct iovec
-{
-    void *iov_base;     /* Pointer to data. */
-    size_t iov_len;     /* Length of data.  */
-};
-#endif
 
 /*****************************************************************************
  * Device reading prototypes
@@ -57,8 +54,6 @@ int  _dvdcss_close      ( dvdcss_t );
 /*****************************************************************************
  * Device reading prototypes, raw-device specific
  *****************************************************************************/
-#if !defined(WIN32) && !defined(__OS2__)
 int _dvdcss_raw_open     ( dvdcss_t, char const * );
-#endif
 
 #endif /* DVDCSS_DEVICE_H */
