@@ -2,7 +2,17 @@ ACLOCAL_AMFLAGS = -I m4
 
 EXTRA_DIST = libdvdcss.spec doc/header.html doc/footer.html doc/latex/ INSTALL
 
-dist_doc_DATA = AUTHORS COPYING NEWS README
+dist_doc_DATA = AUTHORS COPYING NEWS README ChangeLog
+
+DISTCLEANFILES = ChangeLog
+
+ChangeLog: stamp-changelog
+
+stamp-changelog:
+	-git log > ChangeLog-tmp
+	test -s ChangeLog-tmp && mv ChangeLog-tmp ChangeLog
+	-rm -f ChangeLog-tmp
+	test -e ChangeLog || touch ChangeLog
 
 lib_LTLIBRARIES = libdvdcss.la
 EXTRA_PROGRAMS = csstest dvd_region
