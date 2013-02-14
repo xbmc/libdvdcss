@@ -30,7 +30,7 @@
  * device without having to bother about the decryption. The important features
  * are:
  * \li portability: currently supported platforms are GNU/Linux, FreeBSD,
- *     NetBSD, OpenBSD, BeOS, Windows 95/98, Windows NT/2000, Mac OS X,
+ *     NetBSD, OpenBSD, BeOS, Windows 98/ME, Windows NT/2000/XP, Mac OS X,
  *     Solaris, HP-UX and OS/2.
  * \li adaptability: unlike most similar projects, libdvdcss doesn't require
  *     the region of your drive to be set and will try its best to read from

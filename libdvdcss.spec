@@ -32,7 +32,7 @@ Conflicts:	libdvdcss0.0.1, libdvdcss0.0.2
 libdvdcss is a simple library designed for accessing DVDs like a block device
 without having to bother about the decryption. The important features are:
  * Portability: currently supported platforms are GNU/Linux, FreeBSD, NetBSD,
-   OpenBSD, BeOS, Windows 95/98/ME, Windows NT/2000/XP, Mac OS X, Solaris,
+   OpenBSD, BeOS, Windows 98/ME, Windows NT/2000/XP, Mac OS X, Solaris,
    HP-UX and OS/2.
  * Adaptability: unlike most similar projects, libdvdcss doesn't require the
    region of your drive to be set and will try its best to read from the disc
@@ -49,7 +49,7 @@ Provides:       %name = %version-%release
 libdvdcss is a simple library designed for accessing DVDs like a block device
 without having to bother about the decryption. The important features are:
  * Portability: currently supported platforms are GNU/Linux, FreeBSD, NetBSD,
-   OpenBSD, BeOS, Windows 95/98/ME, Windows NT/2000/XP, Mac OS X, Solaris,
+   OpenBSD, BeOS, Windows 98/ME, Windows NT/2000/XP, Mac OS X, Solaris,
    HP-UX and OS/2.
  * Adaptability: unlike most similar projects, libdvdcss doesn't require the
    region of your drive to be set and will try its best to read from the disc
