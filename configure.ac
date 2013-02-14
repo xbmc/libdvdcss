@@ -5,6 +5,9 @@ AC_PREREQ(2.50)
 AC_CANONICAL_HOST
 
 AM_INIT_AUTOMAKE([foreign dist-bzip2 subdir-objects])
+# Enable silent rules only when available (automake 1.11 or later).
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+
 AC_CONFIG_HEADER(config.h)
 AC_CONFIG_MACRO_DIR([m4])
 
