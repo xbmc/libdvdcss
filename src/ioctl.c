@@ -143,9 +143,8 @@ int ioctl_ReadCopyright( int i_fd, int i_layer, int *pi_copyright )
     int i_ret;
 
 #if defined( HAVE_LINUX_DVD_STRUCT )
-    dvd_struct dvd;
+    dvd_struct dvd = { 0 };
 
-    memset( &dvd, 0, sizeof( dvd ) );
     dvd.type = DVD_STRUCT_COPYRIGHT;
     dvd.copyright.layer_num = i_layer;
 
@@ -154,9 +153,8 @@ int ioctl_ReadCopyright( int i_fd, int i_layer, int *pi_copyright )
     *pi_copyright = dvd.copyright.cpst;
 
 #elif defined( HAVE_BSD_DVD_STRUCT )
-    struct dvd_struct dvd;
+    struct dvd_struct dvd = { 0 };
 
-    memset( &dvd, 0, sizeof( dvd ) );
     dvd.format = DVD_STRUCT_COPYRIGHT;
     dvd.layer_num = i_layer;
 
@@ -280,12 +278,10 @@ int ioctl_ReadDiscKey( int i_fd, int *pi_agid, uint8_t *p_key )
     int i_ret;
 
 #if defined( HAVE_LINUX_DVD_STRUCT )
-    dvd_struct dvd;
+    dvd_struct dvd = { 0 };
 
-    memset( &dvd, 0, sizeof( dvd ) );
     dvd.type = DVD_STRUCT_DISCKEY;
     dvd.disckey.agid = *pi_agid;
-    memset( dvd.disckey.value, 0, DVD_DISCKEY_SIZE );
 
     i_ret = ioctl( i_fd, DVD_READ_STRUCT, &dvd );
 
@@ -297,12 +293,10 @@ int ioctl_ReadDiscKey( int i_fd, int *pi_agid, uint8_t *p_key )
     memcpy( p_key, dvd.disckey.value, DVD_DISCKEY_SIZE );
 
 #elif defined( HAVE_BSD_DVD_STRUCT )
-    struct dvd_struct dvd;
+    struct dvd_struct dvd = { 0 };
 
-    memset( &dvd, 0, sizeof( dvd ) );
     dvd.format = DVD_STRUCT_DISCKEY;
     dvd.agid = *pi_agid;
-    memset( dvd.data, 0, DVD_DISCKEY_SIZE );
 
     i_ret = ioctl( i_fd, DVDIOCREADSTRUCTURE, &dvd );
 
@@ -373,10 +367,8 @@ int ioctl_ReadDiscKey( int i_fd, int *pi_agid, uint8_t *p_key )
     if( WIN2K ) /* NT/2k/XP */
     {
         DWORD tmp;
-        uint8_t buffer[DVD_DISK_KEY_LENGTH];
+        uint8_t buffer[DVD_DISK_KEY_LENGTH] = { 0 };
         PDVD_COPY_PROTECT_KEY key = (PDVD_COPY_PROTECT_KEY) &buffer;
-
-        memset( &buffer, 0, sizeof( buffer ) );
 
         key->KeyLength  = DVD_DISK_KEY_LENGTH;
         key->SessionId  = *pi_agid;
@@ -453,9 +445,8 @@ int ioctl_ReadTitleKey( int i_fd, int *pi_agid, int i_pos, uint8_t *p_key )
     int i_ret;
 
 #if defined( HAVE_LINUX_DVD_STRUCT )
-    dvd_authinfo auth_info;
+    dvd_authinfo auth_info = { 0 };
 
-    memset( &auth_info, 0, sizeof( auth_info ) );
     auth_info.type = DVD_LU_SEND_TITLE_KEY;
     auth_info.lstk.agid = *pi_agid;
     auth_info.lstk.lba = i_pos;
@@ -465,9 +456,8 @@ int ioctl_ReadTitleKey( int i_fd, int *pi_agid, int i_pos, uint8_t *p_key )
     memcpy( p_key, auth_info.lstk.title_key, DVD_KEY_SIZE );
 
 #elif defined( HAVE_BSD_DVD_STRUCT )
-    struct dvd_authinfo auth_info;
+    struct dvd_authinfo auth_info = { 0 };
 
-    memset( &auth_info, 0, sizeof( auth_info ) );
     auth_info.format = DVD_REPORT_TITLE_KEY;
     auth_info.agid = *pi_agid;
     auth_info.lba = i_pos;
@@ -541,10 +531,8 @@ int ioctl_ReadTitleKey( int i_fd, int *pi_agid, int i_pos, uint8_t *p_key )
     if( WIN2K ) /* NT/2k/XP */
     {
         DWORD tmp;
-        uint8_t buffer[DVD_TITLE_KEY_LENGTH];
+        uint8_t buffer[DVD_TITLE_KEY_LENGTH] = { 0 };
         PDVD_COPY_PROTECT_KEY key = (PDVD_COPY_PROTECT_KEY) &buffer;
-
-        memset( &buffer, 0, sizeof( buffer ) );
 
         key->KeyLength  = DVD_TITLE_KEY_LENGTH;
         key->SessionId  = *pi_agid;
@@ -619,9 +607,8 @@ int ioctl_ReportAgid( int i_fd, int *pi_agid )
     int i_ret;
 
 #if defined( HAVE_LINUX_DVD_STRUCT )
-    dvd_authinfo auth_info;
+    dvd_authinfo auth_info = { 0 };
 
-    memset( &auth_info, 0, sizeof( auth_info ) );
     auth_info.type = DVD_LU_SEND_AGID;
     auth_info.lsa.agid = *pi_agid;
 
@@ -630,9 +617,8 @@ int ioctl_ReportAgid( int i_fd, int *pi_agid )
     *pi_agid = auth_info.lsa.agid;
 
 #elif defined( HAVE_BSD_DVD_STRUCT )
-    struct dvd_authinfo auth_info;
+    struct dvd_authinfo auth_info = { 0 };
 
-    memset( &auth_info, 0, sizeof( auth_info ) );
     auth_info.format = DVD_REPORT_AGID;
     auth_info.agid = *pi_agid;
 
@@ -741,9 +727,8 @@ int ioctl_ReportChallenge( int i_fd, int *pi_agid, uint8_t *p_challenge )
     int i_ret;
 
 #if defined( HAVE_LINUX_DVD_STRUCT )
-    dvd_authinfo auth_info;
+    dvd_authinfo auth_info = { 0 };
 
-    memset( &auth_info, 0, sizeof( auth_info ) );
     auth_info.type = DVD_LU_SEND_CHALLENGE;
     auth_info.lsc.agid = *pi_agid;
 
@@ -752,9 +737,8 @@ int ioctl_ReportChallenge( int i_fd, int *pi_agid, uint8_t *p_challenge )
     memcpy( p_challenge, auth_info.lsc.chal, DVD_CHALLENGE_SIZE );
 
 #elif defined( HAVE_BSD_DVD_STRUCT )
-    struct dvd_authinfo auth_info;
+    struct dvd_authinfo auth_info =  { 0 };
 
-    memset( &auth_info, 0, sizeof( auth_info ) );
     auth_info.format = DVD_REPORT_CHALLENGE;
     auth_info.agid = *pi_agid;
 
@@ -808,10 +792,8 @@ int ioctl_ReportChallenge( int i_fd, int *pi_agid, uint8_t *p_challenge )
     if( WIN2K ) /* NT/2k/XP */
     {
         DWORD tmp;
-        uint8_t buffer[DVD_CHALLENGE_KEY_LENGTH];
+        uint8_t buffer[DVD_CHALLENGE_KEY_LENGTH] = { 0 };
         PDVD_COPY_PROTECT_KEY key = (PDVD_COPY_PROTECT_KEY) &buffer;
-
-        memset( &buffer, 0, sizeof( buffer ) );
 
         key->KeyLength  = DVD_CHALLENGE_KEY_LENGTH;
         key->SessionId  = *pi_agid;
@@ -875,9 +857,8 @@ int ioctl_ReportASF( int i_fd, int *pi_remove_me, int *pi_asf )
     int i_ret;
 
 #if defined( HAVE_LINUX_DVD_STRUCT )
-    dvd_authinfo auth_info;
+    dvd_authinfo auth_info = { 0 };
 
-    memset( &auth_info, 0, sizeof( auth_info ) );
     auth_info.type = DVD_LU_SEND_ASF;
     auth_info.lsasf.asf = *pi_asf;
 
@@ -886,9 +867,8 @@ int ioctl_ReportASF( int i_fd, int *pi_remove_me, int *pi_asf )
     *pi_asf = auth_info.lsasf.asf;
 
 #elif defined( HAVE_BSD_DVD_STRUCT )
-    struct dvd_authinfo auth_info;
+    struct dvd_authinfo auth_info =  { 0 };
 
-    memset( &auth_info, 0, sizeof( auth_info ) );
     auth_info.format = DVD_REPORT_ASF;
     auth_info.asf = *pi_asf;
 
@@ -940,10 +920,8 @@ int ioctl_ReportASF( int i_fd, int *pi_remove_me, int *pi_asf )
     if( WIN2K ) /* NT/2k/XP */
     {
         DWORD tmp;
-        uint8_t buffer[DVD_ASF_LENGTH];
+        uint8_t buffer[DVD_ASF_LENGTH] = { 0 };
         PDVD_COPY_PROTECT_KEY key = (PDVD_COPY_PROTECT_KEY) &buffer;
-
-        memset( &buffer, 0, sizeof( buffer ) );
 
         key->KeyLength  = DVD_ASF_LENGTH;
         key->KeyType    = DvdAsf;
@@ -1008,9 +986,8 @@ int ioctl_ReportKey1( int i_fd, int *pi_agid, uint8_t *p_key )
     int i_ret;
 
 #if defined( HAVE_LINUX_DVD_STRUCT )
-    dvd_authinfo auth_info;
+    dvd_authinfo auth_info = { 0 };
 
-    memset( &auth_info, 0, sizeof( auth_info ) );
     auth_info.type = DVD_LU_SEND_KEY1;
     auth_info.lsk.agid = *pi_agid;
 
@@ -1019,9 +996,8 @@ int ioctl_ReportKey1( int i_fd, int *pi_agid, uint8_t *p_key )
     memcpy( p_key, auth_info.lsk.key, DVD_KEY_SIZE );
 
 #elif defined( HAVE_BSD_DVD_STRUCT )
-    struct dvd_authinfo auth_info;
+    struct dvd_authinfo auth_info = { 0 };
 
-    memset( &auth_info, 0, sizeof( auth_info ) );
     auth_info.format = DVD_REPORT_KEY1;
     auth_info.agid = *pi_agid;
 
@@ -1075,10 +1051,8 @@ int ioctl_ReportKey1( int i_fd, int *pi_agid, uint8_t *p_key )
     if( WIN2K ) /* NT/2k/XP */
     {
         DWORD tmp;
-        uint8_t buffer[DVD_BUS_KEY_LENGTH];
+        uint8_t buffer[DVD_BUS_KEY_LENGTH] = { 0 };
         PDVD_COPY_PROTECT_KEY key = (PDVD_COPY_PROTECT_KEY) &buffer;
-
-        memset( &buffer, 0, sizeof( buffer ) );
 
         key->KeyLength  = DVD_BUS_KEY_LENGTH;
         key->SessionId  = *pi_agid;
@@ -1137,18 +1111,16 @@ int ioctl_InvalidateAgid( int i_fd, int *pi_agid )
     int i_ret;
 
 #if defined( HAVE_LINUX_DVD_STRUCT )
-    dvd_authinfo auth_info;
+    dvd_authinfo auth_info = { 0 };
 
-    memset( &auth_info, 0, sizeof( auth_info ) );
     auth_info.type = DVD_INVALIDATE_AGID;
     auth_info.lsa.agid = *pi_agid;
 
     i_ret = ioctl( i_fd, DVD_AUTH, &auth_info );
 
 #elif defined( HAVE_BSD_DVD_STRUCT )
-    struct dvd_authinfo auth_info;
+    struct dvd_authinfo auth_info = { 0 };
 
-    memset( &auth_info, 0, sizeof( auth_info ) );
     auth_info.format = DVD_INVALIDATE_AGID;
     auth_info.agid = *pi_agid;
 
@@ -1248,9 +1220,8 @@ int ioctl_SendChallenge( int i_fd, int *pi_agid, uint8_t *p_challenge )
     int i_ret;
 
 #if defined( HAVE_LINUX_DVD_STRUCT )
-    dvd_authinfo auth_info;
+    dvd_authinfo auth_info = { 0 };
 
-    memset( &auth_info, 0, sizeof( auth_info ) );
     auth_info.type = DVD_HOST_SEND_CHALLENGE;
     auth_info.hsc.agid = *pi_agid;
 
@@ -1259,9 +1230,8 @@ int ioctl_SendChallenge( int i_fd, int *pi_agid, uint8_t *p_challenge )
     i_ret = ioctl( i_fd, DVD_AUTH, &auth_info );
 
 #elif defined( HAVE_BSD_DVD_STRUCT )
-    struct dvd_authinfo auth_info;
+    struct dvd_authinfo auth_info = { 0 };
 
-    memset( &auth_info, 0, sizeof( auth_info ) );
     auth_info.format = DVD_SEND_CHALLENGE;
     auth_info.agid = *pi_agid;
 
@@ -1320,10 +1290,8 @@ int ioctl_SendChallenge( int i_fd, int *pi_agid, uint8_t *p_challenge )
     if( WIN2K ) /* NT/2k/XP */
     {
         DWORD tmp;
-        uint8_t buffer[DVD_CHALLENGE_KEY_LENGTH];
+        uint8_t buffer[DVD_CHALLENGE_KEY_LENGTH] = { 0 };
         PDVD_COPY_PROTECT_KEY key = (PDVD_COPY_PROTECT_KEY) &buffer;
-
-        memset( &buffer, 0, sizeof( buffer ) );
 
         key->KeyLength  = DVD_CHALLENGE_KEY_LENGTH;
         key->SessionId  = *pi_agid;
@@ -1385,9 +1353,8 @@ int ioctl_SendKey2( int i_fd, int *pi_agid, uint8_t *p_key )
     int i_ret;
 
 #if defined( HAVE_LINUX_DVD_STRUCT )
-    dvd_authinfo auth_info;
+    dvd_authinfo auth_info = { 0 };
 
-    memset( &auth_info, 0, sizeof( auth_info ) );
     auth_info.type = DVD_HOST_SEND_KEY2;
     auth_info.hsk.agid = *pi_agid;
 
@@ -1396,9 +1363,8 @@ int ioctl_SendKey2( int i_fd, int *pi_agid, uint8_t *p_key )
     i_ret = ioctl( i_fd, DVD_AUTH, &auth_info );
 
 #elif defined( HAVE_BSD_DVD_STRUCT )
-    struct dvd_authinfo auth_info;
+    struct dvd_authinfo auth_info = { 0 };
 
-    memset( &auth_info, 0, sizeof( auth_info ) );
     auth_info.format = DVD_SEND_KEY2;
     auth_info.agid = *pi_agid;
 
@@ -1457,10 +1423,8 @@ int ioctl_SendKey2( int i_fd, int *pi_agid, uint8_t *p_key )
     if( WIN2K ) /* NT/2k/XP */
     {
         DWORD tmp;
-        uint8_t buffer[DVD_BUS_KEY_LENGTH];
+        uint8_t buffer[DVD_BUS_KEY_LENGTH] = { 0 };
         PDVD_COPY_PROTECT_KEY key = (PDVD_COPY_PROTECT_KEY) &buffer;
-
-        memset( &buffer, 0, sizeof( buffer ) );
 
         key->KeyLength  = DVD_BUS_KEY_LENGTH;
         key->SessionId  = *pi_agid;
@@ -1522,9 +1486,8 @@ int ioctl_ReportRPC( int i_fd, int *p_type, int *p_mask, int *p_scheme )
     int i_ret;
 
 #if defined( HAVE_LINUX_DVD_STRUCT ) && defined( DVD_LU_SEND_RPC_STATE )
-    dvd_authinfo auth_info;
+    dvd_authinfo auth_info = { 0 };
 
-    memset( &auth_info, 0, sizeof( auth_info ) );
     auth_info.type = DVD_LU_SEND_RPC_STATE;
 
     i_ret = ioctl( i_fd, DVD_AUTH, &auth_info );
@@ -1538,9 +1501,8 @@ int ioctl_ReportRPC( int i_fd, int *p_type, int *p_mask, int *p_scheme )
     i_ret = -1;
 
 #elif defined( HAVE_BSD_DVD_STRUCT )
-    struct dvd_authinfo auth_info;
+    struct dvd_authinfo auth_info = { 0 };
 
-    memset( &auth_info, 0, sizeof( auth_info ) );
     auth_info.format = DVD_REPORT_RPC;
 
     i_ret = ioctl( i_fd, DVDIOCREPORTKEY, &auth_info );
@@ -1603,10 +1565,8 @@ int ioctl_ReportRPC( int i_fd, int *p_type, int *p_mask, int *p_scheme )
     if( WIN2K ) /* NT/2k/XP */
     {
         DWORD tmp;
-        uint8_t buffer[DVD_RPC_KEY_LENGTH];
+        uint8_t buffer[DVD_RPC_KEY_LENGTH] = { 0 };
         PDVD_COPY_PROTECT_KEY key = (PDVD_COPY_PROTECT_KEY) &buffer;
-
-        memset( &buffer, 0, sizeof( buffer ) );
 
         key->KeyLength  = DVD_RPC_KEY_LENGTH;
         key->KeyType    = DvdGetRpcKey;

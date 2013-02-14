@@ -44,9 +44,8 @@ int ioctl_ReportRPC         ( int, int *, int *, int * );
  *****************************************************************************/
 #if defined( __BEOS__ )
 #define INIT_RDC( TYPE, SIZE ) \
-    raw_device_command rdc; \
+    raw_device_command rdc = { 0 }; \
     uint8_t p_buffer[ (SIZE)+1 ]; \
-    memset( &rdc, 0, sizeof( raw_device_command ) ); \
     rdc.data = (char *)p_buffer; \
     rdc.data_length = (SIZE); \
     BeInitRDC( &rdc, (TYPE) );
@@ -57,9 +56,8 @@ int ioctl_ReportRPC         ( int, int *, int *, int * );
  *****************************************************************************/
 #if defined( HPUX_SCTL_IO )
 #define INIT_SCTL_IO( TYPE, SIZE ) \
-    struct sctl_io sctl_io; \
+    struct sctl_io sctl_io = { 0 }; \
     uint8_t p_buffer[ (SIZE)+1 ]; \
-    memset( &sctl_io, 0, sizeof( sctl_io ) ); \
     sctl_io.data = (void *)p_buffer; \
     sctl_io.data_length = (SIZE); \
     HPUXInitSCTL( &sctl_io, (TYPE) );
@@ -72,10 +70,9 @@ int ioctl_ReportRPC         ( int, int *, int *, int * );
 #define USCSI_TIMEOUT( SC, TO ) ( (SC)->uscsi_timeout = (TO) )
 #define USCSI_RESID( SC )       ( (SC)->uscsi_resid )
 #define INIT_USCSI( TYPE, SIZE ) \
-    struct uscsi_cmd sc; \
+    struct uscsi_cmd sc = { 0 }; \
     union scsi_cdb rs_cdb; \
     uint8_t p_buffer[ (SIZE)+1 ]; \
-    memset( &sc, 0, sizeof( struct uscsi_cmd ) ); \
     sc.uscsi_cdb = (caddr_t)&rs_cdb; \
     sc.uscsi_bufaddr = (caddr_t)p_buffer; \
     sc.uscsi_buflen = (SIZE); \
@@ -87,10 +84,8 @@ int ioctl_ReportRPC         ( int, int *, int *, int * );
  *****************************************************************************/
 #if defined( DARWIN_DVD_IOCTL )
 #define INIT_DVDIOCTL( DKDVD_TYPE, BUFFER_TYPE, FORMAT ) \
-    DKDVD_TYPE dvd; \
-    BUFFER_TYPE dvdbs; \
-    memset( &dvd, 0, sizeof(dvd) ); \
-    memset( &dvdbs, 0, sizeof(dvdbs) ); \
+    DKDVD_TYPE dvd = { 0 }; \
+    BUFFER_TYPE dvdbs = { 0 }; \
     dvd.format = FORMAT; \
     dvd.buffer = &dvdbs; \
     dvd.bufferLength = sizeof(dvdbs);
@@ -102,9 +97,8 @@ int ioctl_ReportRPC         ( int, int *, int *, int * );
 #if defined( WIN32 )
 #define INIT_SPTD( TYPE, SIZE ) \
     DWORD tmp; \
-    SCSI_PASS_THROUGH_DIRECT sptd; \
+    SCSI_PASS_THROUGH_DIRECT sptd = { 0 }; \
     uint8_t p_buffer[ (SIZE) ]; \
-    memset( &sptd, 0, sizeof( SCSI_PASS_THROUGH_DIRECT ) ); \
     sptd.Length = sizeof( SCSI_PASS_THROUGH_DIRECT ); \
     sptd.DataBuffer = p_buffer; \
     sptd.DataTransferLength = (SIZE); \
@@ -115,9 +109,8 @@ int ioctl_ReportRPC         ( int, int *, int *, int * );
                       (SPTD), sizeof( SCSI_PASS_THROUGH_DIRECT ), \
                       (TMP), NULL ) ? 0 : -1)
 #define INIT_SSC( TYPE, SIZE ) \
-    struct SRB_ExecSCSICmd ssc; \
+    struct SRB_ExecSCSICmd ssc = { 0 }; \
     uint8_t p_buffer[ (SIZE)+1 ]; \
-    memset( &ssc, 0, sizeof( struct SRB_ExecSCSICmd ) ); \
     ssc.SRB_BufPointer = (unsigned char *)p_buffer; \
     ssc.SRB_BufLen = (SIZE); \
     WinInitSSC( &ssc, (TYPE) );
@@ -128,12 +121,11 @@ int ioctl_ReportRPC         ( int, int *, int *, int * );
  *****************************************************************************/
 #if defined( __QNXNTO__ )
 #define INIT_CPT( TYPE, SIZE ) \
-    CAM_PASS_THRU * p_cpt; \
+    CAM_PASS_THRU * p_cpt = { 0 }; \
     uint8_t * p_buffer; \
     int structSize = sizeof( CAM_PASS_THRU ) + (SIZE); \
     p_cpt = (CAM_PASS_THRU *) malloc ( structSize ); \
     p_buffer = (uint8_t *) p_cpt + sizeof( CAM_PASS_THRU ); \
-    memset( p_cpt, 0, structSize ); \
       p_cpt->cam_data_ptr = sizeof( CAM_PASS_THRU ); \
       p_cpt->cam_dxfer_len = (SIZE); \
     QNXInitCPT( p_cpt, (TYPE) );
@@ -144,12 +136,10 @@ int ioctl_ReportRPC         ( int, int *, int *, int * );
  *****************************************************************************/
 #if defined( __OS2__ )
 #define INIT_SSC( TYPE, SIZE ) \
-    struct OS2_ExecSCSICmd sdc; \
-    uint8_t p_buffer[ (SIZE)+1 ]; \
+    struct OS2_ExecSCSICmd sdc = { 0 }; \
+    uint8_t p_buffer[ (SIZE) + 1 ] = { 0 }; \
     unsigned long ulParamLen; \
     unsigned long ulDataLen; \
-    memset( &sdc, 0, sizeof( OS2_ExecSCSICmd ) ); \
-    memset( &p_buffer, 0, SIZE ); \
     sdc.data_length = (SIZE); \
     ulParamLen = sizeof(sdc); \
     OS2InitSDC( &sdc, (TYPE) )

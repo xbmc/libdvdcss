@@ -32,9 +32,8 @@ static int ioctl_SendRPC( int i_fd, int i_pdrc )
     int i_ret;
 
 #if defined( HAVE_LINUX_DVD_STRUCT ) && defined( DVD_HOST_SEND_RPC_STATE )
-    dvd_authinfo auth_info;
+    dvd_authinfo auth_info = { 0 };
 
-    memset( &auth_info, 0, sizeof( auth_info ) );
     auth_info.type = DVD_HOST_SEND_RPC_STATE;
     auth_info.hrpcs.pdrc = i_pdrc;
 
@@ -45,9 +44,8 @@ static int ioctl_SendRPC( int i_fd, int i_pdrc )
     i_ret = -1;
 
 #elif defined( HAVE_BSD_DVD_STRUCT )
-    struct dvd_authinfo auth_info;
+    struct dvd_authinfo auth_info = { 0 };
 
-    memset( &auth_info, 0, sizeof( auth_info ) );
     auth_info.format = DVD_SEND_RPC;
     auth_info.region = i_pdrc;
 

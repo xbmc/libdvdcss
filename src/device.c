@@ -617,9 +617,8 @@ static int aspi_open( dvdcss_t dvdcss, char const * psz_device )
                 (srbDiskInfo.SRB_Int13HDriveInfo == c_drive) )
             {
                 /* Make sure this is a CD-ROM device */
-                struct SRB_GDEVBlock srbGDEVBlock;
+                struct SRB_GDEVBlock srbGDEVBlock = { 0 };
 
-                memset( &srbGDEVBlock, 0, sizeof(struct SRB_GDEVBlock) );
                 srbGDEVBlock.SRB_Cmd    = SC_GET_DEV_TYPE;
                 srbGDEVBlock.SRB_HaId   = i;
                 srbGDEVBlock.SRB_Target = j;
@@ -998,7 +997,7 @@ static int win_readv ( dvdcss_t dvdcss, struct iovec *p_iovec, int i_blocks )
 static int aspi_read_internal( int i_fd, void *p_data, int i_blocks )
 {
     HANDLE hEvent;
-    struct SRB_ExecSCSICmd ssc;
+    struct SRB_ExecSCSICmd ssc = { 0 };
     struct w32_aspidev *fd = (struct w32_aspidev *) i_fd;
 
     /* Create the transfer completion event */
@@ -1007,8 +1006,6 @@ static int aspi_read_internal( int i_fd, void *p_data, int i_blocks )
     {
         return -1;
     }
-
-    memset( &ssc, 0, sizeof( ssc ) );
 
     ssc.SRB_Cmd         = SC_EXEC_SCSI_CMD;
     ssc.SRB_Flags       = SRB_DIR_IN | SRB_EVENT_NOTIFY;
