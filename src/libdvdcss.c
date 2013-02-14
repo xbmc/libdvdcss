@@ -404,7 +404,8 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
     /* If the cache is enabled, write the cache directory tag */
     if( psz_cache )
     {
-        char *psz_tag = "Signature: 8a477f597d28d172789f06886806bc55\r\n"
+        static const char psz_tag[] =
+            "Signature: 8a477f597d28d172789f06886806bc55\r\n"
             "# This file is a cache directory tag created by libdvdcss.\r\n"
             "# For information about cache directory tags, see:\r\n"
             "#   http://www.brynosaurus.com/cachedir/\r\n";
