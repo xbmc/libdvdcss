@@ -24,7 +24,134 @@
 
 #define DEFAULT_DEVICE "/dev/dvd"
 
-int set_region(int fd, int region)
+/*****************************************************************************
+ * ioctl_SendRPC: set RPC status for the drive
+ *****************************************************************************/
+static int ioctl_SendRPC( int i_fd, int i_pdrc )
+{
+    int i_ret;
+
+#if defined( HAVE_LINUX_DVD_STRUCT ) && defined( DVD_HOST_SEND_RPC_STATE )
+    dvd_authinfo auth_info;
+
+    memset( &auth_info, 0, sizeof( auth_info ) );
+    auth_info.type = DVD_HOST_SEND_RPC_STATE;
+    auth_info.hrpcs.pdrc = i_pdrc;
+
+    i_ret = ioctl( i_fd, DVD_AUTH, &auth_info );
+
+#elif defined( HAVE_LINUX_DVD_STRUCT )
+    /* FIXME: OpenBSD doesn't know this */
+    i_ret = -1;
+
+#elif defined( HAVE_BSD_DVD_STRUCT )
+    struct dvd_authinfo auth_info;
+
+    memset( &auth_info, 0, sizeof( auth_info ) );
+    auth_info.format = DVD_SEND_RPC;
+    auth_info.region = i_pdrc;
+
+    i_ret = ioctl( i_fd, DVDIOCSENDKEY, &auth_info );
+
+#elif defined( __BEOS__ )
+    INIT_RDC( GPCMD_SEND_KEY, 8 );
+
+    rdc.command[ 10 ] = DVD_SEND_RPC;
+
+    p_buffer[ 1 ] = 6;
+    p_buffer[ 4 ] = i_pdrc;
+
+    i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
+
+#elif defined( HPUX_SCTL_IO )
+    INIT_SCTL_IO( GPCMD_SEND_KEY, 8 );
+
+    sctl_io.cdb[ 10 ] = DVD_SEND_RPC;
+
+    p_buffer[ 1 ] = 6;
+    p_buffer[ 4 ] = i_pdrc;
+
+    i_ret = ioctl( i_fd, SIOC_IO, &sctl_io );
+
+#elif defined( SOLARIS_USCSI )
+    INIT_USCSI( GPCMD_SEND_KEY, 8 );
+
+    rs_cdb.cdb_opaque[ 10 ] = DVD_SEND_RPC;
+
+    p_buffer[ 1 ] = 6;
+    p_buffer[ 4 ] = i_pdrc;
+
+    i_ret = SolarisSendUSCSI( i_fd, &sc );
+
+    if( i_ret < 0 || sc.uscsi_status )
+    {
+        i_ret = -1;
+    }
+
+#elif defined( DARWIN_DVD_IOCTL )
+    INIT_DVDIOCTL( dk_dvd_send_key_t, DVDRegionPlaybackControlInfo,
+                   kDVDKeyFormatSetRegion );
+
+    dvd.keyClass = kDVDKeyClassCSS_CPPM_CPRM;
+    dvdbs.driveRegion = i_pdrc;
+
+    i_ret = ioctl( i_fd, DKIOCDVDSENDKEY, &dvd );
+
+#elif defined( WIN32 )
+    if( WIN2K ) /* NT/2k/XP */
+    {
+        INIT_SPTD( GPCMD_SEND_KEY, 8 );
+
+        sptd.Cdb[ 10 ] = DVD_SEND_RPC;
+
+        p_buffer[ 1 ] = 6;
+        p_buffer[ 4 ] = i_pdrc;
+
+        i_ret = SEND_SPTD( i_fd, &sptd, &tmp );
+    }
+    else
+    {
+        INIT_SSC( GPCMD_SEND_KEY, 8 );
+
+        ssc.CDBByte[ 10 ] = DVD_SEND_RPC;
+
+        p_buffer[ 1 ] = 6;
+        p_buffer[ 4 ] = i_pdrc;
+
+        i_ret = WinSendSSC( i_fd, &ssc );
+    }
+
+#elif defined( __QNXNTO__ )
+
+    INIT_CPT( GPCMD_SEND_KEY, 8 );
+
+    p_cpt->cam_cdb[ 10 ] = DVD_SEND_RPC;
+
+    p_buffer[ 1 ] = 6;
+    p_buffer[ 4 ] = i_pdrc;
+
+    i_ret = devctl(i_fd, DCMD_CAM_PASS_THRU, p_cpt, structSize, NULL);
+
+#elif defined( __OS2__ )
+    INIT_SSC( GPCMD_SEND_KEY, 8 );
+
+    sdc.command[ 10 ] = DVD_SEND_RPC;
+
+    p_buffer[ 1 ] = 6;
+    p_buffer[ 4 ] = i_pdrc;
+
+    i_ret = DosDevIOCtl( i_fd, IOCTL_CDROMDISK, CDROMDISK_EXECMD,
+                         &sdc, sizeof(sdc), &ulParamLen,
+                         p_buffer, sizeof(p_buffer), &ulDataLen );
+
+#else
+#   error "DVD ioctls are unavailable on this system"
+
+#endif
+    return i_ret;
+}
+
+static int set_region(int fd, int region)
 {
   int ret, region_mask;
 
@@ -46,7 +173,7 @@ int set_region(int fd, int region)
   return 0;
 }
 
-int print_region(int fd)
+static int print_region(int fd)
 {
   int type, region_mask, rpc_scheme;
   int region = 1;

@@ -35,7 +35,6 @@ int ioctl_InvalidateAgid    ( int, int * );
 int ioctl_SendChallenge     ( int, int *, uint8_t * );
 int ioctl_SendKey2          ( int, int *, uint8_t * );
 int ioctl_ReportRPC         ( int, int *, int *, int * );
-int ioctl_SendRPC           ( int, int );
 
 #define DVD_KEY_SIZE 5
 #define DVD_CHALLENGE_SIZE 10
