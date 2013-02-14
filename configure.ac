@@ -21,6 +21,32 @@ AC_CHECK_HEADERS(unistd.h sys/param.h sys/uio.h limits.h pwd.h errno.h)
 
 AC_SYS_LARGEFILE
 
+AC_CHECK_HEADERS([sys/stat.h sys/types.h io.h])
+AC_CACHE_CHECK(
+  [for posix mkdir()],
+  [css_cv_mkdir_posix], [
+    AC_COMPILE_IFELSE([AC_LANG_SOURCE([
+#ifdef HAVE_IO_H
+# include <io.h>
+#endif
+#ifdef HAVE_SYS_STAT_H
+# include <sys/stat.h>
+#endif
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+
+int mkdir(const char *path, mode_t mode);
+      ])
+    ],
+    [css_cv_mkdir_posix=yes],
+    [css_cv_mkdir_posix=no])
+  ])
+
+AS_IF([test "$css_cv_mkdir_posix" = "no"], [
+  AC_DEFINE([HAVE_BROKEN_MKDIR], 1, [Define if you have a broken mkdir])
+])
+
 dnl
 dnl  Check the operating system
 dnl
