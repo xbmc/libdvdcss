@@ -25,6 +25,7 @@ depcomp
 doc/doxygen.cfg
 doc/html
 doc/latex
+dvd_region
 install-sh
 libtool
 ltmain.sh

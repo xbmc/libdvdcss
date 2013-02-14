@@ -8,7 +8,7 @@ doc: doc-dummy
 	$(MAKE) -C doc
 
 lib_LTLIBRARIES = libdvdcss.la
-EXTRA_PROGRAMS = csstest
+EXTRA_PROGRAMS = csstest dvd_region
 
 libdvdcss_la_SOURCES = \
 	src/libdvdcss.c \
@@ -43,6 +43,10 @@ endif
 csstest_SOURCES = test/csstest.c
 csstest_LDADD = libdvdcss.la
 csstest_CFLAGS = -I $(top_srcdir)/src
+
+dvd_region_SOURCES = test/dvd_region.c
+dvd_region_LDADD = libdvdcss.la
+dvd_region_CFLAGS = -I $(top_srcdir)/src
 
 pkgincludedir = $(includedir)/dvdcss
 pkginclude_HEADERS = src/dvdcss/dvdcss.h
