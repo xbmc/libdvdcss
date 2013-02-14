@@ -1,6 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4
 
-EXTRA_DIST = libdvdcss.spec doc/header.html doc/footer.html INSTALL
+EXTRA_DIST = msvc libdvdcss.spec doc/header.html doc/footer.html INSTALL
 
 dist_doc_DATA = AUTHORS COPYING NEWS README ChangeLog
 
