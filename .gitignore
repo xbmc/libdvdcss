@@ -7,6 +7,7 @@
 *.pc
 .auto
 .deps
+.dirstamp
 .libs
 Makefile
 Makefile.in
@@ -19,6 +20,8 @@ config.log
 config.status
 config.sub
 configure
+csstest
+depcomp
 doc/doxygen.cfg
 doc/html
 doc/latex
@@ -27,4 +30,3 @@ libtool
 ltmain.sh
 missing
 stamp-*
-test/csstest

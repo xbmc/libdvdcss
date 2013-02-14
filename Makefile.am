@@ -1,4 +1,4 @@
-SUBDIRS = src test doc
+SUBDIRS = doc
 
 EXTRA_DIST = libdvdcss.spec bootstrap
 
@@ -7,3 +7,45 @@ doc-dummy:
 doc: doc-dummy
 	$(MAKE) -C doc
 
+lib_LTLIBRARIES = libdvdcss.la
+EXTRA_PROGRAMS = csstest
+
+libdvdcss_la_SOURCES = \
+	src/libdvdcss.c \
+	src/libdvdcss.h \
+	src/device.c \
+	src/device.h \
+	src/css.c \
+	src/css.h \
+	src/csstables.h \
+	src/ioctl.c \
+	src/ioctl.h \
+	src/error.c \
+	src/common.h
+
+libdvdcss_la_LDFLAGS = -version-info 3:0:1 $(DVDCSS_LDFLAGS)
+libdvdcss_la_LIBADD =
+
+if SYS_BSDI
+libdvdcss_la_SOURCES += \
+	src/bsdi_ioctl.c \
+	src/bsdi_dvd.h
+endif
+
+if SYS_BSDI_LIBDVD
+libdvdcss_la_LIBADD += -ldvd
+endif
+
+if !SYS_MSVC
+libdvdcss_la_LDFLAGS += = -no-undefined
+endif
+
+csstest_SOURCES = test/csstest.c
+csstest_LDADD = libdvdcss.la
+csstest_CFLAGS = -I $(top_srcdir)/src
+
+pkgincludedir = $(includedir)/dvdcss
+pkginclude_HEADERS = src/dvdcss/dvdcss.h
+
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = src/libdvdcss.pc

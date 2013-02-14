@@ -211,9 +211,6 @@ AC_SUBST(DVDCSS_LDFLAGS)
 AC_OUTPUT([
   Makefile
   doc/Makefile
-  src/Makefile
-  src/dvdcss/Makefile
-  test/Makefile
   src/libdvdcss.pc
 ])
 
