@@ -87,6 +87,8 @@ static int  AttackPattern   ( uint8_t const[], int, uint8_t * );
 static int  AttackPadding   ( uint8_t const[], int, uint8_t * );
 #endif
 
+static int  _dvdcss_titlekey    ( dvdcss_t, int , dvd_key_t );
+
 /*****************************************************************************
  * _dvdcss_test: check if the disc is encrypted or not
  *****************************************************************************
@@ -406,7 +408,7 @@ int _dvdcss_disckey( dvdcss_t dvdcss )
 /*****************************************************************************
  * _dvdcss_titlekey: get title key.
  *****************************************************************************/
-int _dvdcss_titlekey( dvdcss_t dvdcss, int i_pos, dvd_key_t p_title_key )
+static int _dvdcss_titlekey( dvdcss_t dvdcss, int i_pos, dvd_key_t p_title_key )
 {
     static uint8_t p_garbage[ DVDCSS_BLOCK_SIZE ];  /* we never read it back */
     uint8_t p_key[ KEY_SIZE ];
