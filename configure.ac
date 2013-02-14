@@ -1,14 +1,14 @@
-AC_INIT(src/libdvdcss.c)
+AC_INIT(libdvdcss, 1.2.12)
+AC_CONFIG_SRCDIR([src/libdvdcss.c])
 
 AC_PREREQ(2.50)
-AC_CONFIG_AUX_DIR(.auto)
-AC_CANONICAL_SYSTEM
+AC_CANONICAL_HOST
 
-AM_INIT_AUTOMAKE(libdvdcss, 1.2.12)
-AM_CONFIG_HEADER(config.h)
+AM_INIT_AUTOMAKE([foreign dist-bzip2 subdir-objects])
+AC_CONFIG_HEADER(config.h)
 
 AC_PROG_CC
-AC_STDC_HEADERS
+AC_HEADER_STDC
 
 AC_LIBTOOL_WIN32_DLL
 AM_PROG_LIBTOOL
@@ -19,10 +19,13 @@ AC_TYPE_SIZE_T
 
 AC_CHECK_HEADERS(unistd.h sys/param.h sys/uio.h limits.h pwd.h errno.h)
 
+AC_SYS_LARGEFILE
+
 dnl
 dnl  Check the operating system
 dnl
-case x"${target_os}" in
+
+case x"${host_os}" in
   xdarwin*)
     CFLAGS="${CFLAGS} -no-cpp-precomp"
     ;;
@@ -156,7 +159,7 @@ CFLAGS_save="${CFLAGS}"
 AC_CACHE_CHECK([if \$CC accepts -Wall],
     [ac_cv_c_Wall],
     [CFLAGS="-Wall ${CFLAGS_save}"
-     AC_TRY_COMPILE([],,ac_cv_c_Wall=yes, ac_cv_c_Wall=no)])
+     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[ac_cv_c_Wall=yes],[ac_cv_c_Wall=no])])
 if test "${ac_cv_c_Wall}" != "no"; then
     CFLAGS_save="-Wall ${CFLAGS_save}"
 fi
@@ -164,7 +167,7 @@ fi
 AC_CACHE_CHECK([if \$CC accepts -Wsign-compare],
     [ac_cv_c_Wsign_compare],
     [CFLAGS="-Wsign-compare ${CFLAGS_save}"
-     AC_TRY_COMPILE([],,ac_cv_c_Wsign_compare=yes, ac_cv_c_Wsign_compare=no)])
+     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[ac_cv_c_Wsign_compare=yes],[ac_cv_c_Wsign_compare=no])])
 if test "${ac_cv_c_Wsign_compare}" != "no"; then
     CFLAGS_save="-Wsign-compare ${CFLAGS_save}"
 fi
@@ -179,20 +182,13 @@ CFLAGS_save="$CFLAGS"
 AC_CACHE_CHECK([if \$CC supports ELF visibility],
     [ac_cv_c_visibility],
     [CFLAGS="-fvisibility=hidden ${CFLAGS_save}"
-     AC_TRY_COMPILE([],
-                    [__attribute__((visibility("default"))) extern int visible],
-                    ac_cv_c_visibility=yes, ac_cv_c_visibility=no)])
+     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[__attribute__((visibility("default"))) extern int visible]])],[ac_cv_c_visibility=yes],[ac_cv_c_visibility=no])])
 if test "${ac_cv_c_visibility}" != "no"; then
     CFLAGS_save="-fvisibility=hidden ${CFLAGS_save}";
     AC_DEFINE(HAVE_VISIBILITY, 1, Support ELF visibility.)
 fi
 
 CFLAGS="${CFLAGS_save}"
-
-dnl
-dnl  Use 64 bits offsets
-dnl
-CFLAGS="-D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 ${CFLAGS}"
 
 AM_CONDITIONAL(SYS_BSDI, test "${SYS_BSDI}" = "1")
 AM_CONDITIONAL(SYS_BSDI_LIBDVD, test "${SYS_BSDI_LIBDVD}" = "1")
