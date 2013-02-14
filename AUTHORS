@@ -9,6 +9,10 @@ N: Billy Biggs
 E: vektor@dumbterm.net
 D: libdvdcss enhancements
 
+N: Diego Biurrun
+E: diego@biurrun.de
+D: misc build and portability fixes, cleanup
+
 N: Stéphane Borel
 E: stef@via.ecp.fr
 D: original CSS decryption code from vlc
@@ -58,6 +62,10 @@ D: win32 improvements
 N: Christophe Massiot
 E: massiot@via.ecp.fr
 D: former maintainer
+
+N: Diego Elio Pettenò
+E: flameeyes@flameeyes.eu
+D: build system rewrite
 
 N: Steven M. Schultz
 E: sms@TO.GD-ES.COM
