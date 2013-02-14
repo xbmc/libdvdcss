@@ -155,44 +155,12 @@ AC_CHECK_HEADERS(sys/ioctl.h,[
   fi
 ])
 
-dnl
-dnl  Check for available warning flags
-dnl
-CFLAGS_save="${CFLAGS}"
-
-AC_CACHE_CHECK([if \$CC accepts -Wall],
-    [ac_cv_c_Wall],
-    [CFLAGS="-Wall ${CFLAGS_save}"
-     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[ac_cv_c_Wall=yes],[ac_cv_c_Wall=no])])
-if test "${ac_cv_c_Wall}" != "no"; then
-    CFLAGS_save="-Wall ${CFLAGS_save}"
-fi
-
-AC_CACHE_CHECK([if \$CC accepts -Wsign-compare],
-    [ac_cv_c_Wsign_compare],
-    [CFLAGS="-Wsign-compare ${CFLAGS_save}"
-     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[ac_cv_c_Wsign_compare=yes],[ac_cv_c_Wsign_compare=no])])
-if test "${ac_cv_c_Wsign_compare}" != "no"; then
-    CFLAGS_save="-Wsign-compare ${CFLAGS_save}"
-fi
-
-CFLAGS="${CFLAGS_save}"
-
-dnl
-dnl  Check if the compiler supports ELF visibility
-dnl
-CFLAGS_save="$CFLAGS"
-
-AC_CACHE_CHECK([if \$CC supports ELF visibility],
-    [ac_cv_c_visibility],
-    [CFLAGS="-fvisibility=hidden ${CFLAGS_save}"
-     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[__attribute__((visibility("default"))) extern int visible]])],[ac_cv_c_visibility=yes],[ac_cv_c_visibility=no])])
-if test "${ac_cv_c_visibility}" != "no"; then
-    CFLAGS_save="-fvisibility=hidden ${CFLAGS_save}";
-    AC_DEFINE(HAVE_VISIBILITY, 1, Support ELF visibility.)
-fi
-
-CFLAGS="${CFLAGS_save}"
+CC_CHECK_CFLAGS_APPEND([-Wall -Wsign-compare])
+CC_FLAG_VISIBILITY([
+  CC_ATTRIBUTE_VISIBILITY([default], [
+    CFLAGS="${CFLAGS} -fvisibility=hidden"
+  ])
+])
 
 AM_CONDITIONAL(SYS_BSDI, test "${SYS_BSDI}" = "1")
 AM_CONDITIONAL(SYS_BSDI_LIBDVD, test "${SYS_BSDI_LIBDVD}" = "1")
