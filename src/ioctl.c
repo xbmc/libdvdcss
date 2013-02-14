@@ -217,7 +217,7 @@ int ioctl_ReadCopyright( int i_fd, int i_layer, int *pi_copyright )
         /*  When using IOCTL_DVD_READ_STRUCTURE and
             DVD_COPYRIGHT_DESCRIPTOR, CopyrightProtectionType
             seems to be always 6 ???
-            To work around this MS bug we try to send a raw scsi command
+            To work around this MS bug we try to send a raw SCSI command
             instead (if we've got enough privileges to do so). */
 
         sptd.Cdb[ 6 ] = i_layer;
@@ -1741,7 +1741,7 @@ static void HPUXInitSCTL( struct sctl_io *sctl_io, int i_type )
 /*****************************************************************************
  * SolarisInitUSCSI: initialize a USCSICMD structure for the Solaris kernel
  *****************************************************************************
- * This function initializes a Solaris userspace scsi command structure for
+ * This function initializes a Solaris userspace SCSI command structure for
  * future use, either a read command or a write command.
  *****************************************************************************/
 static void SolarisInitUSCSI( struct uscsi_cmd *p_sc, int i_type )
@@ -1786,8 +1786,8 @@ static void SolarisInitUSCSI( struct uscsi_cmd *p_sc, int i_type )
  *
  * The code will fall back to the USCSICMD ioctl method, when
  * libsmedia.so is not available or does not export the
- * smedia_uscsi_cmd() function (on Solaris releases upto and including
- * Solaris 8). Fortunatelly, on these old releases non-root users are
+ * smedia_uscsi_cmd() function (on Solaris releases up to and including
+ * Solaris 8). Fortunately, on these old releases non-root users are
  * allowed to perform USCSICMD ioctls on removable media devices.
  *****************************************************************************/
 static int SolarisSendUSCSI( int i_fd, struct uscsi_cmd *p_sc )

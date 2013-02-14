@@ -30,7 +30,7 @@
  * device without having to bother about the decryption. The important features
  * are:
  * \li portability: currently supported platforms are GNU/Linux, FreeBSD,
- *     NetBSD, OpenBSD, BeOS, Windows 95/98, Windows NT/2000, MacOS X,
+ *     NetBSD, OpenBSD, BeOS, Windows 95/98, Windows NT/2000, Mac OS X,
  *     Solaris, HP-UX and OS/2.
  * \li adaptability: unlike most similar projects, libdvdcss doesn't require
  *     the region of your drive to be set and will try its best to read from
@@ -49,7 +49,7 @@
  *
  * \section env Environment variables
  *
- * Some environment variables can be used to change the behaviour of
+ * Some environment variables can be used to change the behavior of
  * \e libdvdcss without having to modify the program which uses it. These
  * variables are:
  *
@@ -252,7 +252,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
 
         *psz_home = '\0';
 
-        /* Load the shfolder dll to retrieve SHGetFolderPath */
+        /* Load the shfolder DLL to retrieve SHGetFolderPath */
         p_dll = LoadLibrary( "shfolder.dll" );
         if( p_dll )
         {
@@ -582,7 +582,7 @@ LIBDVDCSS_EXPORT char * dvdcss_error ( dvdcss_t dvdcss )
  *
  * \param dvdcss a \e libdvdcss instance.
  * \param i_blocks an absolute block offset to seek to.
- * \param i_flags #DVDCSS_NOFLAGS, optionally ored with one of #DVDCSS_SEEK_KEY
+ * \param i_flags #DVDCSS_NOFLAGS, optionally ORed with one of #DVDCSS_SEEK_KEY
  *        or #DVDCSS_SEEK_MPEG.
  * \return the new position in blocks, or a negative value in case an error
  *         happened.
@@ -592,7 +592,7 @@ LIBDVDCSS_EXPORT char * dvdcss_error ( dvdcss_t dvdcss )
  * You typically set \p i_flags to #DVDCSS_NOFLAGS when seeking in a .IFO.
  *
  * If #DVDCSS_SEEK_MPEG is specified in \p i_flags and if \e libdvdcss finds it
- * reasonable to do so (ie, if the dvdcss method is not "title"), the current
+ * reasonable to do so (i.e., if the dvdcss method is not "title"), the current
  * title key will be checked and a new one will be calculated if necessary.
  * This flag is typically used when reading data from a VOB.
  *
@@ -624,7 +624,7 @@ LIBDVDCSS_EXPORT int dvdcss_seek ( dvdcss_t dvdcss, int i_blocks, int i_flags )
  * \param dvdcss a \e libdvdcss instance.
  * \param p_buffer a buffer that will contain the data read from the disc.
  * \param i_blocks the amount of blocks to read.
- * \param i_flags #DVDCSS_NOFLAGS, optionally ored with #DVDCSS_READ_DECRYPT.
+ * \param i_flags #DVDCSS_NOFLAGS, optionally ORed with #DVDCSS_READ_DECRYPT.
  * \return the amount of blocks read, or a negative value in case an
  *         error happened.
  *
@@ -694,7 +694,7 @@ LIBDVDCSS_EXPORT int dvdcss_read ( dvdcss_t dvdcss, void *p_buffer,
  * \param p_iovec a pointer to an array of iovec structures that will contain
  *        the data read from the disc.
  * \param i_blocks the amount of blocks to read.
- * \param i_flags #DVDCSS_NOFLAGS, optionally ored with #DVDCSS_READ_DECRYPT.
+ * \param i_flags #DVDCSS_NOFLAGS, optionally ORed with #DVDCSS_READ_DECRYPT.
  * \return the amount of blocks read, or a negative value in case an
  *         error happened.
  *

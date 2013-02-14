@@ -160,7 +160,7 @@ static int set_region(int fd, int region)
     return 1;
   }
   printf("Setting drive region can only be done a finite " \
-	 "number of times, press CTRL-C now to cancel!\n");
+         "number of times, press Ctrl-C now to cancel!\n");
   getchar();
 
   region_mask = 0xff & ~(1 << (region - 1));
@@ -218,7 +218,7 @@ static int print_region(int fd)
       region_mask >>= 1;
     }
   else
-    printf("non-rpc( all)\n");
+    printf("non-RPC( all)\n");
 
   printf("RPC Scheme: ");
   switch( rpc_scheme ) {

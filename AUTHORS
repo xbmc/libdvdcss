@@ -15,7 +15,7 @@ D: misc build and portability fixes, cleanup
 
 N: Stéphane Borel
 E: stef@via.ecp.fr
-D: original CSS decryption code from vlc
+D: original CSS decryption code from VLC
 
 N: Sven Heithecker
 E: sven.heithecker@web.de
@@ -28,11 +28,11 @@ D: libdvdcss enhancements
 
 N: Samuel Hocevar
 E: sam@zoy.org
-D: original CSS decryption code from vlc
+D: original CSS decryption code from VLC
 
 N: Eugenio Jarosiewicz
 E: ej0@cise.ufl.edu
-D: MacOS X DVD ioctls
+D: Mac OS X DVD ioctls
 
 N: Jon Lech Johansen
 E: jon-vl@nanocrew.net

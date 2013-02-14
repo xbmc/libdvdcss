@@ -14,7 +14,7 @@ Changes between 1.2.10 and 1.2.11:
 
   * improvements on RPC-II handling.
   * more robust key retrieval.
-  * fixes for MingW compilation.
+  * fixes for MinGW compilation.
   * fixes for OS/2 compilation.
   * various bug fixes for small issues, memleaks, crashes and build issues.
 
@@ -53,7 +53,7 @@ Changes between 1.2.6 and 1.2.7:
 Changes between 1.2.5 and 1.2.6:
 --------------------------------
 
-  * compilation fix for most UNIXes
+  * compilation fix for most Unixes
 
 Changes between 1.2.4 and 1.2.5:
 --------------------------------
@@ -71,7 +71,7 @@ Changes between 1.2.3 and 1.2.4:
 Changes between 1.2.2 and 1.2.3:
 --------------------------------
 
-  * many Windows bugfixes
+  * many Windows bug fixes
   * workaround for drives which prevent key decryption
 
 Changes between 1.2.1 and 1.2.2:
@@ -103,7 +103,7 @@ Changes between 1.0.0 and 1.1.0:
 --------------------------------
 
   * merged all patches from the Ogle group
-  * lots of bugfixes
+  * lots of bug fixes
   * HP-UX port
   * better error recovery
   * third descrambling implementation
