@@ -1,6 +1,6 @@
 SUBDIRS = doc
 
-EXTRA_DIST = libdvdcss.spec bootstrap
+EXTRA_DIST = libdvdcss.spec
 
 doc-dummy:
 
