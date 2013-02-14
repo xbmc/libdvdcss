@@ -1113,7 +1113,7 @@ int ioctl_InvalidateAgid( int i_fd, int *pi_agid )
 #if defined( HAVE_LINUX_DVD_STRUCT )
     dvd_authinfo auth_info = { 0 };
 
-    auth_info.type = DVD_INVALIDATE_AGID;
+    auth_info.type = DVDCSS_INVALIDATE_AGID;
     auth_info.lsa.agid = *pi_agid;
 
     i_ret = ioctl( i_fd, DVD_AUTH, &auth_info );
@@ -1121,7 +1121,7 @@ int ioctl_InvalidateAgid( int i_fd, int *pi_agid )
 #elif defined( HAVE_BSD_DVD_STRUCT )
     struct dvd_authinfo auth_info = { 0 };
 
-    auth_info.format = DVD_INVALIDATE_AGID;
+    auth_info.format = DVDCSS_INVALIDATE_AGID;
     auth_info.agid = *pi_agid;
 
     i_ret = ioctl( i_fd, DVDIOCREPORTKEY, &auth_info );
@@ -1129,21 +1129,21 @@ int ioctl_InvalidateAgid( int i_fd, int *pi_agid )
 #elif defined( __BEOS__ )
     INIT_RDC( GPCMD_REPORT_KEY, 0 );
 
-    rdc.command[ 10 ] = DVD_INVALIDATE_AGID | (*pi_agid << 6);
+    rdc.command[ 10 ] = DVDCSS_INVALIDATE_AGID | (*pi_agid << 6);
 
     i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
 
 #elif defined( HPUX_SCTL_IO )
     INIT_SCTL_IO( GPCMD_REPORT_KEY, 0 );
 
-    sctl_io.cdb[ 10 ] = DVD_INVALIDATE_AGID | (*pi_agid << 6);
+    sctl_io.cdb[ 10 ] = DVDCSS_INVALIDATE_AGID | (*pi_agid << 6);
 
     i_ret = ioctl( i_fd, SIOC_IO, &sctl_io );
 
 #elif defined( SOLARIS_USCSI )
     INIT_USCSI( GPCMD_REPORT_KEY, 0 );
 
-    rs_cdb.cdb_opaque[ 10 ] = DVD_INVALIDATE_AGID | (*pi_agid << 6);
+    rs_cdb.cdb_opaque[ 10 ] = DVDCSS_INVALIDATE_AGID | (*pi_agid << 6);
 
     i_ret = SolarisSendUSCSI( i_fd, &sc );
 
@@ -1180,7 +1180,7 @@ int ioctl_InvalidateAgid( int i_fd, int *pi_agid )
         ssc.CDBByte[ 9 ]  = 0;
 #endif
 
-        ssc.CDBByte[ 10 ] = DVD_INVALIDATE_AGID | (*pi_agid << 6);
+        ssc.CDBByte[ 10 ] = DVDCSS_INVALIDATE_AGID | (*pi_agid << 6);
 
         i_ret = WinSendSSC( i_fd, &ssc );
     }
@@ -1189,7 +1189,7 @@ int ioctl_InvalidateAgid( int i_fd, int *pi_agid )
 
     INIT_CPT( GPCMD_REPORT_KEY, 0 );
 
-    p_cpt->cam_cdb[ 10 ] = DVD_INVALIDATE_AGID | (*pi_agid << 6);
+    p_cpt->cam_cdb[ 10 ] = DVDCSS_INVALIDATE_AGID | (*pi_agid << 6);
 
     i_ret = devctl(i_fd, DCMD_CAM_PASS_THRU, p_cpt, structSize, NULL);
 
@@ -1200,7 +1200,7 @@ int ioctl_InvalidateAgid( int i_fd, int *pi_agid )
     sdc.command[ 8 ] = 0;
     sdc.command[ 9 ] = 0;
 
-    sdc.command[ 10 ] = DVD_INVALIDATE_AGID | (*pi_agid << 6);
+    sdc.command[ 10 ] = DVDCSS_INVALIDATE_AGID | (*pi_agid << 6);
 
     i_ret = DosDevIOCtl(i_fd, IOCTL_CDROMDISK, CDROMDISK_EXECMD,
                         &sdc, sizeof(sdc), &ulParamLen,

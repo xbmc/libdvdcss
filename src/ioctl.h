@@ -177,7 +177,7 @@ typedef union dvd_authinfo dvd_authinfo;
 #define DVD_REPORT_ASF           0x05
 #define DVD_SEND_RPC             0x06
 #define DVD_REPORT_RPC           0x08
-#define DVD_INVALIDATE_AGID      0x3f
+#define DVDCSS_INVALIDATE_AGID   0x3f
 
 /*****************************************************************************
  * win32 ioctl specific
