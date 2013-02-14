@@ -117,10 +117,11 @@ AC_CHECK_HEADERS(sys/ioctl.h,[
   dnl
   dnl Solaris: sys/scsi/scsi_types.h, sys/scsi/impl/uscsi.h
   dnl
-  AC_CHECK_HEADER(sys/scsi/scsi_types.h,[
-    AC_CHECK_HEADER(sys/scsi/impl/uscsi.h,[
-      AC_DEFINE(SOLARIS_USCSI, 1, Have userspace SCSI headers.)
-    ])
+  solaris_uscsi=yes
+  AC_CHECK_HEADERS([sys/scsi/scsi_types.h, sys/scsi/impl/uscsi.h], [],
+    [solaris_uscsi=no; break;])
+  AS_IF([test "$solaris_uscsi" = "yes"], [
+    AC_DEFINE(SOLARIS_USCSI, 1, Have userspace SCSI headers.)
   ])
   dnl
   dnl HP-UX: sys/scsi.h
