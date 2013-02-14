@@ -1,6 +1,8 @@
 ACLOCAL_AMFLAGS = -I m4
 
-EXTRA_DIST = libdvdcss.spec doc/header.html doc/footer.html doc/latex/
+EXTRA_DIST = libdvdcss.spec doc/header.html doc/footer.html doc/latex/ INSTALL
+
+dist_doc_DATA = AUTHORS COPYING NEWS README
 
 lib_LTLIBRARIES = libdvdcss.la
 EXTRA_PROGRAMS = csstest dvd_region
