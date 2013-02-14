@@ -246,12 +246,11 @@ static void usage(void)
 
 int main(int argc, char *argv[])
 {
-  char device_name[FILENAME_MAX], c, set, get, region = 0;
+  char device_name[FILENAME_MAX], c, set, region = 0;
   int fd, ret;
 
   strcpy(device_name, DEFAULT_DEVICE);
   set = 0;
-  get = 1;
   while( (c = getopt(argc, argv, "d:sr:h?")) != EOF ) {
     switch( c ) {
     case 'd':
