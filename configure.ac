@@ -175,19 +175,17 @@ CC_FLAG_VISIBILITY([
 
 AM_CONDITIONAL(SYS_MSVC, test "${SYS_MSVC}" = "1")
 
-dnl
-dnl  Shall we build documentation?
-dnl
-AC_ARG_ENABLE([doc], AC_HELP_STRING([--disable-doc], [do not build API documentation with Doxygen]))
-if test "$enable_doc" != "no"; then
-  AC_PATH_PROG(DOXYGEN, doxygen, no)
-  AC_PATH_PROG(LATEX, latex, no)
-else
-  DOXYGEN="no"
-  LATEX="no"
-fi
-AM_CONDITIONAL(DOXYGEN, test "${DOXYGEN}" != "no")
-AM_CONDITIONAL(LATEX, test "${LATEX}" != "no")
+AC_ARG_ENABLE([doc],
+  AS_HELP_STRING([--disable-apidoc], [Disable building (with Doxygen) and intalling API documentation @<:@default=auto@:@>]))
+
+AC_PATH_PROG([DOXYGEN], [doxygen])
+
+AS_IF([test "x$DOXYGEN" = "x"], [
+  AS_IF([test "x$enable_apidoc" = "xyes"], [
+    AC_MSG_ERROR([You need Doxygen to build API documentation])
+  ])
+])
+AM_CONDITIONAL([APIDOC], [test "x$DOXYGEN" != "x"])
 
 AC_SUBST(DVDCSS_LDFLAGS)
 AC_OUTPUT([
@@ -195,4 +193,3 @@ AC_OUTPUT([
   doc/doxygen.cfg
   src/libdvdcss.pc
 ])
-

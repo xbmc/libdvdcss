@@ -1,6 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4
 
-EXTRA_DIST = libdvdcss.spec doc/header.html doc/footer.html doc/latex/ INSTALL
+EXTRA_DIST = libdvdcss.spec doc/header.html doc/footer.html INSTALL
 
 dist_doc_DATA = AUTHORS COPYING NEWS README ChangeLog
 
@@ -51,17 +51,26 @@ pkginclude_HEADERS = src/dvdcss/dvdcss.h
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = src/libdvdcss.pc
 
-apidoc: stamp-doxygen stamp-latex
+if APIDOC
+all-local: apidoc
+install-data-local: install-apidoc
+uninstall-hook: uninstall-apidoc
+endif
+
+apidoc: stamp-doxygen
 
 stamp-doxygen: doc/doxygen.cfg
-	cd doc && $(DOXYGEN) doxygen.cfg
-	touch $@
-
-stamp-latex: stamp-doxygen
-if LATEX
-	$(MAKE) -C doc/latex ps
-endif
+	cd doc && doxygen doxygen.cfg
 	touch $@
 
 clean-local:
-	-rm -Rf stamp-latex stamp-doxygen doc/html doc/latex
+	-rm -Rf stamp-doxygen doc/html
+
+install-apidoc:
+	$(MKDIR_P) $(DESTDIR)$(htmldir)
+	for file in doc/html/*; do \
+		$(INSTALL_DATA) $$file "$(DESTDIR)$(htmldir)" || exit 1; \
+	done;
+
+uninstall-apidoc:
+	-rm -Rf $(DESTDIR)$(htmldir)/*.png $(DESTDIR)$(htmldir)/*.html $(DESTDIR)$(htmldir)/*.css $(DESTDIR)$(htmldir)/*.js
