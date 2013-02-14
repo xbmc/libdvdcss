@@ -21,16 +21,6 @@ libdvdcss_la_SOURCES = \
 libdvdcss_la_LDFLAGS = -version-info 3:0:1 $(DVDCSS_LDFLAGS)
 libdvdcss_la_LIBADD =
 
-if SYS_BSDI
-libdvdcss_la_SOURCES += \
-	src/bsdi_ioctl.c \
-	src/bsdi_dvd.h
-endif
-
-if SYS_BSDI_LIBDVD
-libdvdcss_la_LIBADD += -ldvd
-endif
-
 if !SYS_MSVC
 libdvdcss_la_LDFLAGS += = -no-undefined
 endif

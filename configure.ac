@@ -122,25 +122,6 @@ AC_CHECK_HEADERS(sys/ioctl.h,[
     LINUX_DVD_STRUCT=1
   ])
   dnl
-  dnl BSDI: dvd.h - may require -ldvd IF a local copy of libdvd is installed
-  dnl
-  AC_EGREP_HEADER(dvd_struct,dvd.h,[
-    AC_DEFINE(DVD_STRUCT_IN_DVD_H, 1,
-              Define if <dvd.h> defines DVD_STRUCT.)
-    SYS_BSDI_LIBDVD=1
-    LINUX_DVD_STRUCT=1
-  ],[
-    dnl
-    dnl BSDI: /sys/dev/scsi/scsi_ioctl.h, using our own libdvd
-    dnl
-    AC_CHECK_HEADERS(/sys/dev/scsi/scsi_ioctl.h,[
-      AC_DEFINE(DVD_STRUCT_IN_BSDI_DVDIOCTL_DVD_H, 1,
-                Define if <extras/BSDI_dvdioctl/dvd.h> defines DVD_STRUCT.)
-      SYS_BSDI=1
-      LINUX_DVD_STRUCT=1
-    ])
-  ])
-  dnl
   dnl Solaris: sys/scsi/scsi_types.h, sys/scsi/impl/uscsi.h
   dnl
   solaris_uscsi=yes
@@ -189,8 +170,6 @@ CC_FLAG_VISIBILITY([
   ])
 ])
 
-AM_CONDITIONAL(SYS_BSDI, test "${SYS_BSDI}" = "1")
-AM_CONDITIONAL(SYS_BSDI_LIBDVD, test "${SYS_BSDI_LIBDVD}" = "1")
 AM_CONDITIONAL(SYS_MSVC, test "${SYS_MSVC}" = "1")
 
 dnl

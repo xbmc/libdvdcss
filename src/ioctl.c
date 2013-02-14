@@ -64,9 +64,6 @@
 #ifdef DVD_STRUCT_IN_DVD_H
 #   include <dvd.h>
 #endif
-#ifdef DVD_STRUCT_IN_BSDI_DVDIOCTL_DVD_H
-#   include "bsdi_dvd.h"
-#endif
 #ifdef __BEOS__
 #   include <malloc.h>
 #   include <scsi.h>

@@ -147,7 +147,6 @@ int _dvdcss_use_ioctls( dvdcss_t dvdcss )
      * OpenBSD  needs a char device
      * NetBSD   needs a char device
      * FreeBSD  can use either the block or the char device
-     * BSD/OS   can use either the block or the char device
      */
 
     /* Check if this is a block/char device */
