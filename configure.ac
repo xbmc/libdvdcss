@@ -56,7 +56,7 @@ case x"${host_os}" in
     CFLAGS="${CFLAGS} -no-cpp-precomp"
     ;;
   x*cygwin*)
-    AC_DEFINE(WIN32, 1, Using Win32.)
+    CFLAGS="${CFLAGS} -mwin32"
     ;;
   xos2*)
     LDFLAGS="-Zbin-files"
