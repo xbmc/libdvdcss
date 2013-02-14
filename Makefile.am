@@ -1,3 +1,5 @@
+ACLOCAL_AMFLAGS = -I m4
+
 SUBDIRS = doc
 
 EXTRA_DIST = libdvdcss.spec

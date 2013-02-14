@@ -6,6 +6,7 @@ AC_CANONICAL_HOST
 
 AM_INIT_AUTOMAKE([foreign dist-bzip2 subdir-objects])
 AC_CONFIG_HEADER(config.h)
+AC_CONFIG_MACRO_DIR([m4])
 
 AC_PROG_CC
 AC_HEADER_STDC
