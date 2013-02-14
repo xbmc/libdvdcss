@@ -1,13 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = doc
-
-EXTRA_DIST = libdvdcss.spec
-
-doc-dummy:
-
-doc: doc-dummy
-	$(MAKE) -C doc
+EXTRA_DIST = libdvdcss.spec doc/header.html doc/footer.html doc/latex/
 
 lib_LTLIBRARIES = libdvdcss.la
 EXTRA_PROGRAMS = csstest dvd_region
@@ -55,3 +48,18 @@ pkginclude_HEADERS = src/dvdcss/dvdcss.h
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = src/libdvdcss.pc
+
+apidoc: stamp-doxygen stamp-latex
+
+stamp-doxygen: doc/doxygen.cfg
+	cd doc && $(DOXYGEN) doxygen.cfg
+	touch $@
+
+stamp-latex: stamp-doxygen
+if LATEX
+	$(MAKE) -C doc/latex ps
+endif
+	touch $@
+
+clean-local:
+	-rm -Rf stamp-latex stamp-doxygen doc/html doc/latex
