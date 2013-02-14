@@ -16,7 +16,7 @@ endif
 stamp-latex: stamp-doxygen
 if DOXYGEN
 if LATEX
-	cd latex && $(MAKE) $(AM_CFLAGS) ps
+	$(MAKE) -C latex ps
 	touch stamp-latex
 endif
 endif
