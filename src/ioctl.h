@@ -120,7 +120,7 @@ int ioctl_SendRPC           ( int, int );
     struct SRB_ExecSCSICmd ssc; \
     uint8_t p_buffer[ (SIZE)+1 ]; \
     memset( &ssc, 0, sizeof( struct SRB_ExecSCSICmd ) ); \
-    ssc.SRB_BufPointer = (char *)p_buffer; \
+    ssc.SRB_BufPointer = (unsigned char *)p_buffer; \
     ssc.SRB_BufLen = (SIZE); \
     WinInitSSC( &ssc, (TYPE) );
 #endif
