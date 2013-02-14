@@ -47,6 +47,9 @@ struct iovec
 
 #if !defined(WIN32) && !defined(__OS2__)
 #   define DVDCSS_RAW_OPEN
+#   define LIBC_OPEN_MODE 0
+#else
+#   define LIBC_OPEN_MODE O_BINARY
 #endif
 
 
