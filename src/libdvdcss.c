@@ -239,7 +239,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
      */
     if( psz_cache == NULL || psz_cache[0] == '\0' )
     {
-#if defined(WIN32) && !defined(__CYGWIN__)
+#if defined(_WIN32_IE) && _WIN32_IE >= 0x401
         typedef HRESULT( WINAPI *SHGETFOLDERPATH )
                        ( HWND, int, HANDLE, DWORD, LPTSTR );
 
