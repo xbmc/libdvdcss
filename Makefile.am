@@ -28,7 +28,7 @@ libdvdcss_la_SOURCES = \
 	src/error.c \
 	src/common.h
 
-libdvdcss_la_LDFLAGS = -version-info 3:0:1 $(DVDCSS_LDFLAGS)
+libdvdcss_la_LDFLAGS = -version-info $(DVDCSS_LTVERSION) $(DVDCSS_LDFLAGS)
 libdvdcss_la_LIBADD =
 
 if !SYS_MSVC

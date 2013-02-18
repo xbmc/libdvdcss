@@ -9,13 +9,44 @@ AM_MAINTAINER_MODE([enable])
 dnl Enable silent rules only when available (automake 1.11 or later).
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
+LT_INIT([win32-dll])
+
 AC_CONFIG_HEADER(config.h)
 AC_CONFIG_MACRO_DIR([m4])
 
+dnl The libtool version numbers (DVDCSS_LT_*); Don't even think about faking this!
+dnl
+dnl immediately before every release do:
+dnl ===================================
+dnl if (the interface is totally unchanged from previous release)
+dnl    DVDCSS_LT_REVISION ++;
+dnl else { /* interfaces have been added, removed or changed */
+dnl    DVDCSS_LT_REVISION = 0;
+dnl    DVDCSS_LT_CURRENT ++;
+dnl    if (any interfaces have been _added_ since last release)
+dnl       AGE ++;
+dnl    if (any interfaces have been _removed_ or _incompatibly changed_)
+dnl       AGE = 0;
+dnl }
+dnl
+dnl If you want to know more about what you are doing, here are some details:
+dnl  * DVDCSS_LT_CURRENT is the current API version
+dnl  * DVDCSS_LT_REVISION is an internal revision number which is increased when the API
+dnl    itself did not change
+dnl  * DVDCSS_LT_AGE is the number of previous API versions still supported by this library
+dnl  * libtool has its own numbering scheme, because local library numbering schemes
+dnl    are platform dependent
+dnl  * in Linux, the library will be named
+dnl    libname.so.(DVDCSS_LT_CURRENT - DVDCSS_LT_AGE).DVDCSS_LT_AGE.DVDCSS_LT_REVISION
+
+DVDCSS_LT_CURRENT=3
+DVDCSS_LT_AGE=0
+DVDCSS_LT_REVISION=1
+
+AC_SUBST([DVDCSS_LTVERSION], [$DVDCSS_LT_CURRENT:$DVDCSS_LT_AGE:$DVDCSS_LT_REVISION])
+
 AC_PROG_CC
 AC_HEADER_STDC
-
-LT_INIT([win32-dll])
 
 AC_C_CONST
 AC_C_INLINE
