@@ -12,8 +12,8 @@ See `./configure --help' for more information.
 
 
 If you got libdvdcss from its version control system, please bootstrap first:
- 
-   ./bootstrap
+
+   autoreconf -i
 
 
 Building libdvdcss
