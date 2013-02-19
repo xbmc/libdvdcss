@@ -6,13 +6,11 @@ dist_doc_DATA = AUTHORS COPYING NEWS README ChangeLog
 
 DISTCLEANFILES = ChangeLog
 
-ChangeLog: stamp-changelog
-
-stamp-changelog:
-	-git log > ChangeLog-tmp
-	test -s ChangeLog-tmp && mv ChangeLog-tmp ChangeLog
-	-rm -f ChangeLog-tmp
-	test -e ChangeLog || touch ChangeLog
+ChangeLog: $(wildcard $(srcdir)/.git/logs/HEAD)
+	-cd $(srcdir) && git log > $(abs_builddir)/$(@)-tmp
+	test -s $(@)-tmp && mv $(@)-tmp $(@)
+	-rm -f $(@)-tmp
+	test -e $(@) || touch $(@)
 
 lib_LTLIBRARIES = libdvdcss.la
 EXTRA_PROGRAMS = csstest dvd_region
