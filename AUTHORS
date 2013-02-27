@@ -1,11 +1,11 @@
 # The format of this file was inspired by the Linux kernel CREDITS file.
-# 
+#
 # Authors and contributors are listed alphabetically.
-# 
-# The fields are: name (N), email (E), web-address (W),
+#
+# The fields are: name (N), email (E), web address (W),
 # PGP key ID and fingerprint (P), description (D)
 
-N: Billy Biggs 
+N: Billy Biggs
 E: vektor@dumbterm.net
 D: libdvdcss enhancements
 
@@ -57,7 +57,7 @@ D: QNX port
 
 N: Steve Lhomme
 E: steve.lhomme@free.fr
-D: win32 improvements
+D: Windows improvements
 
 N: Christophe Massiot
 E: massiot@via.ecp.fr
@@ -81,8 +81,8 @@ D: OS/2 port
 
 N: German Tischler
 E: tanis@gaspode.franken.de
-D: FreeBSD DVD input patch
+D: FreeBSD DVD input
 
 N: Gildas Bazin
 E: gbazin@netcourrier.com
-D: various fixes to the Win32 port
+D: various fixes to the Windows port
