@@ -20,18 +20,17 @@ Running libdvdcss
 The behavior of the library can be changed by setting two environment variables:
 
   DVDCSS_METHOD={title|disc|key}: method for key decryption
-    title: decrypted title key is guessed from the encrypted sectors of
-           the stream. Thus it should work with a file as well as the
-           DVD device. But it sometimes takes too much time to decrypt a title
-           key and may even fail. With this method, the key is only checked
-           at the beginning of each title, so it won't work if the key
+    title: By default the decrypted title key is guessed from the encrypted
+           sectors of the stream. Thus it should work with a file as well as
+           the DVD device. But decrypting a title key may take too much time
+           or even fail. With the title method, the key is only checked at
+           the beginning of each title, so it will not work if the key
            changes in the middle of a title.
-    disc: the disc key is first cracked ; then all title keys can be
-          decrypted instantly, which allows us to check them often,
-    key: the same as "disc" if you don't have a file with player keys at
-         compilation time. If you do, the decryption of the disc key will
-         be faster with this method. It is the one that was used by libcss.
-         This is the default method.
+    disc:  The disc key is cracked first. Afterwards all title keys can be
+           decrypted instantly, which allows checking them often.
+    key:   The same as the "disc" method if you do not have a file with player
+           keys at compile time. If you do, disc key decryption will be faster.
+           This is the default method also employed by libcss.
   DVDCSS_VERBOSE={0|1|2}: libdvdcss verbosity
     0: no error messages, no debug messages (this is the default)
     1: only error messages
