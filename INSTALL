@@ -40,7 +40,7 @@ You have two alternatives to build libdvdcss for Win32:
 
 - on Linux, using the mingw.org or mingw-w64 cross-compilers.
 
- If you are running Debian, there is are mingw32 packages you can use.
+ If you are running Debian, there are mingw32 packages you can use.
 
  If you are cross-compiling from the Debian package, you can use the following
  commands, for example:
@@ -52,8 +52,8 @@ You have two alternatives to build libdvdcss for Win32:
 
 - natively on Windows, using MSYS + MinGW (www.mingw.org):
 
- (MSYS is a minimal build environment to compile unixish projects under
-  Windows. It provides all the common Unix tools like sh, gmake...)
+ (MSYS is a minimal build environment to compile Unixish projects under
+  Windows. It provides all the common Unix tools like sh, GNU Make...)
 
  You will need to download and install the latest MSYS and MINGW.
 
