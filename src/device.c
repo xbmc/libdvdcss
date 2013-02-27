@@ -480,7 +480,7 @@ int _dvdcss_close ( dvdcss_t dvdcss )
  *****************************************************************************/
 static int libc_open ( dvdcss_t dvdcss, char const *psz_device )
 {
-    dvdcss->i_fd = dvdcss->i_read_fd = open( psz_device, LIBC_OPEN_MODE );
+    dvdcss->i_fd = dvdcss->i_read_fd = open( psz_device, O_BINARY );
 
     if( dvdcss->i_fd == -1 )
     {

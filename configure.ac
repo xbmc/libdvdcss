@@ -52,11 +52,25 @@ AC_C_CONST
 AC_C_INLINE
 AC_TYPE_SIZE_T
 
-AC_CHECK_HEADERS(unistd.h sys/param.h sys/uio.h limits.h pwd.h errno.h)
+AC_CHECK_HEADERS([unistd.h sys/param.h sys/uio.h limits.h pwd.h]dnl
+  [errno.h sys/types.h sys/stat.h fcntl.h io.h])
+
+AC_CHECK_DECL([O_BINARY], [],
+  [AC_DEFINE([O_BINARY], [0], [Define O_BINARY if missing])],
+  [
+    #if HAVE_SYS_TYPES_H
+    # include <sys/types.h>
+    #endif
+    #if HAVE_SYS_STAT_H
+    # include <sys/stat.h>
+    #endif
+    #if HAVE_FCNTL_H
+    # include <fcntl.h>
+    #endif
+  ])
 
 AC_SYS_LARGEFILE
 
-AC_CHECK_HEADERS([sys/stat.h sys/types.h io.h])
 AC_CACHE_CHECK(
   [for posix mkdir()],
   [css_cv_mkdir_posix], [
