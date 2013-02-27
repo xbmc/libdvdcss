@@ -40,14 +40,10 @@ There are two alternative ways to build libdvdcss for Windows.
 
 - on a Linux host with the mingw.org or mingw-w64 cross-compilers:
 
- If you are running Debian, there are mingw32 packages you can use.
+  Tell configure about the compiler to use. If you run, for example, Debian or
+  Ubuntu with the mingw32 packages installed, it would be:
 
- If you are cross-compiling from the Debian package, you can use the following
- commands, for example:
-
-  ./configure --host=i586-mingw32msvc --target=i586-mingw32msvc \
-  --build=i386-linux
-
+  ./configure --host=i586-mingw32msvc
   make
 
 - natively on Windows with MSYS + MinGW (www.mingw.org):
