@@ -91,16 +91,6 @@ LIBDVDCSS_EXPORT char *   dvdcss_error ( dvdcss_t );
 
 LIBDVDCSS_EXPORT int      dvdcss_is_scrambled ( dvdcss_t );
 
-
-/*
- * Deprecated stuff.
- */
-#ifndef _DOXYGEN_SKIP_ME
-#define dvdcss_title(a,b) dvdcss_seek(a,b,DVDCSS_SEEK_KEY)
-#define dvdcss_handle dvdcss_t
-#endif
-
-
 #ifdef __cplusplus
 }
 #endif

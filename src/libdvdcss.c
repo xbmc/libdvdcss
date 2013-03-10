@@ -598,8 +598,7 @@ LIBDVDCSS_EXPORT char * dvdcss_error ( dvdcss_t dvdcss )
  * This flag is typically used when reading data from a VOB.
  *
  * If #DVDCSS_SEEK_KEY is specified, the title key will be always checked,
- * even with the "title" method. This is equivalent to using the now
- * deprecated dvdcss_title() call. This flag is typically used when seeking
+ * even with the "title" method. This flag is typically used when seeking
  * in a new title.
  */
 LIBDVDCSS_EXPORT int dvdcss_seek ( dvdcss_t dvdcss, int i_blocks, int i_flags )
@@ -798,15 +797,6 @@ LIBDVDCSS_EXPORT int dvdcss_close ( dvdcss_t dvdcss )
     free( dvdcss );
 
     return 0;
-}
-
-/*
- *  Deprecated. See dvdcss_seek().
- */
-#undef dvdcss_title
-LIBDVDCSS_EXPORT int dvdcss_title ( dvdcss_t dvdcss, int i_block )
-{
-    return _dvdcss_title( dvdcss, i_block );
 }
 
 /**
