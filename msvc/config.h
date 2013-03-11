@@ -33,7 +33,7 @@
 #define PACKAGE_NAME "libdvdcss"
 #define PACKAGE_STRING "libdvdcss 1.2.13"
 #define PACKAGE_TARNAME "libdvdcss"
-#define PACKAGE_VERSION ""
+#define PACKAGE_VERSION "1.2.13"
 /* #undef SOLARIS_USCSI */
 #define STDC_HEADERS 1
 #define VERSION "1.2.13"
