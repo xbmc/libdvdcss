@@ -112,10 +112,10 @@ case x"${host_os}" in
     ;;
   x*msvc*)
     SYS_MSVC=1
-    AC_DEFINE([_WIN32_IE], 0x0401, [Define to '0x0401' for IE 4.01 (and shell) APIs.])
+    AC_DEFINE([_WIN32_IE], 0x0500, [Define to '0x0500' for IE 5.0 (and shell) APIs.])
     ;;
   x*mingw* | *wince* | *mingwce*)
-    AC_DEFINE([_WIN32_IE], 0x0401, [Define to '0x0401' for IE 4.01 (and shell) APIs.])
+    AC_DEFINE([_WIN32_IE], 0x0500, [Define to '0x0500' for IE 5.0 (and shell) APIs.])
     ;;
   x*)
     ;;
