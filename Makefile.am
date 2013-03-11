@@ -32,7 +32,7 @@ libdvdcss_la_LDFLAGS = -version-info $(DVDCSS_LTVERSION) $(DVDCSS_LDFLAGS)
 libdvdcss_la_LIBADD =
 
 if !SYS_MSVC
-libdvdcss_la_LDFLAGS += = -no-undefined
+libdvdcss_la_LDFLAGS += -no-undefined
 endif
 
 csstest_SOURCES = test/csstest.c
