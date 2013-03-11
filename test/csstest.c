@@ -23,9 +23,6 @@ int main( int i_argc, char *ppsz_argv[] )
     unsigned int   i_sector;
     int            i_ret;
 
-    /* Print version number */
-    printf( "cool, I found libdvdcss version %s\n", dvdcss_interface_2 );
-
     /* Check for 2 arguments */
     if( i_argc != 3 )
     {

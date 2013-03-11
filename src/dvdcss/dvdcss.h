@@ -65,11 +65,6 @@ typedef struct dvdcss_s* dvdcss_t;
 #define LIBDVDCSS_EXPORT extern
 #endif
 
-/*
- * Our version number. The variable name contains the interface version.
- */
-LIBDVDCSS_EXPORT char *        dvdcss_interface_2;
-
 
 /*
  * Exported prototypes.

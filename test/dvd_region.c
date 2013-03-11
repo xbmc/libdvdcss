@@ -276,9 +276,6 @@ int main(int argc, char *argv[])
     return -1;
   }
 
-  /* Print version number */
-  printf( "found libdvdcss version %s\n", dvdcss_interface_2 );
-
   /* TODO: use dvdcss_open instead of open */
 
   if( (fd = open(device_name, O_RDONLY | O_NONBLOCK)) < 0 ) {

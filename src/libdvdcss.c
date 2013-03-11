@@ -137,18 +137,6 @@
 #endif
 
 /**
- * \brief Symbol for version checks.
- *
- * The name of this symbol contains the library major number, which makes it
- * easy to check which \e libdvdcss development headers are installed on the
- * system with tools such as autoconf.
- *
- * The variable itself contains the exact version number of the library,
- * which can be useful for specific feature needs.
- */
-char * dvdcss_interface_2 = VERSION;
-
-/**
  * \brief Open a DVD device or directory and return a dvdcss instance.
  *
  * \param psz_target a string containing the target name, for instance
