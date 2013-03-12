@@ -4,6 +4,8 @@ Changes between 1.2.13 and 1.3.0:
   * Dropped deprecated, undocumented API:
     - the function dvdcss_title()
     - the type dvdcss_handle
+  * Drop support for Windows 98 support and Windows NT 4.0
+    Windows 98 SE with IE 5.0 and Windows NT 4.0 SP4 with IE 5.0 are required
 
 
 Changes between 1.2.12 and 1.2.13:
