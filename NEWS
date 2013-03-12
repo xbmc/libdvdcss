@@ -4,68 +4,67 @@ Changes between 1.2.13 and 1.3.0:
   * Dropped deprecated, undocumented API:
     - the function dvdcss_title()
     - the type dvdcss_handle
-  * Drop support for Windows 98 support and Windows NT 4.0
-    Windows 98 SE with IE 5.0 and Windows NT 4.0 SP4 with IE 5.0 are required
+  * Drop support for Windows 98 and Windows NT 4.0.
+    Windows 98 SE with IE 5.0 and Windows NT 4.0 SP4 with IE 5.0 are required.
 
 
 Changes between 1.2.12 and 1.2.13:
 ----------------------------------
 
-  * Drop BSD/OS and Windows 95 support
-  * Rewrite most of the build system and simplify it
-  * System-dependant code cleanup
-  * Move to Git and rewrite of the history to get proper authorship
-  * Drop LaTeX documentation
-  * Fix build on various systems
-  * Fix compilation on MSVC
+  * Drop BSD/OS and Windows 95 support.
+  * Rewrite most of the build system and simplify it.
+  * System-dependent code cleanup
+  * Move to Git and rewrite the history to get proper authorship.
+  * Drop LaTeX documentation.
+  * Fix build on various systems including MSVC.
 
 
 Changes between 1.2.11 and 1.2.12:
 ----------------------------------
 
-  * fix regression on RPC-I drives handling.
+  * Fix regression with RPC-I drive handling.
 
 
 Changes between 1.2.10 and 1.2.11:
 ----------------------------------
 
-  * improvements on RPC-II handling.
-  * more robust key retrieval.
-  * fixes for MinGW compilation.
-  * fixes for OS/2 compilation.
-  * various bug fixes for small issues, memleaks, crashes and build issues.
+  * improvements with RPC-II handling
+  * more robust key retrieval
+  * fixes for MinGW compilation
+  * fixes for OS/2 compilation
+  * various bug fixes for small issues, memleaks, crashes and build problems
 
 
 Changes between 1.2.9 and 1.2.10:
 ---------------------------------
 
-  * DVD drive autodetection.
-  * new dvdcss_is_scrambled() function.
-  * various failure recovery improvements.
-  * accept "X:\" as a device name, as well as "X:".
-  * various bug fixes.
+  * DVD drive autodetection
+  * new dvdcss_is_scrambled() function
+  * various failure recovery improvements
+  * accept "X:\", as well as "X:" as device name
+  * various bug fixes
 
 Changes between 1.2.8 and 1.2.9:
 --------------------------------
 
   * more robust key caching
   * support for cache directory tags
-  * improved seeking on win32
+  * improved seeking on Win32
   * support for Solaris libsmedia library
 
 Changes between 1.2.7 and 1.2.8:
 --------------------------------
 
-  * win32 fix for encrypted DVDs.
-  * workaround for strange discs that report read errors seemingly at random.
+  * Win32 fix for encrypted DVDs
+  * workaround for strange discs that report read errors seemingly at random
 
 Changes between 1.2.6 and 1.2.7:
 --------------------------------
 
-  * activated key caching by default.
-  * fix for collisions between cached keys.
-  * packaging improvements for Debian.
-  * packaging improvements for RPM-based distributions.
+  * key caching activated by default
+  * fix for collisions between cached keys
+  * packaging improvements for Debian
+  * packaging improvements for RPM-based distributions
 
 Changes between 1.2.5 and 1.2.6:
 --------------------------------
@@ -83,7 +82,7 @@ Changes between 1.2.4 and 1.2.5:
 Changes between 1.2.3 and 1.2.4:
 --------------------------------
 
-  * administrator rights are no longer required under Windows NT/2000/XP 
+  * Administrator privileges are no longer required under Windows NT/2000/XP.
 
 Changes between 1.2.2 and 1.2.3:
 --------------------------------
