@@ -61,6 +61,8 @@
 #include "ioctl.h"
 #include "device.h"
 
+#define PSZ_KEY_SIZE (KEY_SIZE * 3)
+
 /*****************************************************************************
  * Local prototypes
  *****************************************************************************/
@@ -217,12 +219,12 @@ int _dvdcss_title ( dvdcss_t dvdcss, int i_block )
 
         if( i_fd >= 0 )
         {
-            char psz_key[KEY_SIZE * 3];
+            char psz_key[PSZ_KEY_SIZE];
             unsigned int k0, k1, k2, k3, k4;
 
-            psz_key[KEY_SIZE * 3 - 1] = '\0';
+            psz_key[PSZ_KEY_SIZE - 1] = '\0';
 
-            if( read( i_fd, psz_key, KEY_SIZE * 3 - 1 ) == KEY_SIZE * 3 - 1
+            if( read( i_fd, psz_key, PSZ_KEY_SIZE - 1 ) == PSZ_KEY_SIZE - 1
                  && sscanf( psz_key, "%x:%x:%x:%x:%x",
                             &k0, &k1, &k2, &k3, &k4 ) == 5 )
             {
@@ -266,13 +268,13 @@ int _dvdcss_title ( dvdcss_t dvdcss, int i_block )
         i_fd = open( dvdcss->psz_cachefile, O_RDWR|O_CREAT, 0644 );
         if( i_fd >= 0 )
         {
-            char psz_key[KEY_SIZE * 3 + 2];
+            char psz_key[PSZ_KEY_SIZE + 2];
 
             sprintf( psz_key, "%02x:%02x:%02x:%02x:%02x\r\n",
                               p_title_key[0], p_title_key[1], p_title_key[2],
                               p_title_key[3], p_title_key[4] );
 
-            write( i_fd, psz_key, KEY_SIZE * 3 + 1 );
+            write( i_fd, psz_key, PSZ_KEY_SIZE + 1 )
             close( i_fd );
         }
     }
