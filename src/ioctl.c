@@ -922,12 +922,13 @@ int ioctl_ReportASF( int i_fd, int *pi_remove_me, int *pi_asf )
         DWORD tmp;
         uint8_t buffer[DVD_ASF_LENGTH] = { 0 };
         PDVD_COPY_PROTECT_KEY key = (PDVD_COPY_PROTECT_KEY) &buffer;
+        PDVD_ASF keyData;
 
         key->KeyLength  = DVD_ASF_LENGTH;
         key->KeyType    = DvdAsf;
         key->KeyFlags   = 0;
 
-        PDVD_ASF keyData = (PDVD_ASF)key->KeyData;
+        keyData = (PDVD_ASF)key->KeyData;
         keyData->SuccessFlag = *pi_asf;
 
         i_ret = DeviceIoControl( (HANDLE) i_fd, IOCTL_DVD_READ_KEY, key,
@@ -1569,6 +1570,7 @@ int ioctl_ReportRPC( int i_fd, int *p_type, int *p_mask, int *p_scheme )
         DWORD tmp;
         uint8_t buffer[DVD_RPC_KEY_LENGTH] = { 0 };
         PDVD_COPY_PROTECT_KEY key = (PDVD_COPY_PROTECT_KEY) &buffer;
+        PDVD_RPC_KEY keyData;
 
         key->KeyLength  = DVD_RPC_KEY_LENGTH;
         key->KeyType    = DvdGetRpcKey;
@@ -1582,7 +1584,7 @@ int ioctl_ReportRPC( int i_fd, int *p_type, int *p_mask, int *p_scheme )
             return i_ret;
         }
 
-        PDVD_RPC_KEY keyData = (PDVD_RPC_KEY)key->KeyData;
+        keyData = (PDVD_RPC_KEY)key->KeyData;
         *p_type = keyData->TypeCode;
         *p_mask = keyData->RegionMask;
         *p_scheme = keyData->RpcScheme;
