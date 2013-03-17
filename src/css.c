@@ -274,7 +274,7 @@ int _dvdcss_title ( dvdcss_t dvdcss, int i_block )
                               p_title_key[0], p_title_key[1], p_title_key[2],
                               p_title_key[3], p_title_key[4] );
 
-            if(write( i_fd, psz_key, PSZ_KEY_SIZE + 1 ) < PSZ_KEY_SIZE + 1 )
+            if( write( i_fd, psz_key, PSZ_KEY_SIZE + 1 ) < PSZ_KEY_SIZE + 1 )
             {
                 print_error( dvdcss,
                              "Error caching key on disk, continuing..\n" );
