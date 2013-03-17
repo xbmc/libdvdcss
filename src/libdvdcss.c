@@ -378,7 +378,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
         if( i_fd >= 0 )
         {
             size_t len = strlen(psz_tag);
-            if( write( i_fd, psz_tag, len ) < len )
+            if( write( i_fd, psz_tag, len ) < (long)len )
             {
                 print_error( dvdcss,
                              "Error writing cache directory tag, continuing..\n" );
