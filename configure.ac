@@ -106,6 +106,7 @@ case x"${host_os}" in
     ;;
   x*cygwin*)
     CFLAGS="${CFLAGS} -mwin32"
+    AC_DEFINE([_WIN32_IE], 0x0500, [Define to '0x0500' for IE 5.0 (and shell) APIs.])
     ;;
   xos2*)
     LDFLAGS="-Zbin-files"
