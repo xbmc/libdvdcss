@@ -31,12 +31,12 @@
 #define PACKAGE "libdvdcss"
 #define PACKAGE_BUGREPORT ""
 #define PACKAGE_NAME "libdvdcss"
-#define PACKAGE_STRING "libdvdcss 1.2.13"
+#define PACKAGE_STRING "libdvdcss 1.3.0"
 #define PACKAGE_TARNAME "libdvdcss"
-#define PACKAGE_VERSION "1.2.13"
+#define PACKAGE_VERSION "1.3.0"
 /* #undef SOLARIS_USCSI */
 #define STDC_HEADERS 1
-#define VERSION "1.2.13"
+#define VERSION "1.3.0"
 #define _WIN32_IE 0x0500
 /* #undef const */
 /* #undef inline */

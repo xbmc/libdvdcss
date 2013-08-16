@@ -1,4 +1,4 @@
-AC_INIT(libdvdcss, 1.2.13)
+AC_INIT(libdvdcss, 1.3.0)
 AC_CONFIG_SRCDIR([src/libdvdcss.c])
 
 AC_PREREQ(2.50)
