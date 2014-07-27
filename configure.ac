@@ -213,7 +213,7 @@ AC_CHECK_HEADERS(sys/ioctl.h,[
   fi
 ])
 
-CC_CHECK_CFLAGS_APPEND([-Wall -Wsign-compare])
+CC_CHECK_CFLAGS_APPEND([-Wall -Wsign-compare -Wextra])
 CC_FLAG_VISIBILITY([
   CC_ATTRIBUTE_VISIBILITY([default], [
     CFLAGS="${CFLAGS} -fvisibility=hidden"
