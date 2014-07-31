@@ -4,7 +4,7 @@ EXTRA_DIST = msvc libdvdcss.spec doc/header.html doc/footer.html INSTALL
 
 dist_doc_DATA = AUTHORS COPYING NEWS README ChangeLog
 
-DISTCLEANFILES = ChangeLog
+MAINTAINERCLEANFILES = ChangeLog
 
 ChangeLog: $(wildcard $(srcdir)/.git/logs/HEAD)
 	-cd $(srcdir) && git log > $(abs_builddir)/$(@)-tmp
