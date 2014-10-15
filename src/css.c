@@ -1651,15 +1651,6 @@ static int AttackPattern( uint8_t const p_sec[ DVDCSS_BLOCK_SIZE ],
                       &p_sec[ 0x80 - (i_best_plen / i_best_p) * i_best_p ],
                       &p_sec[0x54] /* key_seed */, p_key );
         i_success += ( res >= 0 );
-#if 0
-        if( res >= 0 )
-        {
-            fprintf( stderr, "key is %02x:%02x:%02x:%02x:%02x ",
-                     p_key[0], p_key[1], p_key[2], p_key[3], p_key[4] );
-            fprintf( stderr, "at block %5d pattern len %3d period %3d %s\n",
-                     i_pos, i_best_plen, i_best_p, (res>=0?"y":"n") );
-        }
-#endif
         return ( res >= 0 );
     }
 
@@ -1732,15 +1723,6 @@ static int AttackPadding( uint8_t const p_sec[ DVDCSS_BLOCK_SIZE ],
     if( p_sec[0x11] == 0xe0 )
     {
         i_tries++;
-    }
-
-    if( 1 )
-    {
-        /*fprintf( stderr, "key is %02x:%02x:%02x:%02x:%02x ",
-                   p_key[0], p_key[1], p_key[2], p_key[3], p_key[4] );*/
-        fprintf( stderr, "at block %5d padding len %4d "
-                 "type %02x sub %02x\n",  i_pos, i_pes_length,
-                 p_sec[0x11], p_sec[0x17 + p_sec[0x16]]);
     }
 
     return 0;
