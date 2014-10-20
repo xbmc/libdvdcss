@@ -178,7 +178,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
     dvdcss->i_raw_fd = -1;
 #endif
     dvdcss->p_titles = NULL;
-    dvdcss->psz_device = (char *)strdup( psz_target );
+    dvdcss->psz_device = strdup( psz_target );
     dvdcss->psz_error = "no error";
     dvdcss->i_method = DVDCSS_METHOD_KEY;
     dvdcss->psz_cachefile[0] = '\0';
