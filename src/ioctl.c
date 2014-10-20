@@ -852,7 +852,7 @@ int ioctl_ReportChallenge( int i_fd, int *pi_agid, uint8_t *p_challenge )
 /*****************************************************************************
  * ioctl_ReportASF: get ASF from the drive
  *****************************************************************************/
-int ioctl_ReportASF( int i_fd, int *pi_remove_me, int *pi_asf )
+int ioctl_ReportASF( int i_fd, int *pi_asf )
 {
     int i_ret;
 

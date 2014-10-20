@@ -29,7 +29,7 @@ int ioctl_ReadTitleKey      ( int, int *, int, uint8_t * );
 int ioctl_ReportAgid        ( int, int * );
 int ioctl_ReportChallenge   ( int, int *, uint8_t * );
 int ioctl_ReportKey1        ( int, int *, uint8_t * );
-int ioctl_ReportASF         ( int, int *, int * );
+int ioctl_ReportASF         ( int, int * );
 int ioctl_InvalidateAgid    ( int, int * );
 int ioctl_SendChallenge     ( int, int *, uint8_t * );
 int ioctl_SendKey2          ( int, int *, uint8_t * );

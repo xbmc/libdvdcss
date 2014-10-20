@@ -739,7 +739,7 @@ static int GetASF( dvdcss_t dvdcss )
 {
     int i_asf = 0;
 
-    if( ioctl_ReportASF( dvdcss->i_fd, NULL, &i_asf ) != 0 )
+    if( ioctl_ReportASF( dvdcss->i_fd, &i_asf ) != 0 )
     {
         /* The ioctl process has failed */
         print_error( dvdcss, "GetASF fatal error" );
