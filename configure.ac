@@ -239,6 +239,7 @@ AM_CONDITIONAL([APIDOC], [test "x$DOXYGEN" != "x"])
 AC_SUBST(DVDCSS_LDFLAGS)
 AC_OUTPUT([
   Makefile
+  libdvdcss.spec
   doc/doxygen.cfg
   src/libdvdcss.pc
 ])

@@ -10,6 +10,7 @@
 /depcomp
 /install-sh
 /libdvdcss.la
+/libdvdcss.spec
 /libdvdcss*.tar.*
 /libtool
 /ltmain.sh
