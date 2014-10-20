@@ -24,6 +24,12 @@
 #ifndef DVDCSS_LIBDVDCSS_H
 #define DVDCSS_LIBDVDCSS_H
 
+#include "config.h"
+
+#ifdef HAVE_LIMITS_H
+#   include <limits.h>
+#endif
+
 #include "dvdcss/dvdcss.h"
 #include "css.h"
 #include "device.h"

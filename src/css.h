@@ -29,6 +29,7 @@
 #ifndef DVDCSS_CSS_H
 #define DVDCSS_CSS_H
 
+#include "common.h"
 #include "dvdcss/dvdcss.h"
 
 #define KEY_SIZE 5

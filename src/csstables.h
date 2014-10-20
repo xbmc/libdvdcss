@@ -31,6 +31,8 @@
 #ifndef DVDCSS_CSSTABLES_H
 #define DVDCSS_CSSTABLES_H
 
+#include "common.h"
+
 static const uint8_t p_css_tab1[ 256 ] =
 {
     0x33, 0x73, 0x3b, 0x26, 0x63, 0x23, 0x6b, 0x76,

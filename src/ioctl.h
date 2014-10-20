@@ -23,6 +23,8 @@
 #ifndef DVDCSS_IOCTL_H
 #define DVDCSS_IOCTL_H
 
+#include "common.h"
+
 int ioctl_ReadCopyright     ( int, int, int * );
 int ioctl_ReadDiscKey       ( int, int *, uint8_t * );
 int ioctl_ReadTitleKey      ( int, int *, int, uint8_t * );
