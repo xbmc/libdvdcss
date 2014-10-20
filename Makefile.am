@@ -57,7 +57,7 @@ endif
 
 apidoc: stamp-doxygen
 
-stamp-doxygen: doc/doxygen.cfg
+stamp-doxygen: doc/doxygen.cfg src/libdvdcss.c src/dvdcss/dvdcss.h
 	cd doc && doxygen doxygen.cfg
 	touch $@
 
