@@ -83,9 +83,9 @@ static int  RecoverTitleKey ( int, uint8_t const *,
                               uint8_t const *, uint8_t const *, uint8_t * );
 static int  CrackTitleKey   ( dvdcss_t, int, int, dvd_key_t );
 
-static int  AttackPattern   ( uint8_t const[], int, uint8_t * );
+static int  AttackPattern   ( uint8_t const[], uint8_t * );
 #if 0
-static int  AttackPadding   ( uint8_t const[], int, uint8_t * );
+static int  AttackPadding   ( uint8_t const[] );
 #endif
 
 static int  _dvdcss_titlekey    ( dvdcss_t, int , dvd_key_t );
@@ -1553,12 +1553,12 @@ static int CrackTitleKey( dvdcss_t dvdcss, int i_pos, int i_len,
         {
             i_encrypted++;
 
-            if( AttackPattern(p_buf, i_reads, p_titlekey) > 0 )
+            if( AttackPattern( p_buf, p_titlekey ) > 0 )
             {
                 b_stop_scanning = 1;
             }
 #if 0
-            if( AttackPadding(p_buf, i_reads, p_titlekey) > 0 )
+            if( AttackPadding( p_buf ) > 0 )
             {
                 b_stop_scanning = 1;
             }
@@ -1615,7 +1615,7 @@ static int CrackTitleKey( dvdcss_t dvdcss, int i_pos, int i_len,
  * a continuation of that pattern.
  *****************************************************************************/
 static int AttackPattern( uint8_t const p_sec[ DVDCSS_BLOCK_SIZE ],
-                          int i_pos, uint8_t *p_key )
+                          uint8_t *p_key )
 {
     unsigned int i_best_plen = 0;
     unsigned int i_best_p = 0;
@@ -1671,8 +1671,7 @@ static int AttackPattern( uint8_t const p_sec[ DVDCSS_BLOCK_SIZE ],
  * Padding stream. This looks like 0x00 00 01 be xx xx ff ff ...
  * where xx xx is the length of the padding stream.
  *****************************************************************************/
-static int AttackPadding( uint8_t const p_sec[ DVDCSS_BLOCK_SIZE ],
-                          int i_pos, uint8_t *p_key )
+static int AttackPadding( uint8_t const p_sec[ DVDCSS_BLOCK_SIZE ] )
 {
     unsigned int i_pes_length;
     /*static int i_tries = 0, i_success = 0;*/
