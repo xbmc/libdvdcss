@@ -13,7 +13,7 @@ ChangeLog: $(wildcard $(srcdir)/.git/logs/HEAD)
 	test -e $(@) || touch $(@)
 
 lib_LTLIBRARIES = libdvdcss.la
-EXTRA_PROGRAMS = csstest dvd_region
+EXTRA_PROGRAMS = test/csstest test/dvd_region
 
 libdvdcss_la_SOURCES = \
 	src/libdvdcss.c \
@@ -35,13 +35,13 @@ if !SYS_MSVC
 libdvdcss_la_LDFLAGS += -no-undefined
 endif
 
-csstest_SOURCES = test/csstest.c
-csstest_LDADD = libdvdcss.la
-csstest_CFLAGS = -I $(top_srcdir)/src
+test_csstest_SOURCES = test/csstest.c
+test_csstest_LDADD = libdvdcss.la
+test_csstest_CFLAGS = -I $(top_srcdir)/src
 
-dvd_region_SOURCES = test/dvd_region.c src/ioctl.c
-dvd_region_LDADD = libdvdcss.la
-dvd_region_CFLAGS = -I $(top_srcdir)/src
+test_dvd_region_SOURCES = test/dvd_region.c src/ioctl.c
+test_dvd_region_LDADD = libdvdcss.la
+test_dvd_region_CFLAGS = -I $(top_srcdir)/src
 
 pkgincludedir = $(includedir)/dvdcss
 pkginclude_HEADERS = src/dvdcss/dvdcss.h

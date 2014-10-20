@@ -1,5 +1,4 @@
 .deps
-/*.exe
 /*.la
 /.auto
 /.libs
@@ -11,9 +10,7 @@
 /compile
 /config.*
 /configure
-/csstest
 /depcomp
-/dvd_region
 /install-sh
 /libdvdcss*.tar.bz2
 /libdvdcss*.tar.gz
@@ -30,5 +27,9 @@
 /src/.dirstamp
 /src/.libs
 /src/libdvdcss.pc
+/test/*.exe
 /test/*.o
 /test/.dirstamp
+/test/.libs
+/test/csstest
+/test/dvd_region
