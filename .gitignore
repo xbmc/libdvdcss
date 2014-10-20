@@ -28,4 +28,7 @@
 /src/*.lo
 /src/*.o
 /src/.dirstamp
+/src/.libs
 /src/libdvdcss.pc
+/test/*.o
+/test/.dirstamp
