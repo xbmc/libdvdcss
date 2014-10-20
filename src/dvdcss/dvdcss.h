@@ -2,10 +2,10 @@
  * \file dvdcss.h
  * \author Stéphane Borel <stef@via.ecp.fr>
  * \author Sam Hocevar <sam@zoy.org>
+ *
  * \brief The \e libdvdcss public header.
  *
- * This header contains the public types and functions that applications
- * using \e libdvdcss may use.
+ * Public types and functions that describe the API of the \e libdvdcss library.
  */
 
 /*

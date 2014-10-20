@@ -31,14 +31,14 @@ Conflicts:      libdvdcss0.0.1, libdvdcss0.0.2
 %description
 libdvdcss is a simple library designed for accessing DVDs like a block device
 without having to bother about the decryption. The important features are:
- * Portability: currently supported platforms are GNU/Linux, FreeBSD, NetBSD,
+ * Portability: Currently supported platforms are GNU/Linux, FreeBSD, NetBSD,
    OpenBSD, BeOS, Windows 98/ME, Windows NT/2000/XP, Mac OS X, Solaris,
    HP-UX and OS/2.
- * Adaptability: unlike most similar projects, libdvdcss doesn't require the
+ * Adaptability: Unlike most similar projects, libdvdcss does not require the
    region of your drive to be set and will try its best to read from the disc
    even in the case of a region mismatch.
- * Simplicity: a DVD player can be built around the libdvdcss API using no
-   more than 6 library calls.
+ * Simplicity: A DVD player can be built around the libdvdcss API using no
+   more than 4 or 5 library calls.
 
 %package -n %{libname}
 Summary:        Library for accessing DVDs like block devices with transparent decryption
@@ -48,14 +48,14 @@ Provides:       %name = %version-%release
 %description -n %{libname}
 libdvdcss is a simple library designed for accessing DVDs like a block device
 without having to bother about the decryption. The important features are:
- * Portability: currently supported platforms are GNU/Linux, FreeBSD, NetBSD,
+ * Portability: Currently supported platforms are GNU/Linux, FreeBSD, NetBSD,
    OpenBSD, BeOS, Windows 98/ME, Windows NT/2000/XP, Mac OS X, Solaris,
    HP-UX and OS/2.
- * Adaptability: unlike most similar projects, libdvdcss doesn't require the
+ * Adaptability: Unlike most similar projects, libdvdcss does not require the
    region of your drive to be set and will try its best to read from the disc
    even in the case of a region mismatch.
- * Simplicity: a DVD player can be built around the libdvdcss API using no
-   more than 6 library calls.
+ * Simplicity: A DVD player can be built around the libdvdcss API using no
+   more than 4 or 5 library calls.
 
 %package -n %{libname}-devel
 Summary:        Development tools for programs which will use the %{name} library
@@ -69,7 +69,7 @@ necessary for developing programs which will manipulate DVDs files using
 the %{name} library.
 
 If you are going to develop programs which will manipulate DVDs, you
-should install %{name}-devel.  You'll also need to have the %{name}
+should install %{name}-devel.  You will also need to have the %{name}
 package installed.
 
 %prep
@@ -150,7 +150,7 @@ package installed.
 - major version is 2 (aka guillaume sux).
 - spec clean up: do not rm in %%prep, %%buildroot, %%makeinstall_std, %%provides %%version-%%release
 - added doc in devel
-- sync with CVS's one (%%description,%%files, conflicts).
+- sync with the CVS one (%%description,%%files, conflicts).
 - fix URL
 
 * Sat Apr 06 2002 Guillaume Rousse <rousse@ccr.jussieu.fr> 1.1.1-1plf
