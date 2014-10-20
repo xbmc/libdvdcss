@@ -1,6 +1,3 @@
-.deps
-/*.la
-/.auto
 /.libs
 /ChangeLog
 /Makefile
@@ -12,8 +9,8 @@
 /configure
 /depcomp
 /install-sh
-/libdvdcss*.tar.bz2
-/libdvdcss*.tar.gz
+/libdvdcss.la
+/libdvdcss*.tar.*
 /libtool
 /ltmain.sh
 /missing
@@ -24,11 +21,13 @@
 /m4/lt*.m4
 /src/*.lo
 /src/*.o
+/src/.deps
 /src/.dirstamp
 /src/.libs
 /src/libdvdcss.pc
 /test/*.exe
 /test/*.o
+/test/.deps
 /test/.dirstamp
 /test/.libs
 /test/csstest
