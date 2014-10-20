@@ -181,14 +181,6 @@ AC_CHECK_HEADERS(sys/ioctl.h,[
     AC_DEFINE(SOLARIS_USCSI, 1, Have userspace SCSI headers.)
   ])
   dnl
-  dnl HP-UX: sys/scsi.h
-  dnl
-  AC_CHECK_HEADER(sys/scsi.h,[
-    AC_EGREP_HEADER(sctl_io,sys/scsi.h,[
-      AC_DEFINE(HPUX_SCTL_IO, 1, Define if <sys/scsi.h> defines sctl_io.)
-    ])
-  ])
-  dnl
   dnl Darwin
   dnl
   AC_CHECK_HEADER(IOKit/storage/IODVDMediaBSDClient.h,[

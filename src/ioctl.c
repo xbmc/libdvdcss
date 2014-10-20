@@ -68,9 +68,6 @@
 #   include <malloc.h>
 #   include <scsi.h>
 #endif
-#ifdef HPUX_SCTL_IO
-#   include <sys/scsi.h>
-#endif
 #ifdef SOLARIS_USCSI
 #   include <dlfcn.h>
 #   include <unistd.h>
@@ -95,13 +92,6 @@
  *****************************************************************************/
 #if defined( __BEOS__ )
 static void BeInitRDC ( raw_device_command *, int );
-#endif
-
-/*****************************************************************************
- * Local prototypes, HP-UX specific
- *****************************************************************************/
-#if defined( HPUX_SCTL_IO )
-static void HPUXInitSCTL ( struct sctl_io *sctl_io, int i_type );
 #endif
 
 /*****************************************************************************
@@ -169,16 +159,6 @@ int ioctl_ReadCopyright( int i_fd, int i_layer, int *pi_copyright )
     rdc.command[ 7 ] = DVD_STRUCT_COPYRIGHT;
 
     i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
-
-    *pi_copyright = p_buffer[ 4 ];
-
-#elif defined( HPUX_SCTL_IO )
-    INIT_SCTL_IO( GPCMD_READ_DVD_STRUCTURE, 8 );
-
-    sctl_io.cdb[ 6 ] = i_layer;
-    sctl_io.cdb[ 7 ] = DVD_STRUCT_COPYRIGHT;
-
-    i_ret = ioctl( i_fd, SIOC_IO, &sctl_io );
 
     *pi_copyright = p_buffer[ 4 ];
 
@@ -314,21 +294,6 @@ int ioctl_ReadDiscKey( int i_fd, int *pi_agid, uint8_t *p_key )
     rdc.command[ 10 ] = *pi_agid << 6;
 
     i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
-
-    if( i_ret < 0 )
-    {
-        return i_ret;
-    }
-
-    memcpy( p_key, p_buffer + 4, DVD_DISCKEY_SIZE );
-
-#elif defined( HPUX_SCTL_IO )
-    INIT_SCTL_IO( GPCMD_READ_DVD_STRUCTURE, DVD_DISCKEY_SIZE + 4 );
-
-    sctl_io.cdb[ 7 ]  = DVD_STRUCT_DISCKEY;
-    sctl_io.cdb[ 10 ] = *pi_agid << 6;
-
-    i_ret = ioctl( i_fd, SIOC_IO, &sctl_io );
 
     if( i_ret < 0 )
     {
@@ -479,19 +444,6 @@ int ioctl_ReadTitleKey( int i_fd, int *pi_agid, int i_pos, uint8_t *p_key )
 
     memcpy( p_key, p_buffer + 5, DVD_KEY_SIZE );
 
-#elif defined( HPUX_SCTL_IO )
-    INIT_SCTL_IO( GPCMD_REPORT_KEY, 12 );
-
-    sctl_io.cdb[ 2 ] = ( i_pos >> 24 ) & 0xff;
-    sctl_io.cdb[ 3 ] = ( i_pos >> 16 ) & 0xff;
-    sctl_io.cdb[ 4 ] = ( i_pos >>  8 ) & 0xff;
-    sctl_io.cdb[ 5 ] = ( i_pos       ) & 0xff;
-    sctl_io.cdb[ 10 ] = DVD_REPORT_TITLE_KEY | (*pi_agid << 6);
-
-    i_ret = ioctl( i_fd, SIOC_IO, &sctl_io );
-
-    memcpy( p_key, p_buffer + 5, DVD_KEY_SIZE );
-
 #elif defined( SOLARIS_USCSI )
     INIT_USCSI( GPCMD_REPORT_KEY, 12 );
 
@@ -635,15 +587,6 @@ int ioctl_ReportAgid( int i_fd, int *pi_agid )
 
     *pi_agid = p_buffer[ 7 ] >> 6;
 
-#elif defined( HPUX_SCTL_IO )
-    INIT_SCTL_IO( GPCMD_REPORT_KEY, 8 );
-
-    sctl_io.cdb[ 10 ] = DVD_REPORT_AGID | (*pi_agid << 6);
-
-    i_ret = ioctl( i_fd, SIOC_IO, &sctl_io );
-
-    *pi_agid = p_buffer[ 7 ] >> 6;
-
 #elif defined( SOLARIS_USCSI )
     INIT_USCSI( GPCMD_REPORT_KEY, 8 );
 
@@ -752,15 +695,6 @@ int ioctl_ReportChallenge( int i_fd, int *pi_agid, uint8_t *p_challenge )
     rdc.command[ 10 ] = DVD_REPORT_CHALLENGE | (*pi_agid << 6);
 
     i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
-
-    memcpy( p_challenge, p_buffer + 4, DVD_CHALLENGE_SIZE );
-
-#elif defined( HPUX_SCTL_IO )
-    INIT_SCTL_IO( GPCMD_REPORT_KEY, 16 );
-
-    sctl_io.cdb[ 10 ] = DVD_REPORT_CHALLENGE | (*pi_agid << 6);
-
-    i_ret = ioctl( i_fd, SIOC_IO, &sctl_io );
 
     memcpy( p_challenge, p_buffer + 4, DVD_CHALLENGE_SIZE );
 
@@ -882,15 +816,6 @@ int ioctl_ReportASF( int i_fd, int *pi_asf )
     rdc.command[ 10 ] = DVD_REPORT_ASF;
 
     i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
-
-    *pi_asf = p_buffer[ 7 ] & 1;
-
-#elif defined( HPUX_SCTL_IO )
-    INIT_SCTL_IO( GPCMD_REPORT_KEY, 8 );
-
-    sctl_io.cdb[ 10 ] = DVD_REPORT_ASF;
-
-    i_ret = ioctl( i_fd, SIOC_IO, &sctl_io );
 
     *pi_asf = p_buffer[ 7 ] & 1;
 
@@ -1017,15 +942,6 @@ int ioctl_ReportKey1( int i_fd, int *pi_agid, uint8_t *p_key )
 
     memcpy( p_key, p_buffer + 4, DVD_KEY_SIZE );
 
-#elif defined( HPUX_SCTL_IO )
-    INIT_SCTL_IO( GPCMD_REPORT_KEY, 12 );
-
-    sctl_io.cdb[ 10 ] = DVD_REPORT_KEY1 | (*pi_agid << 6);
-
-    i_ret = ioctl( i_fd, SIOC_IO, &sctl_io );
-
-    memcpy( p_key, p_buffer + 4, DVD_KEY_SIZE );
-
 #elif defined( SOLARIS_USCSI )
     INIT_USCSI( GPCMD_REPORT_KEY, 12 );
 
@@ -1136,13 +1052,6 @@ int ioctl_InvalidateAgid( int i_fd, int *pi_agid )
 
     i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
 
-#elif defined( HPUX_SCTL_IO )
-    INIT_SCTL_IO( GPCMD_REPORT_KEY, 0 );
-
-    sctl_io.cdb[ 10 ] = DVDCSS_INVALIDATE_AGID | (*pi_agid << 6);
-
-    i_ret = ioctl( i_fd, SIOC_IO, &sctl_io );
-
 #elif defined( SOLARIS_USCSI )
     INIT_USCSI( GPCMD_REPORT_KEY, 0 );
 
@@ -1251,16 +1160,6 @@ int ioctl_SendChallenge( int i_fd, int *pi_agid, uint8_t *p_challenge )
     memcpy( p_buffer + 4, p_challenge, DVD_CHALLENGE_SIZE );
 
     i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
-
-#elif defined( HPUX_SCTL_IO )
-    INIT_SCTL_IO( GPCMD_SEND_KEY, 16 );
-
-    sctl_io.cdb[ 10 ] = DVD_SEND_CHALLENGE | (*pi_agid << 6);
-
-    p_buffer[ 1 ] = 0xe;
-    memcpy( p_buffer + 4, p_challenge, DVD_CHALLENGE_SIZE );
-
-    i_ret = ioctl( i_fd, SIOC_IO, &sctl_io );
 
 #elif defined( SOLARIS_USCSI )
     INIT_USCSI( GPCMD_SEND_KEY, 16 );
@@ -1384,16 +1283,6 @@ int ioctl_SendKey2( int i_fd, int *pi_agid, uint8_t *p_key )
     memcpy( p_buffer + 4, p_key, DVD_KEY_SIZE );
 
     i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
-
-#elif defined( HPUX_SCTL_IO )
-    INIT_SCTL_IO( GPCMD_SEND_KEY, 12 );
-
-    sctl_io.cdb[ 10 ] = DVD_SEND_KEY2 | (*pi_agid << 6);
-
-    p_buffer[ 1 ] = 0xa;
-    memcpy( p_buffer + 4, p_key, DVD_KEY_SIZE );
-
-    i_ret = ioctl( i_fd, SIOC_IO, &sctl_io );
 
 #elif defined( SOLARIS_USCSI )
     INIT_USCSI( GPCMD_SEND_KEY, 12 );
@@ -1520,17 +1409,6 @@ int ioctl_ReportRPC( int i_fd, int *p_type, int *p_mask, int *p_scheme )
     rdc.command[ 10 ] = DVD_REPORT_RPC;
 
     i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
-
-    *p_type = p_buffer[ 4 ] >> 6;
-    *p_mask = p_buffer[ 5 ];
-    *p_scheme = p_buffer[ 6 ];
-
-#elif defined( HPUX_SCTL_IO )
-    INIT_SCTL_IO( GPCMD_REPORT_KEY, 8 );
-
-    sctl_io.cdb[ 10 ] = DVD_REPORT_RPC;
-
-    i_ret = ioctl( i_fd, SIOC_IO, &sctl_io );
 
     *p_type = p_buffer[ 4 ] >> 6;
     *p_mask = p_buffer[ 5 ];
@@ -1666,39 +1544,6 @@ static void BeInitRDC( raw_device_command *p_rdc, int i_type )
     p_rdc->sense_data_length = 0;
 
     p_rdc->timeout           = 1000000;
-}
-#endif
-
-#if defined( HPUX_SCTL_IO )
-/*****************************************************************************
- * HPUXInitSCTL: initialize a sctl_io structure for the HP-UX kernel
- *****************************************************************************
- * This function initializes a HP-UX command structure for future
- * use, either a read command or a write command.
- *****************************************************************************/
-static void HPUXInitSCTL( struct sctl_io *sctl_io, int i_type )
-{
-    memset( sctl_io->data, 0, sctl_io->data_length );
-
-    switch( i_type )
-    {
-        case GPCMD_SEND_KEY:
-            /* leave the flags to 0 */
-            break;
-
-        case GPCMD_READ_DVD_STRUCTURE:
-        case GPCMD_REPORT_KEY:
-            sctl_io->flags = SCTL_READ;
-            break;
-    }
-
-    sctl_io->cdb[ 0 ]        = i_type;
-
-    sctl_io->cdb[ 8 ]        = (sctl_io->data_length >> 8) & 0xff;
-    sctl_io->cdb[ 9 ]        =  sctl_io->data_length       & 0xff;
-    sctl_io->cdb_length      = 12;
-
-    sctl_io->max_msecs       = 1000000;
 }
 #endif
 

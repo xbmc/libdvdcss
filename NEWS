@@ -8,6 +8,7 @@ Changes between 1.2.13 and 1.3.0:
   * Drop support for Windows 98 and Windows NT 4.0.
     Windows 98 SE with IE 5.0 and Windows NT 4.0 SP4 with IE 5.0 are required.
   * Support for Android
+  * Drop support for HP-UX.
 
 
 Changes between 1.2.12 and 1.2.13:

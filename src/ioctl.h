@@ -54,18 +54,6 @@ int ioctl_ReportRPC         ( int, int *, int *, int * );
 #endif
 
 /*****************************************************************************
- * Common macro, HP-UX specific
- *****************************************************************************/
-#if defined( HPUX_SCTL_IO )
-#define INIT_SCTL_IO( TYPE, SIZE ) \
-    struct sctl_io sctl_io = { 0 }; \
-    uint8_t p_buffer[ (SIZE)+1 ]; \
-    sctl_io.data = (void *)p_buffer; \
-    sctl_io.data_length = (SIZE); \
-    HPUXInitSCTL( &sctl_io, (TYPE) );
-#endif
-
-/*****************************************************************************
  * Common macro, Solaris specific
  *****************************************************************************/
 #if defined( SOLARIS_USCSI )

@@ -65,16 +65,6 @@ static int ioctl_SendRPC( int i_fd, int i_pdrc )
 
     i_ret = ioctl( i_fd, B_RAW_DEVICE_COMMAND, &rdc, sizeof(rdc) );
 
-#elif defined( HPUX_SCTL_IO )
-    INIT_SCTL_IO( GPCMD_SEND_KEY, 8 );
-
-    sctl_io.cdb[ 10 ] = DVD_SEND_RPC;
-
-    p_buffer[ 1 ] = 6;
-    p_buffer[ 4 ] = i_pdrc;
-
-    i_ret = ioctl( i_fd, SIOC_IO, &sctl_io );
-
 #elif defined( SOLARIS_USCSI )
     INIT_USCSI( GPCMD_SEND_KEY, 8 );
 

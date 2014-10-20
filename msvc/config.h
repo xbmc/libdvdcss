@@ -27,7 +27,6 @@
 #define HAVE_WINDOWS_H 1
 #define HAVE_WINIOCTL_H 1
 /* #undef HAVE__SYS_DEV_SCSI_SCSI_IOCTL_H */
-/* #undef HPUX_SCTL_IO */
 #define PACKAGE "libdvdcss"
 #define PACKAGE_BUGREPORT ""
 #define PACKAGE_NAME "libdvdcss"
