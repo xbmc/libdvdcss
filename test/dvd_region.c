@@ -31,6 +31,10 @@ static int ioctl_SendRPC( int i_fd, int i_pdrc )
 {
     int i_ret;
 
+    /* Shut up warnings about unused parameters. */
+    (void)i_fd;
+    (void)i_pdrc;
+
 #if defined( HAVE_LINUX_DVD_STRUCT ) && defined( DVD_HOST_SEND_RPC_STATE )
     dvd_authinfo auth_info = { 0 };
 
