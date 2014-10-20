@@ -632,7 +632,7 @@ LIBDVDCSS_EXPORT int dvdcss_read ( dvdcss_t dvdcss, void *p_buffer,
                 /* or fail completely? return 0; */
                 break;
             }
-            p_buffer = (void *) ((uint8_t *)p_buffer + DVDCSS_BLOCK_SIZE);
+            p_buffer = (uint8_t *)p_buffer + DVDCSS_BLOCK_SIZE;
         }
     }
     else
@@ -642,7 +642,7 @@ LIBDVDCSS_EXPORT int dvdcss_read ( dvdcss_t dvdcss, void *p_buffer,
         {
             _dvdcss_unscramble( dvdcss->css.p_title_key, p_buffer );
             ((uint8_t*)p_buffer)[0x14] &= 0x8f;
-            p_buffer = (void *) ((uint8_t *)p_buffer + DVDCSS_BLOCK_SIZE);
+            p_buffer = (uint8_t *)p_buffer + DVDCSS_BLOCK_SIZE;
         }
     }
 

@@ -635,7 +635,7 @@ static int aspi_open( dvdcss_t dvdcss, char const * psz_device )
                 }
                 else
                 {
-                    free( (void*) fd );
+                    free( fd );
                     FreeLibrary( hASPI );
                     print_error( dvdcss,"this is not a CD-ROM drive" );
                     return -1;
