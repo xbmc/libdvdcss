@@ -1,8 +1,8 @@
-%define name 	libdvdcss
-%define version	1.2.9
-%define release	1
+%define name    libdvdcss
+%define version 1.2.9
+%define release 1
 
-%define major  	2
+%define major   2
 %define libname %{name}%{major}
 
 %define buildfor_rh9 %([[ -e /etc/mandrake-release ]] && echo 0 || echo 1)
@@ -16,17 +16,17 @@
 %endif
 
 
-Name:		%{name}
-Version:	%{version}
-Release:	%{release}
+Name:           %{name}
+Version:        %{version}
+Release:        %{release}
 Summary:        Library for accessing DVDs like block devices with transparent decryption
-Source:		%{name}-%{version}.tar.bz2
-License:	GPL
-Group:		System/Libraries
-URL:		http://www.videolan.org/libdvdcss/
-Packager:	Yves Duret <yves@zarb.org>
-BuildRoot:	%_tmppath/%name-%version-%release-root
-Conflicts:	libdvdcss0.0.1, libdvdcss0.0.2
+Source:         %{name}-%{version}.tar.bz2
+License:        GPL
+Group:          System/Libraries
+URL:            http://www.videolan.org/libdvdcss/
+Packager:       Yves Duret <yves@zarb.org>
+BuildRoot:      %_tmppath/%name-%version-%release-root
+Conflicts:      libdvdcss0.0.1, libdvdcss0.0.2
 
 %description
 libdvdcss is a simple library designed for accessing DVDs like a block device
@@ -60,14 +60,14 @@ without having to bother about the decryption. The important features are:
 %package -n %{libname}-devel
 Summary:        Development tools for programs which will use the %{name} library
 Group:          Development/C
-Requires:	%{libname} = %version-%release
+Requires:       %{libname} = %version-%release
 Provides:       %{name}-devel = %version-%release
- 
+
 %description -n %{libname}-devel
 The %{name}-devel package includes the header files and static libraries
 necessary for developing programs which will manipulate DVDs files using
 the %{name} library.
- 
+
 If you are going to develop programs which will manipulate DVDs, you
 should install %{name}-devel.  You'll also need to have the %{name}
 package installed.
@@ -86,7 +86,7 @@ package installed.
 [ %buildroot != "/" ] && rm -Rf %buildroot
 
 %post -n %{libname} -p /sbin/ldconfig
- 
+
 %postun -n %{libname} -p /sbin/ldconfig
 
 %files -n %{libname}
@@ -156,7 +156,7 @@ package installed.
 * Sat Apr 06 2002 Guillaume Rousse <rousse@ccr.jussieu.fr> 1.1.1-1plf
 - 1.1.1
 
-* Wed Jan 30 2002 Guillaume Rousse <rousse@ccr.jussieu.fr> 1.0.0-3plf 
+* Wed Jan 30 2002 Guillaume Rousse <rousse@ccr.jussieu.fr> 1.0.0-3plf
 - new plf extension
 
 * Wed Dec 05 2001 Guillaume Rousse <g.rousse@linux-mandrake.com> 1.0.0-3mdk

@@ -189,7 +189,7 @@ AC_CHECK_HEADERS(sys/ioctl.h,[
     ])
   ])
   dnl
-  dnl Darwin 
+  dnl Darwin
   dnl
   AC_CHECK_HEADER(IOKit/storage/IODVDMediaBSDClient.h,[
     AC_DEFINE(DARWIN_DVD_IOCTL, 1, Have IOKit DVD IOCTL headers)
@@ -199,7 +199,7 @@ AC_CHECK_HEADERS(sys/ioctl.h,[
   dnl Final tests to check what was detected
   dnl
   if test x$LINUX_DVD_STRUCT = x1; then
-    AC_DEFINE(HAVE_LINUX_DVD_STRUCT, 1, 
+    AC_DEFINE(HAVE_LINUX_DVD_STRUCT, 1,
               Define if Linux-like dvd_struct is defined.)
     if test x$OPENBSD_DVD_STRUCT = x1; then
       AC_DEFINE(HAVE_OPENBSD_DVD_STRUCT, 1,

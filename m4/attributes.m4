@@ -239,8 +239,8 @@ AC_DEFUN([CC_FLAG_VISIBILITY], [
     [cc_flag_visibility_save_CFLAGS="$CFLAGS"
      CFLAGS="$CFLAGS $cc_cv_werror"
      CC_CHECK_CFLAGS_SILENT([-fvisibility=hidden],
-	cc_cv_flag_visibility='yes',
-	cc_cv_flag_visibility='no')
+        cc_cv_flag_visibility='yes',
+        cc_cv_flag_visibility='no')
      CFLAGS="$cc_flag_visibility_save_CFLAGS"])
 
   AS_IF([test "x$cc_cv_flag_visibility" = "xyes"],
@@ -260,7 +260,7 @@ AC_DEFUN([CC_FUNC_EXPECT], [
        [int some_function() {
         int a = 3;
         return (int)__builtin_expect(a, 3);
-	}],
+        }],
        [cc_cv_func_expect=yes],
        [cc_cv_func_expect=no])
      CFLAGS="$ac_save_CFLAGS"

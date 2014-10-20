@@ -176,7 +176,7 @@ static int print_region(int fd)
   int type, region_mask, rpc_scheme;
   int region = 1;
   int ret;
-	
+
   printf("Drive region info:\n");
 
   if( (ret = ioctl_ReportRPC(fd, &type, &region_mask, &rpc_scheme)) < 0) {
@@ -194,11 +194,11 @@ static int print_region(int fd)
     break;
   case 2:
     printf("Drive region is set, with additional " \
-	   "restrictions required to make a change\n");
+           "restrictions required to make a change\n");
     break;
   case 3:
     printf("Drive region has been set permanently, but " \
-	   "may be reset by the vendor if necessary\n");
+           "may be reset by the vendor if necessary\n");
     break;
   default:
     printf("Invalid( %x)\n", type);
@@ -211,7 +211,7 @@ static int print_region(int fd)
   if( region_mask)
     while(region_mask) {
       if( !(region_mask & 1) )
-	printf("%d playable\n", region);
+        printf("%d playable\n", region);
       region++;
       region_mask >>= 1;
     }
@@ -222,12 +222,12 @@ static int print_region(int fd)
   switch( rpc_scheme ) {
   case 0:
     printf("The Logical Unit does not enforce Region " \
-	   "Playback Controls( RPC)\n");
+           "Playback Controls( RPC)\n");
     break;
   case 1:
     printf("The Logical Unit _shall_ adhere to the "
-	   "specification and all requirements of the " \
-	   "CSS license agreement concerning RPC\n");
+           "specification and all requirements of the " \
+           "CSS license agreement concerning RPC\n");
     break;
   default:
     printf("Reserved( %x)\n", rpc_scheme);
@@ -238,9 +238,9 @@ static int print_region(int fd)
 
 static void usage(void)
 {
-  fprintf( stderr, 
-	   "Usage: dvd_region [ -d device ] [ [ -s ] [ -r region ] ]\n" );
-}  
+  fprintf( stderr,
+           "Usage: dvd_region [ -d device ] [ [ -s ] [ -r region ] ]\n" );
+}
 
 int main(int argc, char *argv[])
 {
@@ -298,7 +298,7 @@ int main(int argc, char *argv[])
       fprintf( stderr, "you must specify the region!\n" );
       exit(0);
     }
-    
+
     if( (ret = set_region(fd, region)) < 0 )
       return ret;
   }

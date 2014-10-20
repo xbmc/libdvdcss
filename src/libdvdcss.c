@@ -777,4 +777,3 @@ LIBDVDCSS_EXPORT int dvdcss_is_scrambled ( dvdcss_t dvdcss )
 {
     return dvdcss->b_scrambled;
 }
-

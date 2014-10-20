@@ -124,4 +124,3 @@ static void dumpsector( unsigned char *p_buffer )
     for( ; i_amount ; i_amount--, p_buffer++ ) printf( "%.2x", *p_buffer );
     printf( "...\n" );
 }
-
