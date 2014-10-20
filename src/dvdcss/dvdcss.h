@@ -55,6 +55,9 @@ typedef struct dvdcss_s* dvdcss_t;
 #define DVDCSS_SEEK_KEY        (1 << 1)
 
 
+/** Macro for setting symbol storage-class or visibility.
+ * Define LIBDVDCSS_IMPORTS before importing this header to get the
+ * correct DLL storage-class when using \e libdvdcss from MSVC. */
 #if defined(LIBDVDCSS_EXPORTS)
 #define LIBDVDCSS_EXPORT __declspec(dllexport) extern
 #elif defined(LIBDVDCSS_IMPORTS)
