@@ -72,3 +72,5 @@ install-apidoc:
 
 uninstall-apidoc:
 	-rm -Rf $(DESTDIR)$(htmldir)/*.png $(DESTDIR)$(htmldir)/*.html $(DESTDIR)$(htmldir)/*.css $(DESTDIR)$(htmldir)/*.js
+
+.PHONY: apidoc
