@@ -61,6 +61,8 @@ stamp-doxygen: doc/doxygen.cfg
 	cd doc && doxygen doxygen.cfg
 	touch $@
 
+tools: test/csstest test/dvd_region
+
 clean-local:
 	-rm -Rf stamp-doxygen doc/html
 
@@ -73,4 +75,4 @@ install-apidoc:
 uninstall-apidoc:
 	-rm -Rf $(DESTDIR)$(htmldir)/*.png $(DESTDIR)$(htmldir)/*.html $(DESTDIR)$(htmldir)/*.css $(DESTDIR)$(htmldir)/*.js
 
-.PHONY: apidoc
+.PHONY: apidoc tools
