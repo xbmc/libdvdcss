@@ -42,4 +42,4 @@
 /* #undef size_t */
 #define HAVE_BROKEN_MKDIR 1
 #define _CRT_SECURE_NO_WARNINGS 1
-
+#define LIBDVDCSS_EXPORTS 1
