@@ -29,7 +29,7 @@
 /*****************************************************************************
  * Error messages
  *****************************************************************************/
-void _print_error( dvdcss_t dvdcss, char *psz_string )
+void print_error( dvdcss_t dvdcss, char *psz_string )
 {
     if( dvdcss->b_errors )
     {

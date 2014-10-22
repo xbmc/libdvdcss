@@ -87,7 +87,6 @@ struct dvdcss_s
 /*****************************************************************************
  * Functions used across the library
  *****************************************************************************/
-#define print_error(dvdcss,msg) _print_error(dvdcss,msg)
 #if defined( _MSC_VER )
 #include <stdarg.h>
 __forceinline void print_debug(dvdcss_t dvdcss, const char *msg,...)
@@ -110,6 +109,6 @@ __forceinline void print_debug(dvdcss_t dvdcss, const char *msg,...)
     }
 #endif
 
-void _print_error ( dvdcss_t, char * );
+void print_error ( dvdcss_t, char * );
 
 #endif /* DVDCSS_LIBDVDCSS_H */
