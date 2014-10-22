@@ -77,14 +77,14 @@
 /*****************************************************************************
  * Device reading prototypes
  *****************************************************************************/
-static int libc_open  ( dvdcss_t, char const * );
+static int libc_open  ( dvdcss_t, const char * );
 static int libc_seek  ( dvdcss_t, int );
 static int libc_read  ( dvdcss_t, void *, int );
 static int libc_readv ( dvdcss_t, struct iovec *, int );
 
 #ifdef WIN32
-static int win2k_open ( dvdcss_t, char const * );
-static int aspi_open  ( dvdcss_t, char const * );
+static int win2k_open ( dvdcss_t, const char * );
+static int aspi_open  ( dvdcss_t, const char * );
 static int win2k_seek ( dvdcss_t, int );
 static int aspi_seek  ( dvdcss_t, int );
 static int win2k_read ( dvdcss_t, void *, int );
@@ -93,7 +93,7 @@ static int win_readv  ( dvdcss_t, struct iovec *, int );
 
 static int aspi_read_internal  ( int, void *, int );
 #elif defined( __OS2__ )
-static int os2_open ( dvdcss_t, char const * );
+static int os2_open ( dvdcss_t, const char * );
 /* just use macros for libc */
 #   define os2_seek     libc_seek
 #   define os2_read     libc_read
@@ -347,7 +347,7 @@ void dvdcss_check_device ( dvdcss_t dvdcss )
 
 int dvdcss_open_device ( dvdcss_t dvdcss )
 {
-    char const *psz_device = dvdcss->psz_device;
+    const char *psz_device = dvdcss->psz_device;
 
     print_debug( dvdcss, "opening target `%s'", psz_device );
 
@@ -468,7 +468,7 @@ int dvdcss_close_device ( dvdcss_t dvdcss )
 /*****************************************************************************
  * Open commands.
  *****************************************************************************/
-static int libc_open ( dvdcss_t dvdcss, char const *psz_device )
+static int libc_open ( dvdcss_t dvdcss, const char *psz_device )
 {
     dvdcss->i_fd = dvdcss->i_read_fd = open( psz_device, O_BINARY );
 
@@ -486,7 +486,7 @@ static int libc_open ( dvdcss_t dvdcss, char const *psz_device )
 }
 
 #if defined( WIN32 )
-static int win2k_open ( dvdcss_t dvdcss, char const *psz_device )
+static int win2k_open ( dvdcss_t dvdcss, const char *psz_device )
 {
     char psz_dvd[7];
     if( snprintf( psz_dvd, sizeof(psz_dvd), "\\\\.\\%c:", psz_device[0] ) < 0)
@@ -528,7 +528,7 @@ error:
     return -1;
 }
 
-static int aspi_open( dvdcss_t dvdcss, char const * psz_device )
+static int aspi_open( dvdcss_t dvdcss, const char *psz_device )
 {
     HMODULE hASPI;
     DWORD dwSupportInfo;
@@ -648,7 +648,7 @@ static int aspi_open( dvdcss_t dvdcss, char const * psz_device )
 #endif
 
 #ifdef __OS2__
-static int os2_open ( dvdcss_t dvdcss, char const *psz_device )
+static int os2_open ( dvdcss_t dvdcss, const char *psz_device )
 {
     char  psz_dvd[] = "X:";
     HFILE hfile;

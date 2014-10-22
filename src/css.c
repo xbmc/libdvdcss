@@ -66,26 +66,26 @@
 /*****************************************************************************
  * Local prototypes
  *****************************************************************************/
-static void PrintKey        ( dvdcss_t, char *, uint8_t const * );
+static void PrintKey        ( dvdcss_t, char *, const uint8_t * );
 
 static int  GetBusKey       ( dvdcss_t );
 static int  GetASF          ( dvdcss_t );
 
-static void CryptKey        ( int, int, uint8_t const *, uint8_t * );
+static void CryptKey        ( int, int, const uint8_t *, uint8_t * );
 static void DecryptKey      ( uint8_t,
-                              uint8_t const *, uint8_t const *, uint8_t * );
+                              const uint8_t *, const uint8_t *, uint8_t * );
 
-static int  DecryptDiscKey  ( dvdcss_t, uint8_t const *, dvd_key_t );
+static int  DecryptDiscKey  ( dvdcss_t, const uint8_t *, dvd_key_t );
 static int  CrackDiscKey    ( dvdcss_t, uint8_t * );
 
 static void DecryptTitleKey ( dvd_key_t, dvd_key_t );
-static int  RecoverTitleKey ( int, uint8_t const *,
-                              uint8_t const *, uint8_t const *, uint8_t * );
+static int  RecoverTitleKey ( int, const uint8_t *,
+                              const uint8_t *, const uint8_t *, uint8_t * );
 static int  CrackTitleKey   ( dvdcss_t, int, int, dvd_key_t );
 
-static int  AttackPattern   ( uint8_t const[], uint8_t * );
+static int  AttackPattern   ( const uint8_t[], uint8_t * );
 #if 0
-static int  AttackPadding   ( uint8_t const[] );
+static int  AttackPadding   ( const uint8_t[] );
 #endif
 
 static int  dvdcss_titlekey    ( dvdcss_t, int , dvd_key_t );
@@ -103,7 +103,7 @@ static int  dvdcss_titlekey    ( dvdcss_t, int , dvd_key_t );
  *****************************************************************************/
 int dvdcss_test( dvdcss_t dvdcss )
 {
-    char const *psz_type, *psz_rpc;
+    const char *psz_type, *psz_rpc;
     int i_ret, i_copyright, i_type, i_mask, i_rpc;
 
     i_ret = ioctl_ReadCopyright( dvdcss->i_fd, 0 /* i_layer */, &i_copyright );
@@ -725,7 +725,7 @@ static int GetBusKey( dvdcss_t dvdcss )
 /*****************************************************************************
  * PrintKey : debug function that dumps a key value
  *****************************************************************************/
-static void PrintKey( dvdcss_t dvdcss, char *prefix, uint8_t const *data )
+static void PrintKey( dvdcss_t dvdcss, char *prefix, const uint8_t *data )
 {
     print_debug( dvdcss, "%s%02x:%02x:%02x:%02x:%02x", prefix,
                  data[0], data[1], data[2], data[3], data[4] );
@@ -770,7 +770,7 @@ static int GetASF( dvdcss_t dvdcss )
  * i_variant : between 0 and 31.
  *****************************************************************************/
 static void CryptKey( int i_key_type, int i_variant,
-                      uint8_t const *p_challenge, uint8_t *p_key )
+                      const uint8_t *p_challenge, uint8_t *p_key )
 {
     /* Permutation table for challenge */
     static const uint8_t pp_perm_challenge[3][10] =
@@ -973,8 +973,8 @@ static void CryptKey( int i_key_type, int i_variant,
  *  -for disc key, invert is 0x00,
  *  -for title key, invert if 0xff.
  *****************************************************************************/
-static void DecryptKey( uint8_t invert, uint8_t const *p_key,
-                        uint8_t const *p_crypted, uint8_t *p_result )
+static void DecryptKey( uint8_t invert, const uint8_t *p_key,
+                        const uint8_t *p_crypted, uint8_t *p_result )
 {
     unsigned int    i_lfsr1_lo;
     unsigned int    i_lfsr1_hi;
@@ -1079,7 +1079,7 @@ static const dvd_key_t player_keys[] =
  * p_struct_disckey: the 2048 byte DVD_STRUCT_DISCKEY data
  * p_disc_key: result, the 5 byte disc key
  *****************************************************************************/
-static int DecryptDiscKey( dvdcss_t dvdcss, uint8_t const *p_struct_disckey,
+static int DecryptDiscKey( dvdcss_t dvdcss, const uint8_t *p_struct_disckey,
                            dvd_key_t p_disc_key )
 {
     uint8_t p_verify[KEY_SIZE];
@@ -1341,9 +1341,9 @@ end:
  * Called from Attack* which are in turn called by CrackTitleKey.  Given
  * a guessed(?) plain text and the cipher text.  Returns -1 on failure.
  *****************************************************************************/
-static int RecoverTitleKey( int i_start, uint8_t const *p_crypted,
-                            uint8_t const *p_decrypted,
-                            uint8_t const *p_sector_seed, uint8_t *p_key )
+static int RecoverTitleKey( int i_start, const uint8_t *p_crypted,
+                            const uint8_t *p_decrypted,
+                            const uint8_t *p_sector_seed, uint8_t *p_key )
 {
     uint8_t p_buffer[10];
     unsigned int i_t1, i_t2, i_t3, i_t4, i_t5, i_t6;
@@ -1618,7 +1618,7 @@ static int CrackTitleKey( dvdcss_t dvdcss, int i_pos, int i_len,
  * Then it guesses that the plain text for first encrypted bytes are
  * a continuation of that pattern.
  *****************************************************************************/
-static int AttackPattern( uint8_t const p_sec[ DVDCSS_BLOCK_SIZE ],
+static int AttackPattern( const uint8_t p_sec[ DVDCSS_BLOCK_SIZE ],
                           uint8_t *p_key )
 {
     unsigned int i_best_plen = 0;
@@ -1675,7 +1675,7 @@ static int AttackPattern( uint8_t const p_sec[ DVDCSS_BLOCK_SIZE ],
  * Padding stream. This looks like 0x00 00 01 be xx xx ff ff ...
  * where xx xx is the length of the padding stream.
  *****************************************************************************/
-static int AttackPadding( uint8_t const p_sec[ DVDCSS_BLOCK_SIZE ] )
+static int AttackPadding( const uint8_t p_sec[ DVDCSS_BLOCK_SIZE ] )
 {
     unsigned int i_pes_length;
     /*static int i_tries = 0, i_success = 0;*/
