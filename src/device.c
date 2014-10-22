@@ -450,12 +450,9 @@ int _dvdcss_close ( dvdcss_t dvdcss )
     }
 
     /* Free readv temporary buffer */
-    if( dvdcss->p_readv_buffer )
-    {
-        free( dvdcss->p_readv_buffer );
-        dvdcss->p_readv_buffer   = NULL;
-        dvdcss->i_readv_buf_size = 0;
-    }
+    free( dvdcss->p_readv_buffer );
+    dvdcss->p_readv_buffer   = NULL;
+    dvdcss->i_readv_buf_size = 0;
 
     return 0;
 #else
@@ -926,7 +923,7 @@ static int win_readv ( dvdcss_t dvdcss, struct iovec *p_iovec, int i_blocks )
     {
         dvdcss->i_readv_buf_size = i_blocks * DVDCSS_BLOCK_SIZE;
 
-        if( dvdcss->p_readv_buffer ) free( dvdcss->p_readv_buffer );
+        free( dvdcss->p_readv_buffer );
 
         /* Allocate a buffer which will be used as a temporary storage
          * for readv */
