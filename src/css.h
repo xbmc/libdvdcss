@@ -54,9 +54,9 @@ typedef struct css_s
 /*****************************************************************************
  * Prototypes in css.c
  *****************************************************************************/
-int   _dvdcss_test        ( dvdcss_t );
-int   _dvdcss_title       ( dvdcss_t, int );
-int   _dvdcss_disckey     ( dvdcss_t );
-int   _dvdcss_unscramble  ( uint8_t *, uint8_t * );
+int dvdcss_test       ( dvdcss_t );
+int dvdcss_title      ( dvdcss_t, int );
+int dvdcss_disckey    ( dvdcss_t );
+int dvdcss_unscramble ( uint8_t *, uint8_t * );
 
 #endif /* DVDCSS_CSS_H */

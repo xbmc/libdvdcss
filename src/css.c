@@ -88,10 +88,10 @@ static int  AttackPattern   ( uint8_t const[], uint8_t * );
 static int  AttackPadding   ( uint8_t const[] );
 #endif
 
-static int  _dvdcss_titlekey    ( dvdcss_t, int , dvd_key_t );
+static int  dvdcss_titlekey    ( dvdcss_t, int , dvd_key_t );
 
 /*****************************************************************************
- * _dvdcss_test: check if the disc is encrypted or not
+ * dvdcss_test: check if the disc is encrypted or not
  *****************************************************************************
  * Return values:
  *   1: DVD is scrambled but can be read
@@ -101,7 +101,7 @@ static int  _dvdcss_titlekey    ( dvdcss_t, int , dvd_key_t );
  *  -3: drive is RPC-II, region is not set, and DVD is scrambled: the RPC
  *      scheme will prevent us from reading the scrambled data
  *****************************************************************************/
-int _dvdcss_test( dvdcss_t dvdcss )
+int dvdcss_test( dvdcss_t dvdcss )
 {
     char const *psz_type, *psz_rpc;
     int i_ret, i_copyright, i_type, i_mask, i_rpc;
@@ -113,11 +113,11 @@ int _dvdcss_test( dvdcss_t dvdcss )
     {
         /* Maybe we didn't have enough privileges to read the copyright
          * (see ioctl_ReadCopyright comments).
-         * Apparently, on unencrypted DVDs _dvdcss_disckey() always fails, so
+         * Apparently, on unencrypted DVDs dvdcss_disckey() always fails, so
          * we can check this as a workaround. */
         i_ret = 0;
         i_copyright = 1;
-        if( _dvdcss_disckey( dvdcss ) < 0 )
+        if( dvdcss_disckey( dvdcss ) < 0 )
         {
             i_copyright = 0;
         }
@@ -175,12 +175,12 @@ int _dvdcss_test( dvdcss_t dvdcss )
 }
 
 /*****************************************************************************
- * _dvdcss_title: crack or decrypt the current title key if needed
+ * dvdcss_title: crack or decrypt the current title key if needed
  *****************************************************************************
  * This function should only be called by dvdcss->pf_seek and should eventually
  * not be external if possible.
  *****************************************************************************/
-int _dvdcss_title ( dvdcss_t dvdcss, int i_block )
+int dvdcss_title ( dvdcss_t dvdcss, int i_block )
 {
     dvd_title_t *p_title;
     dvd_title_t *p_newtitle;
@@ -247,7 +247,7 @@ int _dvdcss_title ( dvdcss_t dvdcss, int i_block )
     /* Crack or decrypt CSS title key for current VTS */
     if( i_ret < 0 )
     {
-        i_ret = _dvdcss_titlekey( dvdcss, i_block, p_title_key );
+        i_ret = dvdcss_titlekey( dvdcss, i_block, p_title_key );
 
         if( i_ret < 0 )
         {
@@ -318,7 +318,7 @@ int _dvdcss_title ( dvdcss_t dvdcss, int i_block )
 }
 
 /*****************************************************************************
- * _dvdcss_disckey: get disc key.
+ * dvdcss_disckey: get disc key.
  *****************************************************************************
  * This function should only be called if DVD ioctls are present.
  * It will set dvdcss->i_method = DVDCSS_METHOD_TITLE if it fails to find
@@ -327,7 +327,7 @@ int _dvdcss_title ( dvdcss_t dvdcss, int i_block )
  *  -disc key hash crack,
  *  -decryption with player keys if they are available.
  *****************************************************************************/
-int _dvdcss_disckey( dvdcss_t dvdcss )
+int dvdcss_disckey( dvdcss_t dvdcss )
 {
     unsigned char p_buffer[ DVD_DISCKEY_SIZE ];
     dvd_key_t p_disc_key;
@@ -411,9 +411,9 @@ int _dvdcss_disckey( dvdcss_t dvdcss )
 
 
 /*****************************************************************************
- * _dvdcss_titlekey: get title key.
+ * dvdcss_titlekey: get title key.
  *****************************************************************************/
-static int _dvdcss_titlekey( dvdcss_t dvdcss, int i_pos, dvd_key_t p_title_key )
+static int dvdcss_titlekey( dvdcss_t dvdcss, int i_pos, dvd_key_t p_title_key )
 {
     static uint8_t p_garbage[ DVDCSS_BLOCK_SIZE ];  /* we never read it back */
     uint8_t p_key[ KEY_SIZE ];
@@ -508,7 +508,7 @@ static int _dvdcss_titlekey( dvdcss_t dvdcss, int i_pos, dvd_key_t p_title_key )
         dvdcss->pf_seek( dvdcss, 0 );
         dvdcss->pf_read( dvdcss, p_garbage, 1 );
         dvdcss->pf_seek( dvdcss, 0 );
-        _dvdcss_disckey( dvdcss );
+        dvdcss_disckey( dvdcss );
 
         /* Fallback */
     }
@@ -526,12 +526,12 @@ static int _dvdcss_titlekey( dvdcss_t dvdcss, int i_pos, dvd_key_t p_title_key )
 }
 
 /*****************************************************************************
- * _dvdcss_unscramble: does the actual descrambling of data
+ * dvdcss_unscramble: does the actual descrambling of data
  *****************************************************************************
  * sec : sector to unscramble
  * key : title key for this sector
  *****************************************************************************/
-int _dvdcss_unscramble( dvd_key_t p_key, uint8_t *p_sec )
+int dvdcss_unscramble( dvd_key_t p_key, uint8_t *p_sec )
 {
     unsigned int    i_t1, i_t2, i_t3, i_t4, i_t5, i_t6;
     uint8_t        *p_end = p_sec + DVDCSS_BLOCK_SIZE;
@@ -961,8 +961,8 @@ static void CryptKey( int i_key_type, int i_variant,
  * DecryptKey: decrypt p_crypted with p_key.
  *****************************************************************************
  * Used to decrypt the disc key, with a player key, after requesting it
- * in _dvdcss_disckey and to decrypt title keys, with a disc key, requested
- * in _dvdcss_titlekey.
+ * in dvdcss_disckey and to decrypt title keys, with a disc key, requested
+ * in dvdcss_titlekey.
  * The player keys and the resulting disc key are only used as KEKs
  * (key encryption keys).
  * Decryption is slightly dependent on the type of key:
@@ -1477,7 +1477,7 @@ static int i_tries = 0, i_success = 0;
 /*****************************************************************************
  * CrackTitleKey: try to crack title key from the contents of a VOB.
  *****************************************************************************
- * This function is called by _dvdcss_titlekey to find a title key, if we've
+ * This function is called by dvdcss_titlekey to find a title key, if we've
  * chosen to crack title key instead of decrypting it with the disc key.
  * The DVD should have been opened and be in an authenticated state.
  * i_pos is the starting sector, i_len is the maximum number of sectors to read
@@ -1523,8 +1523,8 @@ static int CrackTitleKey( dvdcss_t dvdcss, int i_pos, int i_len,
                                      "secret arcanes to recover", i_pos );
 
                 /* Reset the drive before trying to continue */
-                _dvdcss_close( dvdcss );
-                _dvdcss_open( dvdcss );
+                dvdcss_close_device( dvdcss );
+                dvdcss_open_device( dvdcss );
 
                 b_read_error = 1;
                 continue;

@@ -311,8 +311,8 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
     /*
      *  Open device
      */
-    _dvdcss_check( dvdcss );
-    i_ret = _dvdcss_open( dvdcss );
+    dvdcss_check_device( dvdcss );
+    i_ret = dvdcss_open_device( dvdcss );
     if( i_ret < 0 )
     {
         free( dvdcss->psz_device );
@@ -321,11 +321,11 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
     }
 
     dvdcss->b_scrambled = 1; /* Assume the worst */
-    dvdcss->b_ioctls = _dvdcss_use_ioctls( dvdcss );
+    dvdcss->b_ioctls = dvdcss_use_ioctls( dvdcss );
 
     if( dvdcss->b_ioctls )
     {
-        i_ret = _dvdcss_test( dvdcss );
+        i_ret = dvdcss_test( dvdcss );
 
         if( i_ret == -3 )
         {
@@ -352,7 +352,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
     /* If disc is CSS protected and the ioctls work, authenticate the drive */
     if( dvdcss->b_scrambled && dvdcss->b_ioctls )
     {
-        i_ret = _dvdcss_disckey( dvdcss );
+        i_ret = dvdcss_disckey( dvdcss );
 
         if( i_ret < 0 )
         {
@@ -516,7 +516,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
 #ifdef DVDCSS_RAW_OPEN
     if( psz_raw_device != NULL )
     {
-        _dvdcss_raw_open( dvdcss, psz_raw_device );
+        dvdcss_raw_open( dvdcss, psz_raw_device );
     }
 #endif
 
@@ -572,7 +572,7 @@ LIBDVDCSS_EXPORT int dvdcss_seek ( dvdcss_t dvdcss, int i_blocks, int i_flags )
        || ( i_flags & DVDCSS_SEEK_KEY ) )
     {
         /* check the title key */
-        if( _dvdcss_title( dvdcss, i_blocks ) )
+        if( dvdcss_title( dvdcss, i_blocks ) )
         {
             return -1;
         }
@@ -640,7 +640,7 @@ LIBDVDCSS_EXPORT int dvdcss_read ( dvdcss_t dvdcss, void *p_buffer,
         /* Decrypt the blocks we managed to read */
         for( i_index = i_ret; i_index; i_index-- )
         {
-            _dvdcss_unscramble( dvdcss->css.p_title_key, p_buffer );
+            dvdcss_unscramble( dvdcss->css.p_title_key, p_buffer );
             ((uint8_t*)p_buffer)[0x14] &= 0x8f;
             p_buffer = (uint8_t *)p_buffer + DVDCSS_BLOCK_SIZE;
         }
@@ -715,7 +715,7 @@ LIBDVDCSS_EXPORT int dvdcss_readv ( dvdcss_t dvdcss, void *p_iovec,
             iov_len = _p_iovec->iov_len;
         }
 
-        _dvdcss_unscramble( dvdcss->css.p_title_key, iov_base );
+        dvdcss_unscramble( dvdcss->css.p_title_key, iov_base );
         ((uint8_t*)iov_base)[0x14] &= 0x8f;
 
         iov_base = (void *) ((uint8_t*)iov_base + DVDCSS_BLOCK_SIZE);
@@ -748,7 +748,7 @@ LIBDVDCSS_EXPORT int dvdcss_close ( dvdcss_t dvdcss )
         p_title = p_tmptitle;
     }
 
-    i_ret = _dvdcss_close( dvdcss );
+    i_ret = dvdcss_close_device( dvdcss );
 
     if( i_ret < 0 )
     {

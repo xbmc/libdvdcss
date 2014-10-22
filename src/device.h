@@ -52,14 +52,14 @@ struct iovec
 /*****************************************************************************
  * Device reading prototypes
  *****************************************************************************/
-int  _dvdcss_use_ioctls ( dvdcss_t );
-void _dvdcss_check      ( dvdcss_t );
-int  _dvdcss_open       ( dvdcss_t );
-int  _dvdcss_close      ( dvdcss_t );
+int  dvdcss_use_ioctls   ( dvdcss_t );
+void dvdcss_check_device ( dvdcss_t );
+int  dvdcss_open_device  ( dvdcss_t );
+int  dvdcss_close_device ( dvdcss_t );
 
 /*****************************************************************************
  * Device reading prototypes, raw-device specific
  *****************************************************************************/
-int _dvdcss_raw_open     ( dvdcss_t, char const * );
+int dvdcss_raw_open      ( dvdcss_t, const char * );
 
 #endif /* DVDCSS_DEVICE_H */

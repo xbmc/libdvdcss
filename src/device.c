@@ -100,7 +100,7 @@ static int os2_open ( dvdcss_t, char const * );
 #   define os2_readv    libc_readv
 #endif
 
-int _dvdcss_use_ioctls( dvdcss_t dvdcss )
+int dvdcss_use_ioctls( dvdcss_t dvdcss )
 {
 #if defined( WIN32 )
     if( dvdcss->b_file )
@@ -162,7 +162,7 @@ int _dvdcss_use_ioctls( dvdcss_t dvdcss )
 #endif
 }
 
-void _dvdcss_check ( dvdcss_t dvdcss )
+void dvdcss_check_device ( dvdcss_t dvdcss )
 {
 #if defined( WIN32 )
     DWORD drives;
@@ -352,7 +352,7 @@ void _dvdcss_check ( dvdcss_t dvdcss )
     print_error( dvdcss, "could not find a suitable default drive" );
 }
 
-int _dvdcss_open ( dvdcss_t dvdcss )
+int dvdcss_open_device ( dvdcss_t dvdcss )
 {
     char const *psz_device = dvdcss->psz_device;
 
@@ -409,7 +409,7 @@ int _dvdcss_open ( dvdcss_t dvdcss )
 }
 
 #ifdef DVDCSS_RAW_OPEN
-int _dvdcss_raw_open ( dvdcss_t dvdcss, char const *psz_device )
+int dvdcss_raw_open ( dvdcss_t dvdcss, const char *psz_device )
 {
     dvdcss->i_raw_fd = open( psz_device, 0 );
 
@@ -429,7 +429,7 @@ int _dvdcss_raw_open ( dvdcss_t dvdcss, char const *psz_device )
 }
 #endif
 
-int _dvdcss_close ( dvdcss_t dvdcss )
+int dvdcss_close_device ( dvdcss_t dvdcss )
 {
 #if defined( WIN32 )
     if( dvdcss->b_file )
