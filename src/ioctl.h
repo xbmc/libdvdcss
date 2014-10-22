@@ -57,8 +57,6 @@ int ioctl_ReportRPC         ( int, int *, int *, int * );
  * Common macro, Solaris specific
  *****************************************************************************/
 #if defined( SOLARIS_USCSI )
-#define USCSI_TIMEOUT( SC, TO ) ( (SC)->uscsi_timeout = (TO) )
-#define USCSI_RESID( SC )       ( (SC)->uscsi_resid )
 #define INIT_USCSI( TYPE, SIZE ) \
     struct uscsi_cmd sc = { 0 }; \
     union scsi_cdb rs_cdb; \

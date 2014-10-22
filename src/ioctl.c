@@ -1579,8 +1579,7 @@ static void SolarisInitUSCSI( struct uscsi_cmd *p_sc, int i_type )
     rs_cdb->cdb_opaque[ 8 ] = (p_sc->uscsi_buflen >> 8) & 0xff;
     rs_cdb->cdb_opaque[ 9 ] =  p_sc->uscsi_buflen       & 0xff;
     p_sc->uscsi_cdblen = 12;
-
-    USCSI_TIMEOUT( p_sc, 15 );
+    p_sc->uscsi_timeout = 15;
 }
 
 /*****************************************************************************
