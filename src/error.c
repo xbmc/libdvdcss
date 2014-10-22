@@ -20,23 +20,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *****************************************************************************/
 
-#include "config.h"
-
 #include <stdio.h>
-#include <stdlib.h>
-
-#ifdef HAVE_SYS_PARAM_H
-#   include <sys/param.h>
-#endif
-
-#ifdef HAVE_LIMITS_H
-#   include <limits.h>
-#endif
 
 #include "dvdcss/dvdcss.h"
 
-#include "common.h"
-#include "css.h"
 #include "libdvdcss.h"
 
 /*****************************************************************************
