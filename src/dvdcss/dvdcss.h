@@ -72,7 +72,7 @@ typedef struct dvdcss_s* dvdcss_t;
 /*
  * Exported prototypes.
  */
-LIBDVDCSS_EXPORT dvdcss_t dvdcss_open  ( char *psz_target );
+LIBDVDCSS_EXPORT dvdcss_t dvdcss_open  ( const char *psz_target );
 LIBDVDCSS_EXPORT int      dvdcss_close ( dvdcss_t );
 LIBDVDCSS_EXPORT int      dvdcss_seek  ( dvdcss_t,
                                int i_blocks,

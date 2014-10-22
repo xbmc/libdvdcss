@@ -148,16 +148,16 @@
  * calls. \e libdvdcss checks whether ioctls can be performed on the disc,
  * and when possible, the disc key is retrieved.
  */
-LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
+LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
 {
     char psz_buffer[PATH_MAX];
     int i_ret;
 
-    char *psz_method = getenv( "DVDCSS_METHOD" );
-    char *psz_verbose = getenv( "DVDCSS_VERBOSE" );
-    char *psz_cache = getenv( "DVDCSS_CACHE" );
+    const char *psz_method = getenv( "DVDCSS_METHOD" );
+    const char *psz_verbose = getenv( "DVDCSS_VERBOSE" );
+    const char *psz_cache = getenv( "DVDCSS_CACHE" );
 #ifdef DVDCSS_RAW_OPEN
-    char *psz_raw_device = getenv( "DVDCSS_RAW_DEVICE" );
+    const char *psz_raw_device = getenv( "DVDCSS_RAW_DEVICE" );
 #endif
 
     dvdcss_t dvdcss;
@@ -268,7 +268,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
 #ifdef __OS2__
             if( *psz_home == '/' || *psz_home == '\\')
             {
-                char *psz_unixroot = getenv("UNIXROOT");
+                const char *psz_unixroot = getenv("UNIXROOT");
 
                 if( psz_unixroot &&
                     psz_unixroot[0] &&
