@@ -131,8 +131,7 @@ AC_DEFUN([CC_CHECK_ATTRIBUTE], [
   AS_IF([eval test x$]AS_TR_SH([cc_cv_attribute_$1])[ = xyes],
     [AC_DEFINE(
        AS_TR_CPP([SUPPORT_ATTRIBUTE_$1]), 1,
-         [Define this if the compiler supports __attribute__(( ifelse([$2], , [$1], [$2]) ))]
-         )
+       Define this if the compiler supports __attribute__((ifelse([$2], , [$1], [$2]))))
      $4],
     [$5])
 ])
