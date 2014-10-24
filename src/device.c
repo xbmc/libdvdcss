@@ -596,7 +596,7 @@ static int win2k_seek( dvdcss_t dvdcss, int i_blocks )
  *****************************************************************************/
 static int libc_read ( dvdcss_t dvdcss, void *p_buffer, int i_blocks )
 {
-    off_t i_size, i_ret;
+    off_t i_size, i_ret, i_ret_blocks;
 
     i_size = (off_t)i_blocks * (off_t)DVDCSS_BLOCK_SIZE;
     i_ret = read( dvdcss->i_read_fd, p_buffer, i_size );
@@ -608,24 +608,26 @@ static int libc_read ( dvdcss_t dvdcss, void *p_buffer, int i_blocks )
         return i_ret;
     }
 
+    i_ret_blocks = i_ret / DVDCSS_BLOCK_SIZE;
+
     /* Handle partial reads */
     if( i_ret != i_size )
     {
         int i_seek;
 
         dvdcss->i_pos = -1;
-        i_seek = libc_seek( dvdcss, i_ret / DVDCSS_BLOCK_SIZE );
+        i_seek = libc_seek( dvdcss, i_ret_blocks );
         if( i_seek < 0 )
         {
             return i_seek;
         }
 
         /* We have to return now so that i_pos isn't clobbered */
-        return i_ret / DVDCSS_BLOCK_SIZE;
+        return i_ret_blocks;
     }
 
-    dvdcss->i_pos += i_ret / DVDCSS_BLOCK_SIZE;
-    return i_ret / DVDCSS_BLOCK_SIZE;
+    dvdcss->i_pos += i_ret_blocks;
+    return i_ret_blocks;
 }
 
 #if defined( WIN32 )
@@ -641,8 +643,9 @@ static int win2k_read ( dvdcss_t dvdcss, void *p_buffer, int i_blocks )
         return -1;
     }
 
-    dvdcss->i_pos += i_bytes / DVDCSS_BLOCK_SIZE;
-    return i_bytes / DVDCSS_BLOCK_SIZE;
+    i_bytes /= DVDCSS_BLOCK_SIZE;
+    dvdcss->i_pos += i_bytes;
+    return i_bytes;
 }
 #endif /* defined( WIN32 ) */
 
@@ -681,6 +684,7 @@ static int libc_readv ( dvdcss_t dvdcss, struct iovec *p_iovec, int i_blocks )
         }
 
         i_total += i_bytes;
+        i_total /= DVDCSS_BLOCK_SIZE;
 
         if( i_bytes != i_len )
         {
@@ -689,19 +693,19 @@ static int libc_readv ( dvdcss_t dvdcss, struct iovec *p_iovec, int i_blocks )
             int i_seek;
 
             dvdcss->i_pos = -1;
-            i_seek = libc_seek( dvdcss, i_total / DVDCSS_BLOCK_SIZE );
+            i_seek = libc_seek( dvdcss, i_total );
             if( i_seek < 0 )
             {
                 return i_seek;
             }
 
             /* We have to return now so that i_pos isn't clobbered */
-            return i_total / DVDCSS_BLOCK_SIZE;
+            return i_total;
         }
     }
 
-    dvdcss->i_pos += i_total / DVDCSS_BLOCK_SIZE;
-    return i_total / DVDCSS_BLOCK_SIZE;
+    dvdcss->i_pos += i_total;
+    return i_total;
 #else
     int i_read = readv( dvdcss->i_read_fd, p_iovec, i_blocks );
 
@@ -711,8 +715,9 @@ static int libc_readv ( dvdcss_t dvdcss, struct iovec *p_iovec, int i_blocks )
         return i_read;
     }
 
-    dvdcss->i_pos += i_read / DVDCSS_BLOCK_SIZE;
-    return i_read / DVDCSS_BLOCK_SIZE;
+    i_read /= DVDCSS_BLOCK_SIZE;
+    dvdcss->i_pos += i_read;
+    return i_read;
 #endif
 }
 
@@ -752,10 +757,8 @@ static int win2k_readv ( dvdcss_t dvdcss, struct iovec *p_iovec, int i_blocks )
 
     if( i_blocks_total <= 0 ) return 0;
 
-    i_blocks_total /= DVDCSS_BLOCK_SIZE;
-
     if( !ReadFile( (HANDLE)dvdcss->i_fd, dvdcss->p_readv_buffer,
-                   i_blocks_total * DVDCSS_BLOCK_SIZE, &i_bytes, NULL ) )
+                   i_blocks_total, &i_bytes, NULL ) )
     {
         /* The read failed... too bad.
          * As in the POSIX spec the file position is left
