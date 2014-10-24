@@ -802,11 +802,11 @@ static int libc_read ( dvdcss_t dvdcss, void *p_buffer, int i_blocks )
 #if defined( WIN32 )
 static int win2k_read ( dvdcss_t dvdcss, void *p_buffer, int i_blocks )
 {
-    int i_bytes;
+    DWORD i_bytes;
 
     if( !ReadFile( (HANDLE) dvdcss->i_fd, p_buffer,
               i_blocks * DVDCSS_BLOCK_SIZE,
-              (LPDWORD)&i_bytes, NULL ) )
+              &i_bytes, NULL ) )
     {
         dvdcss->i_pos = -1;
         return -1;
@@ -909,6 +909,7 @@ static int win_readv ( dvdcss_t dvdcss, struct iovec *p_iovec, int i_blocks )
 {
     int i_index;
     int i_blocks_read, i_blocks_total = 0;
+    DWORD i_bytes;
 
     /* Check the size of the readv temp buffer, just in case we need to
      * realloc something bigger */
@@ -940,7 +941,6 @@ static int win_readv ( dvdcss_t dvdcss, struct iovec *p_iovec, int i_blocks )
 
     if( WIN2K )
     {
-        unsigned long int i_bytes;
         if( !ReadFile( (HANDLE)dvdcss->i_fd, dvdcss->p_readv_buffer,
                        i_blocks_total * DVDCSS_BLOCK_SIZE, &i_bytes, NULL ) )
         {
