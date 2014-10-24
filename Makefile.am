@@ -61,7 +61,7 @@ stamp-doxygen: doc/doxygen.cfg src/libdvdcss.c src/dvdcss/dvdcss.h
 	doxygen $<
 	touch $@
 
-tools: test/csstest test/dvd_region
+tools: test/csstest$(EXEEXT) test/dvd_region$(EXEEXT)
 
 clean-local:
 	-rm -Rf stamp-doxygen doc/html
