@@ -109,14 +109,7 @@ int dvdcss_use_ioctls( dvdcss_t dvdcss )
     }
 
     /* FIXME: implement this for Windows */
-    if( WIN2K )
-    {
-        return 1;
-    }
-    else
-    {
-        return 1;
-    }
+    return 1;
 #elif defined( __OS2__ )
     ULONG ulMode;
 
