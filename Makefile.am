@@ -39,7 +39,7 @@ test_csstest_SOURCES = test/csstest.c
 test_csstest_LDADD = libdvdcss.la
 test_csstest_CFLAGS = -I $(top_srcdir)/src
 
-test_dvd_region_SOURCES = test/dvd_region.c src/ioctl.c
+test_dvd_region_SOURCES = test/dvd_region.c
 test_dvd_region_LDADD = libdvdcss.la
 test_dvd_region_CFLAGS = -I $(top_srcdir)/src
 

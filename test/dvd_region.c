@@ -22,6 +22,9 @@
 #include "common.h"
 #include "ioctl.h"
 
+/* On non-Linux platforms static functions from ioctl.c are used. */
+#include "ioctl.c"
+
 #define DEFAULT_DEVICE "/dev/dvd"
 
 /*****************************************************************************
