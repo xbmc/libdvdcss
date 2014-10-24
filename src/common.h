@@ -48,6 +48,10 @@
 #      define PATH_MAX MAX_PATH
 #   endif
 
+#   ifndef INVALID_SET_FILE_POINTER
+#       define INVALID_SET_FILE_POINTER ((DWORD)-1)
+#   endif
+
 /* several type definitions */
 #   if defined( __MINGW32__ )
 #       define lseek _lseeki64

@@ -705,10 +705,6 @@ static int win2k_seek( dvdcss_t dvdcss, int i_blocks )
 {
     LARGE_INTEGER li_seek;
 
-#ifndef INVALID_SET_FILE_POINTER
-#   define INVALID_SET_FILE_POINTER ((DWORD)-1)
-#endif
-
     if( dvdcss->i_pos == i_blocks )
     {
         /* We are already in position */
