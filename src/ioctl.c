@@ -1479,7 +1479,7 @@ static int SolarisSendUSCSI( int i_fd, struct uscsi_cmd *p_sc )
 
     return ioctl( i_fd, USCSICMD, p_sc );
 }
-#endif
+#endif /* defined( SOLARIS_USCSI ) */
 
 #if defined( WIN32 )
 /*****************************************************************************
@@ -1511,7 +1511,7 @@ static void WinInitSPTD( SCSI_PASS_THROUGH_DIRECT *p_sptd, int i_type )
 
     p_sptd->TimeOutValue = 2;
 }
-#endif
+#endif /* defined( WIN32 ) */
 
 #if defined( __QNXNTO__ )
 /*****************************************************************************
@@ -1542,7 +1542,7 @@ static void QNXInitCPT( CAM_PASS_THRU * p_cpt, int i_type )
 
     p_cpt->cam_timeout = CAM_TIME_DEFAULT;
 }
-#endif
+#endif /* defined( __QNXNTO__ ) */
 
 #if defined( __OS2__ )
 /*****************************************************************************
@@ -1571,4 +1571,4 @@ static void OS2InitSDC( struct OS2_ExecSCSICmd *p_sdc, int i_type )
     p_sdc->id_code      = 0x31304443;    // 'CD01'
     p_sdc->cmd_length   = 12;
 }
-#endif
+#endif /* defined( __OS2__ ) */

@@ -62,7 +62,7 @@ typedef _off_t off_t;
 #       else
 #           define off_t long long
 #       endif
-#   endif
+#   endif /* defined( __MINGW32__ ) */
 
 #   if defined( _MSC_VER )
 #       define lseek _lseeki64
@@ -79,15 +79,15 @@ typedef __int64 off_t;
 #       define close _close
 #       define read _read
 #       define write _write
-#   endif
+#   endif /* defined( _MSC_VER ) */
 
-#endif
+#endif /* defined( WIN32 ) */
 
 #ifdef __ANDROID__
 # undef  lseek
 # define lseek lseek64
 # undef  off_t
 # define off_t off64_t
-#endif
+#endif /* __ANDROID__ */
 
 #endif /* DVDCSS_COMMON_H */

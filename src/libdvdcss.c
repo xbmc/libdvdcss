@@ -240,7 +240,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
         }
 #else
         char *psz_home = NULL;
-#   ifdef HAVE_PWD_H
+#ifdef HAVE_PWD_H
         struct passwd *p_pwd;
 
         /* Try looking in password file for home dir. */
@@ -249,7 +249,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
         {
             psz_home = p_pwd->pw_dir;
         }
-#   endif
+#endif /* HAVE_PWD_H */
 
         if( psz_home == NULL )
         {
@@ -279,13 +279,13 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
                     home_pos = 2;
                 }
             }
-#endif
+#endif /* __OS2__ */
             snprintf( psz_buffer + home_pos, PATH_MAX - home_pos,
                       "%s/.dvdcss", psz_home );
             psz_buffer[PATH_MAX-1] = '\0';
             psz_cache = psz_buffer;
         }
-#endif
+#endif /* ! defined(_WIN32_IE) && _WIN32_IE >= 0x500 */
     }
 
     /*
@@ -514,7 +514,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
     {
         dvdcss_raw_open( dvdcss, psz_raw_device );
     }
-#endif
+#endif /* DVDCSS_RAW_OPEN */
 
     /* Seek at the beginning, just for safety. */
     dvdcss->pf_seek( dvdcss, 0 );

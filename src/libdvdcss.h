@@ -70,7 +70,7 @@ struct dvdcss_s
     int    b_file;
     char * p_readv_buffer;
     int    i_readv_buf_size;
-#endif
+#endif /* WIN32 */
 
 #ifdef DVDCSS_RAW_OPEN
     int    i_raw_fd;

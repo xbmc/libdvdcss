@@ -286,7 +286,7 @@ typedef struct SCSI_PASS_THROUGH_DIRECT
     UCHAR Cdb[16];
 } SCSI_PASS_THROUGH_DIRECT, *PSCSI_PASS_THROUGH_DIRECT;
 
-#endif
+#endif /* defined( WIN32 ) */
 
 /*****************************************************************************
  * OS2 ioctl specific
@@ -312,6 +312,6 @@ struct OS2_ExecSCSICmd
 
 #pragma pack()
 
-#endif
+#endif /* defined( __OS2__ ) */
 
 #endif /* DVDCSS_IOCTL_H */

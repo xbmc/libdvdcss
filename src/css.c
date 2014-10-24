@@ -122,7 +122,7 @@ int dvdcss_test( dvdcss_t dvdcss )
             i_copyright = 0;
         }
     }
-#endif
+#endif /* WIN32 */
 
     if( i_ret < 0 )
     {
@@ -1566,7 +1566,7 @@ static int CrackTitleKey( dvdcss_t dvdcss, int i_pos, int i_len,
             {
                 b_stop_scanning = 1;
             }
-#endif
+#endif /* 0 */
         }
 
         i_pos++;
@@ -1730,4 +1730,4 @@ static int AttackPadding( const uint8_t p_sec[ DVDCSS_BLOCK_SIZE ] )
 
     return 0;
 }
-#endif
+#endif /* 0 */

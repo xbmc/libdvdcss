@@ -408,7 +408,7 @@ int dvdcss_raw_open ( dvdcss_t dvdcss, const char *psz_device )
 
     return 0;
 }
-#endif
+#endif /* DVDCSS_RAW_OPEN */
 
 int dvdcss_close_device ( dvdcss_t dvdcss )
 {
@@ -507,7 +507,7 @@ error:
     print_error( dvdcss, "failed opening device" );
     return -1;
 }
-#endif
+#endif /* defined( WIN32 ) */
 
 #ifdef __OS2__
 static int os2_open ( dvdcss_t dvdcss, const char *psz_device )
@@ -538,7 +538,7 @@ static int os2_open ( dvdcss_t dvdcss, const char *psz_device )
 
     return 0;
 }
-#endif
+#endif /* __OS2__ */
 
 /*****************************************************************************
  * Seek commands.
@@ -595,7 +595,7 @@ static int win2k_seek( dvdcss_t dvdcss, int i_blocks )
 
     return dvdcss->i_pos;
 }
-#endif
+#endif /* defined( WIN32 ) */
 
 /*****************************************************************************
  * Read commands.
@@ -650,7 +650,7 @@ static int win2k_read ( dvdcss_t dvdcss, void *p_buffer, int i_blocks )
     dvdcss->i_pos += i_bytes / DVDCSS_BLOCK_SIZE;
     return i_bytes / DVDCSS_BLOCK_SIZE;
 }
-#endif
+#endif /* defined( WIN32 ) */
 
 /*****************************************************************************
  * Readv commands.
@@ -789,4 +789,4 @@ static int win2k_readv ( dvdcss_t dvdcss, struct iovec *p_iovec, int i_blocks )
     dvdcss->i_pos += i_blocks_read;
     return i_blocks_read;
 }
-#endif
+#endif /* defined( WIN32 ) */
