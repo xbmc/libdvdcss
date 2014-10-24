@@ -83,10 +83,10 @@ static int libc_read  ( dvdcss_t, void *, int );
 static int libc_readv ( dvdcss_t, struct iovec *, int );
 
 #ifdef WIN32
-static int win2k_open ( dvdcss_t, const char * );
-static int win2k_seek ( dvdcss_t, int );
-static int win2k_read ( dvdcss_t, void *, int );
-static int win_readv  ( dvdcss_t, struct iovec *, int );
+static int win2k_open  ( dvdcss_t, const char * );
+static int win2k_seek  ( dvdcss_t, int );
+static int win2k_read  ( dvdcss_t, void *, int );
+static int win2k_readv ( dvdcss_t, struct iovec *, int );
 
 #elif defined( __OS2__ )
 static int os2_open ( dvdcss_t, const char * );
@@ -363,7 +363,7 @@ int dvdcss_open_device ( dvdcss_t dvdcss )
         print_debug( dvdcss, "using Win2K API for access" );
         dvdcss->pf_seek  = win2k_seek;
         dvdcss->pf_read  = win2k_read;
-        dvdcss->pf_readv = win_readv;
+        dvdcss->pf_readv = win2k_readv;
         return win2k_open( dvdcss, psz_device );
     }
     else
@@ -724,9 +724,9 @@ static int libc_readv ( dvdcss_t dvdcss, struct iovec *p_iovec, int i_blocks )
 
 #if defined( WIN32 )
 /*****************************************************************************
- * win_readv: vectored read using ReadFile for Win2K
+ * win2k_readv: vectored read using ReadFile for Win2K
  *****************************************************************************/
-static int win_readv ( dvdcss_t dvdcss, struct iovec *p_iovec, int i_blocks )
+static int win2k_readv ( dvdcss_t dvdcss, struct iovec *p_iovec, int i_blocks )
 {
     int i_index;
     int i_blocks_read, i_blocks_total = 0;
