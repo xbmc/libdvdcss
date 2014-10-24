@@ -83,8 +83,8 @@
 #   include <sys/dcmd_cam.h>
 #endif
 
+#include "dvdcss/dvdcss.h"
 #include "common.h"
-
 #include "ioctl.h"
 
 /*****************************************************************************
@@ -491,7 +491,7 @@ int ioctl_ReadTitleKey( int i_fd, int *pi_agid, int i_pos, uint8_t *p_key )
         key->KeyType    = DvdTitleKey;
         key->KeyFlags   = 0;
         key->Parameters.TitleOffset.QuadPart = (LONGLONG) i_pos *
-                                                   2048 /*DVDCSS_BLOCK_SIZE*/;
+                                               DVDCSS_BLOCK_SIZE;
 
         i_ret = DeviceIoControl( (HANDLE) i_fd, IOCTL_DVD_READ_KEY, key,
                 key->KeyLength, key, key->KeyLength, &tmp, NULL ) ? 0 : -1;
