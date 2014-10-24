@@ -21,6 +21,7 @@
 #include "config.h"
 #include "common.h"
 #include "ioctl.h"
+#include "libdvdcss.h"
 
 /* On non-Linux platforms static functions from ioctl.c are used. */
 #include "ioctl.c"
@@ -242,7 +243,8 @@ static void usage(void)
 int main(int argc, char *argv[])
 {
   char device_name[FILENAME_MAX], c, set, region = 0;
-  int fd, ret;
+  int ret;
+  dvdcss_t dvdcss;
 
   strcpy(device_name, DEFAULT_DEVICE);
   set = 0;
@@ -273,21 +275,18 @@ int main(int argc, char *argv[])
     return -1;
   }
 
-  /* TODO: use dvdcss_open instead of open */
-
-  if( (fd = open(device_name, O_RDONLY | O_NONBLOCK)) < 0 ) {
-    perror("open");
+  if( !(dvdcss = dvdcss_open(device_name)) ) {
     usage();
     return 1;
   }
 
   {
     int copyright;
-    ret = ioctl_ReadCopyright( fd, 0, &copyright );
+    ret = ioctl_ReadCopyright( dvdcss->i_fd, 0, &copyright );
     printf( "ret %d, copyright %d\n", ret, copyright );
   }
 
-  if( (ret = print_region(fd)) < 0 )
+  if( (ret = print_region(dvdcss->i_fd)) < 0 )
     return ret;
 
   if( set ) {
@@ -296,7 +295,7 @@ int main(int argc, char *argv[])
       exit(0);
     }
 
-    if( (ret = set_region(fd, region)) < 0 )
+    if( (ret = set_region(dvdcss->i_fd, region)) < 0 )
       return ret;
   }
 
