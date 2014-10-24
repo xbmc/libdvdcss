@@ -5,10 +5,9 @@ Changes between 1.2.13 and 1.3.0:
     - the function dvdcss_title()
     - the type dvdcss_handle
     - the variable dvdcss_interface_2
-  * Drop support for Windows 98 and Windows NT 4.0.
-    Windows 98 SE with IE 5.0 and Windows NT 4.0 SP4 with IE 5.0 are required.
   * Support for Android
-  * Drop support for HP-UX.
+  * Drop support for HP-UX, Windows 9x, and Windows NT 4.0.
+    Windows NT 4.0 SP4 with IE 5.0 is now required.
 
 
 Changes between 1.2.12 and 1.2.13:

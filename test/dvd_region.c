@@ -94,28 +94,14 @@ static int ioctl_SendRPC( int i_fd, int i_pdrc )
     i_ret = ioctl( i_fd, DKIOCDVDSENDKEY, &dvd );
 
 #elif defined( WIN32 )
-    if( WIN2K ) /* NT/2k/XP */
-    {
-        INIT_SPTD( GPCMD_SEND_KEY, 8 );
+    INIT_SPTD( GPCMD_SEND_KEY, 8 );
 
-        sptd.Cdb[ 10 ] = DVD_SEND_RPC;
+    sptd.Cdb[ 10 ] = DVD_SEND_RPC;
 
-        p_buffer[ 1 ] = 6;
-        p_buffer[ 4 ] = i_pdrc;
+    p_buffer[ 1 ] = 6;
+    p_buffer[ 4 ] = i_pdrc;
 
-        i_ret = SEND_SPTD( i_fd, &sptd, &tmp );
-    }
-    else
-    {
-        INIT_SSC( GPCMD_SEND_KEY, 8 );
-
-        ssc.CDBByte[ 10 ] = DVD_SEND_RPC;
-
-        p_buffer[ 1 ] = 6;
-        p_buffer[ 4 ] = i_pdrc;
-
-        i_ret = WinSendSSC( i_fd, &ssc );
-    }
+    i_ret = SEND_SPTD( i_fd, &sptd, &tmp );
 
 #elif defined( __QNXNTO__ )
 

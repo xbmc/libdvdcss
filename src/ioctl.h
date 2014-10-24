@@ -96,12 +96,6 @@ int ioctl_ReportRPC         ( int, int *, int *, int * );
                       (SPTD), sizeof( SCSI_PASS_THROUGH_DIRECT ), \
                       (SPTD), sizeof( SCSI_PASS_THROUGH_DIRECT ), \
                       (TMP), NULL ) ? 0 : -1)
-#define INIT_SSC( TYPE, SIZE ) \
-    struct SRB_ExecSCSICmd ssc = { 0 }; \
-    uint8_t p_buffer[ (SIZE)+1 ]; \
-    ssc.SRB_BufPointer = (unsigned char *)p_buffer; \
-    ssc.SRB_BufLen = (SIZE); \
-    WinInitSSC( &ssc, (TYPE) );
 #endif
 
 /*****************************************************************************
@@ -291,92 +285,6 @@ typedef struct SCSI_PASS_THROUGH_DIRECT
     ULONG SenseInfoOffset;
     UCHAR Cdb[16];
 } SCSI_PASS_THROUGH_DIRECT, *PSCSI_PASS_THROUGH_DIRECT;
-
-/*****************************************************************************
- * win32 aspi specific
- *****************************************************************************/
-
-typedef DWORD (CALLBACK *GETASPI32SUPPORTINFO)(VOID);
-typedef DWORD (CALLBACK *SENDASPI32COMMAND)(LPVOID);
-
-#define WIN2K               ( GetVersion() < 0x80000000 )
-#define ASPI_HAID           0
-#define ASPI_TARGET         0
-#define DTYPE_CDROM         0x05
-
-#define SENSE_LEN           0x0E
-#define SC_GET_DEV_TYPE     0x01
-#define SC_EXEC_SCSI_CMD    0x02
-#define SC_GET_DISK_INFO    0x06
-#define SS_COMP             0x01
-#define SS_PENDING          0x00
-#define SS_NO_ADAPTERS      0xE8
-#define SRB_DIR_IN          0x08
-#define SRB_DIR_OUT         0x10
-#define SRB_EVENT_NOTIFY    0x40
-
-struct w32_aspidev
-{
-    long  hASPI;
-    short i_sid;
-    int   i_blocks;
-    SENDASPI32COMMAND lpSendCommand;
-};
-
-#pragma pack(1)
-
-struct SRB_GetDiskInfo
-{
-    unsigned char   SRB_Cmd;
-    unsigned char   SRB_Status;
-    unsigned char   SRB_HaId;
-    unsigned char   SRB_Flags;
-    unsigned long   SRB_Hdr_Rsvd;
-    unsigned char   SRB_Target;
-    unsigned char   SRB_Lun;
-    unsigned char   SRB_DriveFlags;
-    unsigned char   SRB_Int13HDriveInfo;
-    unsigned char   SRB_Heads;
-    unsigned char   SRB_Sectors;
-    unsigned char   SRB_Rsvd1[22];
-};
-
-struct SRB_GDEVBlock
-{
-    unsigned char SRB_Cmd;
-    unsigned char SRB_Status;
-    unsigned char SRB_HaId;
-    unsigned char SRB_Flags;
-    unsigned long SRB_Hdr_Rsvd;
-    unsigned char SRB_Target;
-    unsigned char SRB_Lun;
-    unsigned char SRB_DeviceType;
-    unsigned char SRB_Rsvd1;
-};
-
-struct SRB_ExecSCSICmd
-{
-    unsigned char   SRB_Cmd;
-    unsigned char   SRB_Status;
-    unsigned char   SRB_HaId;
-    unsigned char   SRB_Flags;
-    unsigned long   SRB_Hdr_Rsvd;
-    unsigned char   SRB_Target;
-    unsigned char   SRB_Lun;
-    unsigned short  SRB_Rsvd1;
-    unsigned long   SRB_BufLen;
-    unsigned char   *SRB_BufPointer;
-    unsigned char   SRB_SenseLen;
-    unsigned char   SRB_CDBLen;
-    unsigned char   SRB_HaStat;
-    unsigned char   SRB_TargStat;
-    unsigned long   *SRB_PostProc;
-    unsigned char   SRB_Rsvd2[20];
-    unsigned char   CDBByte[16];
-    unsigned char   SenseArea[SENSE_LEN+2];
-};
-
-#pragma pack()
 
 #endif
 

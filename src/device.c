@@ -84,14 +84,10 @@ static int libc_readv ( dvdcss_t, struct iovec *, int );
 
 #ifdef WIN32
 static int win2k_open ( dvdcss_t, const char * );
-static int aspi_open  ( dvdcss_t, const char * );
 static int win2k_seek ( dvdcss_t, int );
-static int aspi_seek  ( dvdcss_t, int );
 static int win2k_read ( dvdcss_t, void *, int );
-static int aspi_read  ( dvdcss_t, void *, int );
 static int win_readv  ( dvdcss_t, struct iovec *, int );
 
-static int aspi_read_internal  ( int, void *, int );
 #elif defined( __OS2__ )
 static int os2_open ( dvdcss_t, const char * );
 /* just use macros for libc */
@@ -362,21 +358,13 @@ int dvdcss_open_device ( dvdcss_t dvdcss )
     dvdcss->p_readv_buffer   = NULL;
     dvdcss->i_readv_buf_size = 0;
 
-    if( !dvdcss->b_file && WIN2K )
+    if( !dvdcss->b_file )
     {
         print_debug( dvdcss, "using Win2K API for access" );
         dvdcss->pf_seek  = win2k_seek;
         dvdcss->pf_read  = win2k_read;
         dvdcss->pf_readv = win_readv;
         return win2k_open( dvdcss, psz_device );
-    }
-    else if( !dvdcss->b_file )
-    {
-        print_debug( dvdcss, "using ASPI for access" );
-        dvdcss->pf_seek  = aspi_seek;
-        dvdcss->pf_read  = aspi_read;
-        dvdcss->pf_readv = win_readv;
-        return aspi_open( dvdcss, psz_device );
     }
     else
 #elif defined( __OS2__ )
@@ -429,17 +417,9 @@ int dvdcss_close_device ( dvdcss_t dvdcss )
     {
         close( dvdcss->i_fd );
     }
-    else if( WIN2K )
+    else
     {
         CloseHandle( (HANDLE) dvdcss->i_fd );
-    }
-    else /* ASPI */
-    {
-        struct w32_aspidev *fd = (struct w32_aspidev *) dvdcss->i_fd;
-
-        /* Unload ASPI and free w32_aspidev structure */
-        FreeLibrary( (HMODULE) fd->hASPI );
-        free( (void*) dvdcss->i_fd );
     }
 
     /* Free readv temporary buffer */
@@ -525,124 +505,6 @@ static int win2k_open ( dvdcss_t dvdcss, const char *psz_device )
 
 error:
     print_error( dvdcss, "failed opening device" );
-    return -1;
-}
-
-static int aspi_open( dvdcss_t dvdcss, const char *psz_device )
-{
-    HMODULE hASPI;
-    DWORD dwSupportInfo;
-    struct w32_aspidev *fd;
-    int i, j, i_hostadapters;
-    GETASPI32SUPPORTINFO lpGetSupport;
-    SENDASPI32COMMAND lpSendCommand;
-    char c_drive = psz_device[0];
-
-    /* load ASPI and init w32_aspidev structure */
-    hASPI = LoadLibrary( "wnaspi32.dll" );
-    if( hASPI == NULL )
-    {
-        print_error( dvdcss, "unable to load wnaspi32.dll" );
-        return -1;
-    }
-
-    lpGetSupport = (GETASPI32SUPPORTINFO) GetProcAddress( hASPI, "GetASPI32SupportInfo" );
-    lpSendCommand = (SENDASPI32COMMAND) GetProcAddress( hASPI, "SendASPI32Command" );
-
-    if(lpGetSupport == NULL || lpSendCommand == NULL )
-    {
-        print_error( dvdcss, "unable to get ASPI function pointers" );
-        FreeLibrary( hASPI );
-        return -1;
-    }
-
-    dwSupportInfo = lpGetSupport();
-
-    if( HIBYTE( LOWORD ( dwSupportInfo ) ) == SS_NO_ADAPTERS )
-    {
-        print_error( dvdcss, "no ASPI adapters found" );
-        FreeLibrary( hASPI );
-        return -1;
-    }
-
-    if( HIBYTE( LOWORD ( dwSupportInfo ) ) != SS_COMP )
-    {
-        print_error( dvdcss, "unable to initialize ASPI layer" );
-        FreeLibrary( hASPI );
-        return -1;
-    }
-
-    i_hostadapters = LOBYTE( LOWORD( dwSupportInfo ) );
-    if( i_hostadapters == 0 )
-    {
-        print_error( dvdcss, "no ASPI adapters ready" );
-        FreeLibrary( hASPI );
-        return -1;
-    }
-
-    fd = malloc( sizeof( struct w32_aspidev ) );
-    if( fd == NULL )
-    {
-        print_error( dvdcss, "not enough memory" );
-        FreeLibrary( hASPI );
-        return -1;
-    }
-
-    fd->i_blocks = 0;
-    fd->hASPI = (long) hASPI;
-    fd->lpSendCommand = lpSendCommand;
-
-    c_drive = c_drive > 'Z' ? c_drive - 'a' : c_drive - 'A';
-
-    for( i = 0; i < i_hostadapters; i++ )
-    {
-        for( j = 0; j < 15; j++ )
-        {
-            struct SRB_GetDiskInfo srbDiskInfo;
-
-            srbDiskInfo.SRB_Cmd         = SC_GET_DISK_INFO;
-            srbDiskInfo.SRB_HaId        = i;
-            srbDiskInfo.SRB_Flags       = 0;
-            srbDiskInfo.SRB_Hdr_Rsvd    = 0;
-            srbDiskInfo.SRB_Target      = j;
-            srbDiskInfo.SRB_Lun         = 0;
-
-            lpSendCommand( (void*) &srbDiskInfo );
-
-            if( (srbDiskInfo.SRB_Status == SS_COMP) &&
-                (srbDiskInfo.SRB_Int13HDriveInfo == c_drive) )
-            {
-                /* Make sure this is a CD-ROM device */
-                struct SRB_GDEVBlock srbGDEVBlock = { 0 };
-
-                srbGDEVBlock.SRB_Cmd    = SC_GET_DEV_TYPE;
-                srbGDEVBlock.SRB_HaId   = i;
-                srbGDEVBlock.SRB_Target = j;
-
-                lpSendCommand( (void*) &srbGDEVBlock );
-
-                if( ( srbGDEVBlock.SRB_Status == SS_COMP ) &&
-                    ( srbGDEVBlock.SRB_DeviceType == DTYPE_CDROM ) )
-                {
-                    fd->i_sid = MAKEWORD( i, j );
-                    dvdcss->i_fd = (int) fd;
-                    dvdcss->i_pos = 0;
-                    return 0;
-                }
-                else
-                {
-                    free( fd );
-                    FreeLibrary( hASPI );
-                    print_error( dvdcss,"this is not a CD-ROM drive" );
-                    return -1;
-                }
-            }
-        }
-    }
-
-    free( (void*) fd );
-    FreeLibrary( hASPI );
-    print_error( dvdcss, "unable to get haid and target (ASPI)" );
     return -1;
 }
 #endif
@@ -733,35 +595,6 @@ static int win2k_seek( dvdcss_t dvdcss, int i_blocks )
 
     return dvdcss->i_pos;
 }
-
-static int aspi_seek( dvdcss_t dvdcss, int i_blocks )
-{
-    int i_old_blocks;
-    char sz_buf[ DVDCSS_BLOCK_SIZE ];
-    struct w32_aspidev *fd = (struct w32_aspidev *) dvdcss->i_fd;
-
-    if( dvdcss->i_pos == i_blocks )
-    {
-        /* We are already in position */
-        return i_blocks;
-    }
-
-    i_old_blocks = fd->i_blocks;
-    fd->i_blocks = i_blocks;
-
-    if( aspi_read_internal( dvdcss->i_fd, sz_buf, 1 ) == -1 )
-    {
-        fd->i_blocks = i_old_blocks;
-        dvdcss->i_pos = -1;
-        return -1;
-    }
-
-    (fd->i_blocks)--;
-
-    dvdcss->i_pos = fd->i_blocks;
-
-    return dvdcss->i_pos;
-}
 #endif
 
 /*****************************************************************************
@@ -816,20 +649,6 @@ static int win2k_read ( dvdcss_t dvdcss, void *p_buffer, int i_blocks )
 
     dvdcss->i_pos += i_bytes / DVDCSS_BLOCK_SIZE;
     return i_bytes / DVDCSS_BLOCK_SIZE;
-}
-
-static int aspi_read ( dvdcss_t dvdcss, void *p_buffer, int i_blocks )
-{
-    int i_read = aspi_read_internal( dvdcss->i_fd, p_buffer, i_blocks );
-
-    if( i_read < 0 )
-    {
-        dvdcss->i_pos = -1;
-        return i_read;
-    }
-
-    dvdcss->i_pos += i_read;
-    return i_read;
 }
 #endif
 
@@ -905,7 +724,7 @@ static int libc_readv ( dvdcss_t dvdcss, struct iovec *p_iovec, int i_blocks )
 
 #if defined( WIN32 )
 /*****************************************************************************
- * win_readv: vectored read using ReadFile for Win2K and ASPI for win9x
+ * win_readv: vectored read using ReadFile for Win2K
  *****************************************************************************/
 static int win_readv ( dvdcss_t dvdcss, struct iovec *p_iovec, int i_blocks )
 {
@@ -941,31 +760,16 @@ static int win_readv ( dvdcss_t dvdcss, struct iovec *p_iovec, int i_blocks )
 
     i_blocks_total /= DVDCSS_BLOCK_SIZE;
 
-    if( WIN2K )
+    if( !ReadFile( (HANDLE)dvdcss->i_fd, dvdcss->p_readv_buffer,
+                   i_blocks_total * DVDCSS_BLOCK_SIZE, &i_bytes, NULL ) )
     {
-        if( !ReadFile( (HANDLE)dvdcss->i_fd, dvdcss->p_readv_buffer,
-                       i_blocks_total * DVDCSS_BLOCK_SIZE, &i_bytes, NULL ) )
-        {
-            /* The read failed... too bad.
-             * As in the POSIX spec the file position is left
-             * unspecified after a failure */
-            dvdcss->i_pos = -1;
-            return -1;
-        }
-        i_blocks_read = i_bytes / DVDCSS_BLOCK_SIZE;
+        /* The read failed... too bad.
+         * As in the POSIX spec the file position is left
+         * unspecified after a failure */
+        dvdcss->i_pos = -1;
+        return -1;
     }
-    else /* Win9x */
-    {
-        i_blocks_read = aspi_read_internal( dvdcss->i_fd,
-                                            dvdcss->p_readv_buffer,
-                                            i_blocks_total );
-        if( i_blocks_read < 0 )
-        {
-            /* See above */
-            dvdcss->i_pos = -1;
-            return -1;
-        }
-    }
+    i_blocks_read = i_bytes / DVDCSS_BLOCK_SIZE;
 
     /* We just have to copy the content of the temp buffer into the iovecs */
     for( i_index = 0, i_blocks_total = i_blocks_read;
@@ -984,83 +788,5 @@ static int win_readv ( dvdcss_t dvdcss, struct iovec *p_iovec, int i_blocks )
 
     dvdcss->i_pos += i_blocks_read;
     return i_blocks_read;
-}
-
-static int aspi_read_internal( int i_fd, void *p_data, int i_blocks )
-{
-    HANDLE hEvent;
-    struct SRB_ExecSCSICmd ssc = { 0 };
-    struct w32_aspidev *fd = (struct w32_aspidev *) i_fd;
-
-    /* Create the transfer completion event */
-    hEvent = CreateEvent( NULL, TRUE, FALSE, NULL );
-    if( hEvent == NULL )
-    {
-        return -1;
-    }
-
-    ssc.SRB_Cmd         = SC_EXEC_SCSI_CMD;
-    ssc.SRB_Flags       = SRB_DIR_IN | SRB_EVENT_NOTIFY;
-    ssc.SRB_HaId        = LOBYTE( fd->i_sid );
-    ssc.SRB_Target      = HIBYTE( fd->i_sid );
-    ssc.SRB_SenseLen    = SENSE_LEN;
-
-    ssc.SRB_PostProc = (LPVOID) hEvent;
-    ssc.SRB_BufPointer  = p_data;
-    ssc.SRB_CDBLen      = 12;
-
-    ssc.CDBByte[0]      = 0xA8; /* RAW */
-    ssc.CDBByte[2]      = (UCHAR) (fd->i_blocks >> 24);
-    ssc.CDBByte[3]      = (UCHAR) (fd->i_blocks >> 16) & 0xff;
-    ssc.CDBByte[4]      = (UCHAR) (fd->i_blocks >> 8) & 0xff;
-    ssc.CDBByte[5]      = (UCHAR) (fd->i_blocks) & 0xff;
-
-    /* We have to break down the reads into 64KB pieces (ASPI restriction) */
-    if( i_blocks > 32 )
-    {
-        ssc.SRB_BufLen = 32 * DVDCSS_BLOCK_SIZE;
-        ssc.CDBByte[9] = 32;
-        fd->i_blocks  += 32;
-
-        /* Initiate transfer */
-        ResetEvent( hEvent );
-        fd->lpSendCommand( (void*) &ssc );
-
-        /* transfer the next 64KB (aspi_read_internal is called recursively)
-         * We need to check the status of the read on return */
-        if( aspi_read_internal( i_fd,
-                                (uint8_t*) p_data + 32 * DVDCSS_BLOCK_SIZE,
-                                i_blocks - 32) < 0 )
-        {
-            return -1;
-        }
-    }
-    else
-    {
-        /* This is the last transfer */
-        ssc.SRB_BufLen   = i_blocks * DVDCSS_BLOCK_SIZE;
-        ssc.CDBByte[9]   = (UCHAR) i_blocks;
-        fd->i_blocks += i_blocks;
-
-        /* Initiate transfer */
-        ResetEvent( hEvent );
-        fd->lpSendCommand( (void*) &ssc );
-
-    }
-
-    /* If the command has still not been processed, wait until it's finished */
-    if( ssc.SRB_Status == SS_PENDING )
-    {
-        WaitForSingleObject( hEvent, INFINITE );
-    }
-    CloseHandle( hEvent );
-
-    /* check that the transfer went as planned */
-    if( ssc.SRB_Status != SS_COMP )
-    {
-      return -1;
-    }
-
-    return i_blocks;
 }
 #endif
