@@ -103,7 +103,7 @@ int ioctl_ReportRPC         ( int, int *, int *, int * );
 #endif
 
 /*****************************************************************************
- * Additional types, OpenBSD specific
+ * Additional types, OpenBSD-specific
  *****************************************************************************/
 #if defined( HAVE_OPENBSD_DVD_STRUCT )
 typedef union dvd_struct dvd_struct;
@@ -137,7 +137,7 @@ typedef union dvd_authinfo dvd_authinfo;
 #define DVDCSS_INVALIDATE_AGID   0x3f
 
 /*****************************************************************************
- * win32 ioctl specific
+ * Win32-ioctl-specific
  *****************************************************************************/
 #if defined( WIN32 )
 
@@ -264,7 +264,7 @@ typedef struct SCSI_PASS_THROUGH_DIRECT
 #endif /* defined( WIN32 ) */
 
 /*****************************************************************************
- * OS2 ioctl specific
+ * OS/2-ioctl-specific
  *****************************************************************************/
 #if defined( __OS2__ )
 

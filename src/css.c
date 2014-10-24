@@ -466,7 +466,7 @@ static int dvdcss_titlekey( dvdcss_t dvdcss, int i_pos, dvd_key_t p_title_key )
 
             case 1:
                 /* Drive status is OK. */
-                /* If the title key request failed, but we did not loose ASF,
+                /* If the title key request failed, but we did not lose ASF,
                  * we might still have the AGID.  Other code assumes that we
                  * will not after this so invalidate it(?). */
                 if( i_ret < 0 )

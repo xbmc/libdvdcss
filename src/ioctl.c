@@ -1528,7 +1528,7 @@ static void QNXInitCPT( CAM_PASS_THRU * p_cpt, int i_type )
 /*****************************************************************************
  * OS2InitSDC: initialize a SDC structure for the Execute SCSI-command
  *****************************************************************************
- * This function initializes a OS2 'execute SCSI command' structure for
+ * This function initializes an OS/2 'execute SCSI command' structure for
  * future use, either a read command or a write command.
  *****************************************************************************/
 static void OS2InitSDC( struct OS2_ExecSCSICmd *p_sdc, int i_type )

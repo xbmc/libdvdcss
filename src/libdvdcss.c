@@ -160,20 +160,14 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
     const char *psz_raw_device = getenv( "DVDCSS_RAW_DEVICE" );
 #endif
 
-    dvdcss_t dvdcss;
-
-    /*
-     *  Allocate the library structure
-     */
-    dvdcss = malloc( sizeof( struct dvdcss_s ) );
+    /* Allocate the library structure. */
+    dvdcss_t dvdcss = malloc( sizeof( struct dvdcss_s ) );
     if( dvdcss == NULL )
     {
         return NULL;
     }
 
-    /*
-     *  Initialize structure with default values
-     */
+    /* Initialize structure with default values. */
 #ifdef DVDCSS_RAW_OPEN
     dvdcss->i_raw_fd = -1;
 #endif
@@ -185,9 +179,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
     dvdcss->b_debug = 0;
     dvdcss->b_errors = 0;
 
-    /*
-     *  Find verbosity from DVDCSS_VERBOSE environment variable
-     */
+    /* Set library verbosity from DVDCSS_VERBOSE environment variable. */
     if( psz_verbose != NULL )
     {
         int i = atoi( psz_verbose );
@@ -196,9 +188,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
         if( i >= 1 ) dvdcss->b_errors = 1;
     }
 
-    /*
-     *  Find method from DVDCSS_METHOD environment variable
-     */
+    /* Set DVD access method from DVDCSS_METHOD environment variable. */
     if( psz_method != NULL )
     {
         if( !strncmp( psz_method, "key", 4 ) )
@@ -221,9 +211,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
         }
     }
 
-    /*
-     *  If DVDCSS_CACHE was not set, try to guess a default value
-     */
+    /* Set CSS key cache directory. */
     if( psz_cache == NULL || psz_cache[0] == '\0' )
     {
 #if defined(_WIN32_IE) && _WIN32_IE >= 0x500
@@ -288,9 +276,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
 #endif /* ! defined(_WIN32_IE) && _WIN32_IE >= 0x500 */
     }
 
-    /*
-     *  Find cache dir from the DVDCSS_CACHE environment variable
-     */
+    /* Sanity check psz_cache value. */
     if( psz_cache != NULL )
     {
         if( psz_cache[0] == '\0' || !strcmp( psz_cache, "off" ) )
@@ -306,9 +292,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
         }
     }
 
-    /*
-     *  Open device
-     */
+    /* Open device. */
     dvdcss_check_device( dvdcss );
     i_ret = dvdcss_open_device( dvdcss );
     if( i_ret < 0 )
@@ -464,8 +448,8 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
             }
         }
 
-        /* Get disk key, since some discs have got same title, manufacturing
-         * date and serial number, but different keys */
+        /* Get disk key, since some discs have the same title, manufacturing
+         * date and serial number, but different keys. */
         if( dvdcss->b_scrambled )
         {
              psz_key[0] = '-';
@@ -516,7 +500,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
     }
 #endif /* DVDCSS_RAW_OPEN */
 
-    /* Seek at the beginning, just for safety. */
+    /* Seek to the beginning, just for safety. */
     dvdcss->pf_seek( dvdcss, 0 );
 
     return dvdcss;

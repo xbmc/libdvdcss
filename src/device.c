@@ -372,7 +372,7 @@ int dvdcss_open_device ( dvdcss_t dvdcss )
     if( psz_device[0] && psz_device[1] == ':' &&
         ( !psz_device[2] || ( psz_device[2] == '\\' && !psz_device[3] ) ) )
     {
-        print_debug( dvdcss, "using OS2 API for access" );
+        print_debug( dvdcss, "using OS/2 API for access" );
         dvdcss->pf_seek  = os2_seek;
         dvdcss->pf_read  = os2_read;
         dvdcss->pf_readv = os2_readv;
