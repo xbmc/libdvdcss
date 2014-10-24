@@ -42,7 +42,7 @@ int ioctl_ReportRPC         ( int, int *, int *, int * );
 #define DVD_DISCKEY_SIZE 2048
 
 /*****************************************************************************
- * Common macro, BeOS specific
+ * Common macros, OS-specific
  *****************************************************************************/
 #if defined( __HAIKU__ )
 #define INIT_RDC( TYPE, SIZE ) \
@@ -51,12 +51,7 @@ int ioctl_ReportRPC         ( int, int *, int *, int * );
     rdc.data = (char *)p_buffer; \
     rdc.data_length = (SIZE); \
     BeInitRDC( &rdc, (TYPE) );
-#endif
-
-/*****************************************************************************
- * Common macro, Solaris specific
- *****************************************************************************/
-#if defined( SOLARIS_USCSI )
+#elif defined( SOLARIS_USCSI )
 #define INIT_USCSI( TYPE, SIZE ) \
     struct uscsi_cmd sc = { 0 }; \
     union scsi_cdb rs_cdb; \
@@ -65,24 +60,14 @@ int ioctl_ReportRPC         ( int, int *, int *, int * );
     sc.uscsi_bufaddr = (caddr_t)p_buffer; \
     sc.uscsi_buflen = (SIZE); \
     SolarisInitUSCSI( &sc, (TYPE) );
-#endif
-
-/*****************************************************************************
- * Common macro, Darwin specific
- *****************************************************************************/
-#if defined( DARWIN_DVD_IOCTL )
+#elif defined( DARWIN_DVD_IOCTL )
 #define INIT_DVDIOCTL( DKDVD_TYPE, BUFFER_TYPE, FORMAT ) \
     DKDVD_TYPE dvd = { 0 }; \
     BUFFER_TYPE dvdbs = { 0 }; \
     dvd.format = FORMAT; \
     dvd.buffer = &dvdbs; \
     dvd.bufferLength = sizeof(dvdbs);
-#endif
-
-/*****************************************************************************
- * Common macro, win32 specific
- *****************************************************************************/
-#if defined( WIN32 )
+#elif defined( WIN32 )
 #define INIT_SPTD( TYPE, SIZE ) \
     DWORD tmp; \
     SCSI_PASS_THROUGH_DIRECT sptd = { 0 }; \
@@ -96,12 +81,7 @@ int ioctl_ReportRPC         ( int, int *, int *, int * );
                       (SPTD), sizeof( SCSI_PASS_THROUGH_DIRECT ), \
                       (SPTD), sizeof( SCSI_PASS_THROUGH_DIRECT ), \
                       (TMP), NULL ) ? 0 : -1)
-#endif
-
-/*****************************************************************************
- * Common macro, QNX specific
- *****************************************************************************/
-#if defined( __QNXNTO__ )
+#elif defined( __QNXNTO__ )
 #define INIT_CPT( TYPE, SIZE ) \
     CAM_PASS_THRU * p_cpt = { 0 }; \
     uint8_t * p_buffer; \
@@ -111,12 +91,7 @@ int ioctl_ReportRPC         ( int, int *, int *, int * );
       p_cpt->cam_data_ptr = sizeof( CAM_PASS_THRU ); \
       p_cpt->cam_dxfer_len = (SIZE); \
     QNXInitCPT( p_cpt, (TYPE) );
-#endif
-
-/*****************************************************************************
- * Common macro, OS2 specific
- *****************************************************************************/
-#if defined( __OS2__ )
+#elif defined( __OS2__ )
 #define INIT_SSC( TYPE, SIZE ) \
     struct OS2_ExecSCSICmd sdc = { 0 }; \
     uint8_t p_buffer[ (SIZE) + 1 ] = { 0 }; \

@@ -88,38 +88,18 @@
 #include "ioctl.h"
 
 /*****************************************************************************
- * Local prototypes, BeOS specific
+ * Local prototypes, OS-specific
  *****************************************************************************/
 #if defined( __HAIKU__ )
 static void BeInitRDC ( raw_device_command *, int );
-#endif
-
-/*****************************************************************************
- * Local prototypes, Solaris specific
- *****************************************************************************/
-#if defined( SOLARIS_USCSI )
+#elif defined( SOLARIS_USCSI )
 static void SolarisInitUSCSI( struct uscsi_cmd *p_sc, int i_type );
 static int SolarisSendUSCSI( int fd, struct uscsi_cmd *p_sc );
-#endif
-
-/*****************************************************************************
- * Local prototypes, Win32 specific
- *****************************************************************************/
-#if defined( WIN32 )
+#elif defined( WIN32 )
 static void WinInitSPTD ( SCSI_PASS_THROUGH_DIRECT *, int );
-#endif
-
-/*****************************************************************************
- * Local prototypes, QNX specific
- *****************************************************************************/
-#if defined( __QNXNTO__ )
+#elif defined( __QNXNTO__ )
 static void QNXInitCPT ( CAM_PASS_THRU *, int );
-#endif
-
-/*****************************************************************************
- * Local prototypes, OS2 specific
- *****************************************************************************/
-#if defined( __OS2__ )
+#elif defined( __OS2__ )
 static void OS2InitSDC( struct OS2_ExecSCSICmd *, int );
 #endif
 
