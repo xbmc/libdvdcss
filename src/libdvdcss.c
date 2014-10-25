@@ -681,7 +681,7 @@ LIBDVDCSS_EXPORT int dvdcss_readv ( dvdcss_t dvdcss, void *p_iovec,
                                            int i_blocks,
                                            int i_flags )
 {
-    struct iovec *_p_iovec = (struct iovec *)p_iovec;
+    struct iovec *_p_iovec = p_iovec;
     int i_ret, i_index;
     void *iov_base;
     size_t iov_len;
@@ -718,7 +718,7 @@ LIBDVDCSS_EXPORT int dvdcss_readv ( dvdcss_t dvdcss, void *p_iovec,
         dvdcss_unscramble( dvdcss->css.p_title_key, iov_base );
         ((uint8_t*)iov_base)[0x14] &= 0x8f;
 
-        iov_base = (void *) ((uint8_t*)iov_base + DVDCSS_BLOCK_SIZE);
+        iov_base = (uint8_t*)iov_base + DVDCSS_BLOCK_SIZE;
         iov_len -= DVDCSS_BLOCK_SIZE;
     }
 
