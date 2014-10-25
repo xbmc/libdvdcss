@@ -136,6 +136,24 @@
 #define mkdir(a, b) _mkdir(a)
 #endif
 
+static void set_verbosity( dvdcss_t dvdcss )
+{
+    const char *psz_verbose = getenv( "DVDCSS_VERBOSE" );
+
+    dvdcss->b_debug  = 0;
+    dvdcss->b_errors = 0;
+
+    if( psz_verbose != NULL )
+    {
+        int i = atoi( psz_verbose );
+
+        if( i >= 2 )
+            dvdcss->b_debug  = 1;
+        if( i >= 1 )
+            dvdcss->b_errors = 1;
+    }
+}
+
 /**
  * \brief Open a DVD device or directory and return a dvdcss instance.
  *
@@ -154,7 +172,6 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
     int i_ret;
 
     const char *psz_method = getenv( "DVDCSS_METHOD" );
-    const char *psz_verbose = getenv( "DVDCSS_VERBOSE" );
     const char *psz_cache = getenv( "DVDCSS_CACHE" );
 #ifdef DVDCSS_RAW_OPEN
     const char *psz_raw_device = getenv( "DVDCSS_RAW_DEVICE" );
@@ -176,17 +193,9 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
     dvdcss->psz_error = "no error";
     dvdcss->i_method = DVDCSS_METHOD_KEY;
     dvdcss->psz_cachefile[0] = '\0';
-    dvdcss->b_debug = 0;
-    dvdcss->b_errors = 0;
 
     /* Set library verbosity from DVDCSS_VERBOSE environment variable. */
-    if( psz_verbose != NULL )
-    {
-        int i = atoi( psz_verbose );
-
-        if( i >= 2 ) dvdcss->b_debug = i;
-        if( i >= 1 ) dvdcss->b_errors = 1;
-    }
+    set_verbosity( dvdcss );
 
     /* Set DVD access method from DVDCSS_METHOD environment variable. */
     if( psz_method != NULL )
