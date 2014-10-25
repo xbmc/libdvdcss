@@ -217,9 +217,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
         {
             print_error( dvdcss, "unknown decrypt method, please choose "
                                  "from 'title', 'key' or 'disc'" );
-            free( dvdcss->psz_device );
-            free( dvdcss );
-            return NULL;
+            goto error;
         }
     }
 
@@ -315,9 +313,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
     i_ret = dvdcss_open_device( dvdcss );
     if( i_ret < 0 )
     {
-        free( dvdcss->psz_device );
-        free( dvdcss );
-        return NULL;
+        goto error;
     }
 
     dvdcss->b_scrambled = 1; /* Assume the worst */
@@ -524,6 +520,11 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( char *psz_target )
     dvdcss->pf_seek( dvdcss, 0 );
 
     return dvdcss;
+
+error:
+    free( dvdcss->psz_device );
+    free( dvdcss );
+    return NULL;
 }
 
 /**
