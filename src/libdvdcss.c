@@ -154,6 +154,34 @@ static void set_verbosity( dvdcss_t dvdcss )
     }
 }
 
+static int set_access_method( dvdcss_t dvdcss )
+{
+    const char *psz_method = getenv( "DVDCSS_METHOD" );
+
+    if( !psz_method )
+        return 0;
+
+    if( !strncmp( psz_method, "key", 4 ) )
+    {
+        dvdcss->i_method = DVDCSS_METHOD_KEY;
+    }
+    else if( !strncmp( psz_method, "disc", 5 ) )
+    {
+        dvdcss->i_method = DVDCSS_METHOD_DISC;
+    }
+    else if( !strncmp( psz_method, "title", 5 ) )
+    {
+        dvdcss->i_method = DVDCSS_METHOD_TITLE;
+    }
+    else
+    {
+        print_error( dvdcss, "unknown decrypt method, please choose "
+                     "from 'title', 'key' or 'disc'" );
+        return -1;
+    }
+    return 0;
+}
+
 /**
  * \brief Open a DVD device or directory and return a dvdcss instance.
  *
@@ -171,7 +199,6 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
     char psz_buffer[PATH_MAX];
     int i_ret;
 
-    const char *psz_method = getenv( "DVDCSS_METHOD" );
     const char *psz_cache = getenv( "DVDCSS_CACHE" );
 #ifdef DVDCSS_RAW_OPEN
     const char *psz_raw_device = getenv( "DVDCSS_RAW_DEVICE" );
@@ -198,26 +225,9 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
     set_verbosity( dvdcss );
 
     /* Set DVD access method from DVDCSS_METHOD environment variable. */
-    if( psz_method != NULL )
+    if( set_access_method( dvdcss ) < 0 )
     {
-        if( !strncmp( psz_method, "key", 4 ) )
-        {
-            dvdcss->i_method = DVDCSS_METHOD_KEY;
-        }
-        else if( !strncmp( psz_method, "disc", 5 ) )
-        {
-            dvdcss->i_method = DVDCSS_METHOD_DISC;
-        }
-        else if( !strncmp( psz_method, "title", 5 ) )
-        {
-            dvdcss->i_method = DVDCSS_METHOD_TITLE;
-        }
-        else
-        {
-            print_error( dvdcss, "unknown decrypt method, please choose "
-                                 "from 'title', 'key' or 'disc'" );
-            goto error;
-        }
+        goto error;
     }
 
     /* Set CSS key cache directory. */
