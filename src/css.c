@@ -297,6 +297,10 @@ int dvdcss_title ( dvdcss_t dvdcss, int i_block )
 
     /* Write in the new title and its key */
     p_newtitle = malloc( sizeof( dvd_title_t ) );
+    if( p_newtitle == NULL )
+    {
+        return -1;
+    }
     p_newtitle->i_startlb = i_block;
     memcpy( p_newtitle->p_key, p_title_key, KEY_SIZE );
 
