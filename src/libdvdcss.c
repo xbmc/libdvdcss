@@ -304,6 +304,122 @@ static void init_cache_dir( dvdcss_t dvdcss, const char *psz_cache )
     }
 }
 
+static void create_cache_subdir( dvdcss_t dvdcss, const char *psz_cache )
+{
+    uint8_t p_sector[DVDCSS_BLOCK_SIZE];
+    char psz_key[STRING_KEY_SIZE + 1];
+    char *psz_title;
+    uint8_t *psz_serial;
+    int i, i_ret;
+
+    /* We read sector 0. If it starts with 0x000001ba (BE), we are
+     * reading a VOB file, and we should not cache anything. */
+
+    i_ret = dvdcss->pf_seek( dvdcss, 0 );
+    if( i_ret != 0 )
+    {
+        return;
+    }
+
+    i_ret = dvdcss->pf_read( dvdcss, p_sector, 1 );
+    if( i_ret != 1 )
+    {
+        return;
+    }
+
+    if( p_sector[0] == 0x00 && p_sector[1] == 0x00
+        && p_sector[2] == 0x01 && p_sector[3] == 0xba )
+    {
+        return;
+    }
+
+    /* The data we are looking for is at sector 16 (32768 bytes):
+     *  - offset 40: disc title (32 uppercase chars)
+     *  - offset 813: manufacturing date + serial no (16 digits) */
+
+    i_ret = dvdcss->pf_seek( dvdcss, INTERESTING_SECTOR );
+    if( i_ret != INTERESTING_SECTOR )
+    {
+        return;
+    }
+
+    i_ret = dvdcss->pf_read( dvdcss, p_sector, 1 );
+    if( i_ret != 1 )
+    {
+        return;
+    }
+
+    /* Get the disc title */
+    psz_title = (char *)p_sector + DISC_TITLE_OFFSET;
+    psz_title[DISC_TITLE_LENGTH] = '\0';
+
+    for( i = 0; i < DISC_TITLE_LENGTH; i++ )
+    {
+        if( psz_title[i] <= ' ' )
+        {
+            psz_title[i] = '\0';
+            break;
+        }
+        else if( psz_title[i] == '/' || psz_title[i] == '\\' )
+        {
+            psz_title[i] = '-';
+        }
+    }
+
+    /* Get the date + serial */
+    psz_serial = p_sector + MANUFACTURING_DATE_OFFSET;
+    psz_serial[MANUFACTURING_DATE_LENGTH] = '\0';
+
+    /* Check that all characters are digits, otherwise convert. */
+    for( i = 0 ; i < MANUFACTURING_DATE_LENGTH ; i++ )
+    {
+        if( psz_serial[i] < '0' || psz_serial[i] > '9' )
+        {
+            char psz_tmp[MANUFACTURING_DATE_LENGTH + 1];
+            sprintf( psz_tmp,
+                     "%.2x%.2x%.2x%.2x%.2x%.2x%.2x%.2x",
+                     psz_serial[0], psz_serial[1], psz_serial[2],
+                     psz_serial[3], psz_serial[4], psz_serial[5],
+                     psz_serial[6], psz_serial[7] );
+            memcpy( psz_serial, psz_tmp, MANUFACTURING_DATE_LENGTH );
+            break;
+        }
+    }
+
+    /* Get disk key, since some discs have the same title, manufacturing
+     * date and serial number, but different keys. */
+    if( dvdcss->b_scrambled )
+    {
+        for( i = 0; i < KEY_SIZE; i++ )
+        {
+            sprintf( &psz_key[i * 2], "%.2x", dvdcss->css.p_disc_key[i] );
+        }
+        psz_key[STRING_KEY_SIZE] = '\0';
+    }
+    else
+    {
+        psz_key[0] = 0;
+    }
+
+    /* We have a disc name or ID, we can create the cache subdirectory. */
+    i = sprintf( dvdcss->psz_cachefile, "%s/%s-%s-%s",
+                 psz_cache, psz_title, psz_serial, psz_key );
+    i_ret = mkdir( dvdcss->psz_cachefile, 0755 );
+    if( i_ret < 0 && errno != EEXIST )
+    {
+        print_error( dvdcss, "failed creating cache subdirectory" );
+        dvdcss->psz_cachefile[0] = '\0';
+        return;
+    }
+    i += sprintf( dvdcss->psz_cachefile + i, "/");
+
+    /* Pointer to the filename we will use. */
+    dvdcss->psz_block = dvdcss->psz_cachefile + i;
+
+    print_debug( dvdcss, "using CSS key cache dir: %s",
+                 dvdcss->psz_cachefile );
+}
+
 /**
  * \brief Open a DVD device or directory and return a dvdcss instance.
  *
@@ -411,120 +527,8 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
     /* If the cache is enabled, extract a unique disc ID */
     if( psz_cache )
     {
-        uint8_t p_sector[DVDCSS_BLOCK_SIZE];
-        char psz_key[STRING_KEY_SIZE + 1];
-        char *psz_title;
-        uint8_t *psz_serial;
-        int i;
-
-        /* We read sector 0. If it starts with 0x000001ba (BE), we are
-         * reading a VOB file, and we should not cache anything. */
-
-        i_ret = dvdcss->pf_seek( dvdcss, 0 );
-        if( i_ret != 0 )
-        {
-            goto nocache;
-        }
-
-        i_ret = dvdcss->pf_read( dvdcss, p_sector, 1 );
-        if( i_ret != 1 )
-        {
-            goto nocache;
-        }
-
-        if( p_sector[0] == 0x00 && p_sector[1] == 0x00
-             && p_sector[2] == 0x01 && p_sector[3] == 0xba )
-        {
-            goto nocache;
-        }
-
-        /* The data we are looking for is at sector 16 (32768 bytes):
-         *  - offset 40: disc title (32 uppercase chars)
-         *  - offset 813: manufacturing date + serial no (16 digits) */
-
-        i_ret = dvdcss->pf_seek( dvdcss, INTERESTING_SECTOR );
-        if( i_ret != INTERESTING_SECTOR )
-        {
-            goto nocache;
-        }
-
-        i_ret = dvdcss->pf_read( dvdcss, p_sector, 1 );
-        if( i_ret != 1 )
-        {
-            goto nocache;
-        }
-
-        /* Get the disc title */
-        psz_title = (char *)p_sector + DISC_TITLE_OFFSET;
-        psz_title[DISC_TITLE_LENGTH] = '\0';
-
-        for( i = 0; i < DISC_TITLE_LENGTH; i++ )
-        {
-            if( psz_title[i] <= ' ' )
-            {
-                psz_title[i] = '\0';
-                break;
-            }
-            else if( psz_title[i] == '/' || psz_title[i] == '\\' )
-            {
-                psz_title[i] = '-';
-            }
-        }
-
-        /* Get the date + serial */
-        psz_serial = p_sector + MANUFACTURING_DATE_OFFSET;
-        psz_serial[MANUFACTURING_DATE_LENGTH] = '\0';
-
-        /* Check that all characters are digits, otherwise convert. */
-        for( i = 0 ; i < MANUFACTURING_DATE_LENGTH ; i++ )
-        {
-            if( psz_serial[i] < '0' || psz_serial[i] > '9' )
-            {
-                char psz_tmp[MANUFACTURING_DATE_LENGTH + 1];
-                sprintf( psz_tmp,
-                         "%.2x%.2x%.2x%.2x%.2x%.2x%.2x%.2x",
-                         psz_serial[0], psz_serial[1], psz_serial[2],
-                         psz_serial[3], psz_serial[4], psz_serial[5],
-                         psz_serial[6], psz_serial[7] );
-                memcpy( psz_serial, psz_tmp, MANUFACTURING_DATE_LENGTH );
-                break;
-            }
-        }
-
-        /* Get disk key, since some discs have the same title, manufacturing
-         * date and serial number, but different keys. */
-        if( dvdcss->b_scrambled )
-        {
-             for( i = 0; i < KEY_SIZE; i++ )
-             {
-                 sprintf( &psz_key[i * 2], "%.2x", dvdcss->css.p_disc_key[i] );
-             }
-             psz_key[STRING_KEY_SIZE] = '\0';
-        }
-        else
-        {
-             psz_key[0] = 0;
-        }
-
-        /* We have a disc name or ID, we can create the cache subdirectory. */
-        i = sprintf( dvdcss->psz_cachefile, "%s/%s-%s-%s",
-                     psz_cache, psz_title, psz_serial, psz_key );
-        i_ret = mkdir( dvdcss->psz_cachefile, 0755 );
-        if( i_ret < 0 && errno != EEXIST )
-        {
-            print_error( dvdcss, "failed creating cache subdirectory" );
-            dvdcss->psz_cachefile[0] = '\0';
-            goto nocache;
-        }
-        i += sprintf( dvdcss->psz_cachefile + i, "/");
-
-        /* Pointer to the filename we will use. */
-        dvdcss->psz_block = dvdcss->psz_cachefile + i;
-
-        print_debug( dvdcss, "using CSS key cache dir: %s",
-                             dvdcss->psz_cachefile );
+        create_cache_subdir( dvdcss, psz_cache );
     }
-    nocache:
 
 #ifdef DVDCSS_RAW_OPEN
     if( psz_raw_device != NULL )
