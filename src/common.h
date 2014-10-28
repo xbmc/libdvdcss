@@ -74,6 +74,11 @@ typedef __int64 off_t;
 #       endif
 #       define stat _stati64
 #       define snprintf _snprintf
+#       define strdup _strdup
+#       define open _open
+#       define close _close
+#       define read _read
+#       define write _write
 #   endif
 
 #endif
