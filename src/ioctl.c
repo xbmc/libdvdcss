@@ -616,7 +616,7 @@ int ioctl_ReportAgid( int i_fd, int *pi_agid )
     if( WIN2K ) /* NT/2k/XP */
     {
         ULONG id;
-        DWORD tmp;
+        DWORD tmp = 0;
 
         i_ret = DeviceIoControl( (HANDLE) i_fd, IOCTL_DVD_START_SESSION,
                         &tmp, 4, &id, sizeof( id ), &tmp, NULL ) ? 0 : -1;
