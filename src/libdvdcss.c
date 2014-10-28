@@ -272,6 +272,38 @@ static char *set_cache_directory( dvdcss_t dvdcss )
     return psz_cache;
 }
 
+static void init_cache_dir( dvdcss_t dvdcss, const char *psz_cache )
+{
+    static const char psz_tag[] =
+        "Signature: 8a477f597d28d172789f06886806bc55\r\n"
+        "# This file is a cache directory tag created by libdvdcss.\r\n"
+        "# For information about cache directory tags, see:\r\n"
+        "#   http://www.brynosaurus.com/cachedir/\r\n";
+    char psz_tagfile[PATH_MAX + 1 + 12 + 1];
+    int i_fd, i_ret;
+
+    i_ret = mkdir( psz_cache, 0755 );
+    if( i_ret < 0 && errno != EEXIST )
+    {
+        print_error( dvdcss, "failed creating cache directory" );
+        psz_cache = NULL;
+        return;
+    }
+
+    sprintf( psz_tagfile, "%s/CACHEDIR.TAG", psz_cache );
+    i_fd = open( psz_tagfile, O_RDWR|O_CREAT, 0644 );
+    if( i_fd >= 0 )
+    {
+        ssize_t len = strlen(psz_tag);
+        if( write( i_fd, psz_tag, len ) < len )
+        {
+            print_error( dvdcss,
+                         "Error writing cache directory tag, continuing..\n" );
+        }
+        close( i_fd );
+    }
+}
+
 /**
  * \brief Open a DVD device or directory and return a dvdcss instance.
  *
@@ -370,36 +402,10 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
         }
     }
 
-    /* If the cache is enabled, write the cache directory tag */
+    /* If the cache is enabled, initialize the cache directory. */
     if( psz_cache )
     {
-        static const char psz_tag[] =
-            "Signature: 8a477f597d28d172789f06886806bc55\r\n"
-            "# This file is a cache directory tag created by libdvdcss.\r\n"
-            "# For information about cache directory tags, see:\r\n"
-            "#   http://www.brynosaurus.com/cachedir/\r\n";
-        char psz_tagfile[PATH_MAX + 1 + 12 + 1];
-        int i_fd;
-
-        i_ret = mkdir( psz_cache, 0755 );
-        if( i_ret < 0 && errno != EEXIST )
-        {
-            print_error( dvdcss, "failed creating cache directory" );
-            goto nocache;
-        }
-
-        sprintf( psz_tagfile, "%s/CACHEDIR.TAG", psz_cache );
-        i_fd = open( psz_tagfile, O_RDWR|O_CREAT, 0644 );
-        if( i_fd >= 0 )
-        {
-            ssize_t len = strlen(psz_tag);
-            if( write( i_fd, psz_tag, len ) < len )
-            {
-                print_error( dvdcss,
-                             "Error writing cache directory tag, continuing..\n" );
-            }
-            close( i_fd );
-        }
+        init_cache_dir( dvdcss, psz_cache );
     }
 
     /* If the cache is enabled, extract a unique disc ID */
