@@ -182,54 +182,10 @@ static int set_access_method( dvdcss_t dvdcss )
     return 0;
 }
 
-/**
- * \brief Open a DVD device or directory and return a dvdcss instance.
- *
- * \param psz_target a string containing the target name, for instance
- *        "/dev/hdc" or "E:"
- * \return a handle to a dvdcss instance or NULL on error.
- *
- * Initialize the \e libdvdcss library, open the requested DVD device or
- * directory, and return a handle to be used for all subsequent \e libdvdcss
- * calls. \e libdvdcss checks whether ioctls can be performed on the disc,
- * and when possible, the disc key is retrieved.
- */
-LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
+static char *set_cache_directory( dvdcss_t dvdcss )
 {
-    int i_ret;
+    char *psz_cache = getenv( "DVDCSS_CACHE" );
 
-    const char *psz_cache = getenv( "DVDCSS_CACHE" );
-#ifdef DVDCSS_RAW_OPEN
-    const char *psz_raw_device = getenv( "DVDCSS_RAW_DEVICE" );
-#endif
-
-    /* Allocate the library structure. */
-    dvdcss_t dvdcss = malloc( sizeof( *dvdcss ) );
-    if( dvdcss == NULL )
-    {
-        return NULL;
-    }
-
-    /* Initialize structure with default values. */
-#ifdef DVDCSS_RAW_OPEN
-    dvdcss->i_raw_fd = -1;
-#endif
-    dvdcss->p_titles = NULL;
-    dvdcss->psz_device = strdup( psz_target );
-    dvdcss->psz_error = "no error";
-    dvdcss->i_method = DVDCSS_METHOD_KEY;
-    dvdcss->psz_cachefile[0] = '\0';
-
-    /* Set library verbosity from DVDCSS_VERBOSE environment variable. */
-    set_verbosity( dvdcss );
-
-    /* Set DVD access method from DVDCSS_METHOD environment variable. */
-    if( set_access_method( dvdcss ) < 0 )
-    {
-        goto error;
-    }
-
-    /* Set CSS key cache directory. */
     if( psz_cache == NULL || psz_cache[0] == '\0' )
     {
 #if defined(_WIN32_IE) && _WIN32_IE >= 0x500
@@ -295,16 +251,68 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
     {
         if( psz_cache[0] == '\0' || !strcmp( psz_cache, "off" ) )
         {
-            psz_cache = NULL;
+            return NULL;
         }
         /* Check that we can add the ID directory and the block filename */
         else if( strlen( psz_cache ) + 1 + 32 + 1 + (KEY_SIZE * 2) + 10 + 1
                   > PATH_MAX )
         {
             print_error( dvdcss, "cache directory name is too long" );
-            psz_cache = NULL;
+            return NULL;
         }
     }
+    return psz_cache;
+}
+
+/**
+ * \brief Open a DVD device or directory and return a dvdcss instance.
+ *
+ * \param psz_target a string containing the target name, for instance
+ *        "/dev/hdc" or "E:"
+ * \return a handle to a dvdcss instance or NULL on error.
+ *
+ * Initialize the \e libdvdcss library, open the requested DVD device or
+ * directory, and return a handle to be used for all subsequent \e libdvdcss
+ * calls. \e libdvdcss checks whether ioctls can be performed on the disc,
+ * and when possible, the disc key is retrieved.
+ */
+LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
+{
+    int i_ret;
+
+    const char *psz_cache;
+#ifdef DVDCSS_RAW_OPEN
+    const char *psz_raw_device = getenv( "DVDCSS_RAW_DEVICE" );
+#endif
+
+    /* Allocate the library structure. */
+    dvdcss_t dvdcss = malloc( sizeof( *dvdcss ) );
+    if( dvdcss == NULL )
+    {
+        return NULL;
+    }
+
+    /* Initialize structure with default values. */
+#ifdef DVDCSS_RAW_OPEN
+    dvdcss->i_raw_fd = -1;
+#endif
+    dvdcss->p_titles = NULL;
+    dvdcss->psz_device = strdup( psz_target );
+    dvdcss->psz_error = "no error";
+    dvdcss->i_method = DVDCSS_METHOD_KEY;
+    dvdcss->psz_cachefile[0] = '\0';
+
+    /* Set library verbosity from DVDCSS_VERBOSE environment variable. */
+    set_verbosity( dvdcss );
+
+    /* Set DVD access method from DVDCSS_METHOD environment variable. */
+    if( set_access_method( dvdcss ) < 0 )
+    {
+        goto error;
+    }
+
+    /* Set CSS key cache directory. */
+    psz_cache = set_cache_directory( dvdcss );
 
     /* Open device. */
     dvdcss_check_device( dvdcss );
