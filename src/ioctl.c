@@ -217,7 +217,7 @@ int ioctl_ReadCopyright( int i_fd, int i_layer, int *pi_copyright )
 /*****************************************************************************
  * ioctl_ReadDiscKey: get the disc key
  *****************************************************************************/
-int ioctl_ReadDiscKey( int i_fd, int *pi_agid, uint8_t *p_key )
+int ioctl_ReadDiscKey( int i_fd, const int *pi_agid, uint8_t *p_key )
 {
     int i_ret;
 
@@ -350,7 +350,7 @@ int ioctl_ReadDiscKey( int i_fd, int *pi_agid, uint8_t *p_key )
 /*****************************************************************************
  * ioctl_ReadTitleKey: get the title key
  *****************************************************************************/
-int ioctl_ReadTitleKey( int i_fd, int *pi_agid, int i_pos, uint8_t *p_key )
+int ioctl_ReadTitleKey( int i_fd, const int *pi_agid, int i_pos, uint8_t *p_key )
 {
     int i_ret;
 
@@ -580,7 +580,7 @@ int ioctl_ReportAgid( int i_fd, int *pi_agid )
 /*****************************************************************************
  * ioctl_ReportChallenge: get challenge from the drive
  *****************************************************************************/
-int ioctl_ReportChallenge( int i_fd, int *pi_agid, uint8_t *p_challenge )
+int ioctl_ReportChallenge( int i_fd, const int *pi_agid, uint8_t *p_challenge )
 {
     int i_ret;
 
@@ -798,7 +798,7 @@ int ioctl_ReportASF( int i_fd, int *pi_asf )
 /*****************************************************************************
  * ioctl_ReportKey1: get the first key from the drive
  *****************************************************************************/
-int ioctl_ReportKey1( int i_fd, int *pi_agid, uint8_t *p_key )
+int ioctl_ReportKey1( int i_fd, const int *pi_agid, uint8_t *p_key )
 {
     int i_ret;
 
@@ -901,7 +901,7 @@ int ioctl_ReportKey1( int i_fd, int *pi_agid, uint8_t *p_key )
 /*****************************************************************************
  * ioctl_InvalidateAgid: invalidate the current AGID
  *****************************************************************************/
-int ioctl_InvalidateAgid( int i_fd, int *pi_agid )
+int ioctl_InvalidateAgid( int i_fd, const int *pi_agid )
 {
     int i_ret;
 
@@ -984,7 +984,7 @@ int ioctl_InvalidateAgid( int i_fd, int *pi_agid )
 /*****************************************************************************
  * ioctl_SendChallenge: send challenge to the drive
  *****************************************************************************/
-int ioctl_SendChallenge( int i_fd, int *pi_agid, uint8_t *p_challenge )
+int ioctl_SendChallenge( int i_fd, const int *pi_agid, const uint8_t *p_challenge )
 {
     int i_ret;
 
@@ -1093,7 +1093,7 @@ int ioctl_SendChallenge( int i_fd, int *pi_agid, uint8_t *p_challenge )
 /*****************************************************************************
  * ioctl_SendKey2: send the second key to the drive
  *****************************************************************************/
-int ioctl_SendKey2( int i_fd, int *pi_agid, uint8_t *p_key )
+int ioctl_SendKey2( int i_fd, const int *pi_agid, const uint8_t *p_key )
 {
     int i_ret;
 
