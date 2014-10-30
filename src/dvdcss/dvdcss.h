@@ -85,7 +85,7 @@ LIBDVDCSS_EXPORT int      dvdcss_readv ( dvdcss_t,
                                void *p_iovec,
                                int i_blocks,
                                int i_flags );
-LIBDVDCSS_EXPORT char *   dvdcss_error ( dvdcss_t );
+LIBDVDCSS_EXPORT const char *dvdcss_error ( const dvdcss_t );
 
 LIBDVDCSS_EXPORT int      dvdcss_is_scrambled ( dvdcss_t );
 

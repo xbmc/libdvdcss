@@ -4,6 +4,7 @@ Changes since 1.3.0:
   * Drop support for Windows 9x.
     Windows NT 4.0 SP4 with IE 5.0 is now required.
   * Replace BeOS support by Haiku support.
+  * dvdcss_error() now returns "const char *" instad of "char *".
   * Miscellaneous cleanups to code, documentation, build system.
 
 

@@ -562,7 +562,7 @@ error:
  * Return a string with the last error message produced by \e libdvdcss.
  * Useful to conveniently format error messages in external applications.
  */
-LIBDVDCSS_EXPORT char * dvdcss_error ( dvdcss_t dvdcss )
+LIBDVDCSS_EXPORT const char * dvdcss_error ( const dvdcss_t dvdcss )
 {
     return dvdcss->psz_error;
 }

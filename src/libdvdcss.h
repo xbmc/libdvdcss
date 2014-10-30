@@ -70,7 +70,7 @@ struct dvdcss_s
     char * psz_block;
 
     /* Error management */
-    char * psz_error;
+    const char *psz_error;
     int    b_errors;
     int    b_debug;
 
@@ -96,6 +96,6 @@ struct dvdcss_s
         fprintf( stderr, "\n" ); \
     }
 
-void print_error ( dvdcss_t, char * );
+void print_error ( dvdcss_t, const char * );
 
 #endif /* DVDCSS_LIBDVDCSS_H */
