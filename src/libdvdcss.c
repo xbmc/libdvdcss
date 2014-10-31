@@ -196,7 +196,6 @@ static int set_access_method( dvdcss_t dvdcss )
  */
 LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
 {
-    char psz_buffer[PATH_MAX];
     int i_ret;
 
     const char *psz_cache = getenv( "DVDCSS_CACHE" );
@@ -241,9 +240,9 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
         if (SHGetFolderPathA (NULL, CSIDL_APPDATA | CSIDL_FLAG_CREATE,
                               NULL, SHGFP_TYPE_CURRENT, psz_home ) == S_OK)
         {
-            snprintf( psz_buffer, PATH_MAX, "%s\\dvdcss", psz_home );
-            psz_buffer[PATH_MAX-1] = '\0';
-            psz_cache = psz_buffer;
+            snprintf( dvdcss->psz_cachefile, PATH_MAX, "%s\\dvdcss", psz_home );
+            dvdcss->psz_cachefile[PATH_MAX - 1] = '\0';
+            psz_cache = dvdcss->psz_cachefile;
         }
 #else
         char *psz_home = NULL;
@@ -282,15 +281,15 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
                     psz_unixroot[1] == ':'  &&
                     psz_unixroot[2] == '\0')
                 {
-                    strcpy( psz_buffer, psz_unixroot );
+                    strcpy( dvdcss->psz_cachefile, psz_unixroot );
                     home_pos = 2;
                 }
             }
 #endif /* __OS2__ */
-            snprintf( psz_buffer + home_pos, PATH_MAX - home_pos,
+            snprintf( dvdcss->psz_cachefile + home_pos, PATH_MAX - home_pos,
                       "%s/.dvdcss", psz_home );
-            psz_buffer[PATH_MAX-1] = '\0';
-            psz_cache = psz_buffer;
+            dvdcss->psz_cachefile[PATH_MAX - 1] = '\0';
+            psz_cache = dvdcss->psz_cachefile;
         }
 #endif /* ! defined(_WIN32_IE) && _WIN32_IE >= 0x500 */
     }
