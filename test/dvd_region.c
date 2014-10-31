@@ -59,7 +59,7 @@ static int ioctl_SendRPC( int i_fd, int i_pdrc )
 
     i_ret = ioctl( i_fd, DVDIOCSENDKEY, &auth_info );
 
-#elif defined( __BEOS__ )
+#elif defined( __HAIKU__ )
     INIT_RDC( GPCMD_SEND_KEY, 8 );
 
     rdc.command[ 10 ] = DVD_SEND_RPC;

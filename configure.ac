@@ -138,7 +138,7 @@ AC_CHECK_HEADERS(windows.h,[
   ])
 ])
 
-dnl  for Un*x and BeOS
+dnl for Unix
 AC_CHECK_HEADERS(sys/ioctl.h,[
   CAN_BUILD_LIBDVDCSS=1
   AC_CHECK_HEADERS(sys/cdio.h sys/dvdio.h linux/cdrom.h dvd.h)

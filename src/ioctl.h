@@ -44,7 +44,7 @@ int ioctl_ReportRPC         ( int, int *, int *, int * );
 /*****************************************************************************
  * Common macro, BeOS specific
  *****************************************************************************/
-#if defined( __BEOS__ )
+#if defined( __HAIKU__ )
 #define INIT_RDC( TYPE, SIZE ) \
     raw_device_command rdc = { 0 }; \
     uint8_t p_buffer[ (SIZE)+1 ]; \

@@ -64,7 +64,7 @@
 #ifdef DVD_STRUCT_IN_DVD_H
 #   include <dvd.h>
 #endif
-#ifdef __BEOS__
+#ifdef __HAIKU__
 #   include <malloc.h>
 #   include <scsi.h>
 #endif
@@ -90,7 +90,7 @@
 /*****************************************************************************
  * Local prototypes, BeOS specific
  *****************************************************************************/
-#if defined( __BEOS__ )
+#if defined( __HAIKU__ )
 static void BeInitRDC ( raw_device_command *, int );
 #endif
 
@@ -150,7 +150,7 @@ int ioctl_ReadCopyright( int i_fd, int i_layer, int *pi_copyright )
 
     *pi_copyright = dvd.cpst;
 
-#elif defined( __BEOS__ )
+#elif defined( __HAIKU__ )
     INIT_RDC( GPCMD_READ_DVD_STRUCTURE, 8 );
 
     rdc.command[ 6 ] = i_layer;
@@ -271,7 +271,7 @@ int ioctl_ReadDiscKey( int i_fd, int *pi_agid, uint8_t *p_key )
 
     memcpy( p_key, dvd.data, DVD_DISCKEY_SIZE );
 
-#elif defined( __BEOS__ )
+#elif defined( __HAIKU__ )
     INIT_RDC( GPCMD_READ_DVD_STRUCTURE, DVD_DISCKEY_SIZE + 4 );
 
     rdc.command[ 7 ]  = DVD_STRUCT_DISCKEY;
@@ -396,7 +396,7 @@ int ioctl_ReadTitleKey( int i_fd, int *pi_agid, int i_pos, uint8_t *p_key )
 
     memcpy( p_key, auth_info.keychal, DVD_KEY_SIZE );
 
-#elif defined( __BEOS__ )
+#elif defined( __HAIKU__ )
     INIT_RDC( GPCMD_REPORT_KEY, 12 );
 
     rdc.command[ 2 ] = ( i_pos >> 24 ) & 0xff;
@@ -526,7 +526,7 @@ int ioctl_ReportAgid( int i_fd, int *pi_agid )
 
     *pi_agid = auth_info.agid;
 
-#elif defined( __BEOS__ )
+#elif defined( __HAIKU__ )
     INIT_RDC( GPCMD_REPORT_KEY, 8 );
 
     rdc.command[ 10 ] = DVD_REPORT_AGID | (*pi_agid << 6);
@@ -624,7 +624,7 @@ int ioctl_ReportChallenge( int i_fd, int *pi_agid, uint8_t *p_challenge )
 
     memcpy( p_challenge, auth_info.keychal, DVD_CHALLENGE_SIZE );
 
-#elif defined( __BEOS__ )
+#elif defined( __HAIKU__ )
     INIT_RDC( GPCMD_REPORT_KEY, 16 );
 
     rdc.command[ 10 ] = DVD_REPORT_CHALLENGE | (*pi_agid << 6);
@@ -732,7 +732,7 @@ int ioctl_ReportASF( int i_fd, int *pi_asf )
 
     *pi_asf = auth_info.asf;
 
-#elif defined( __BEOS__ )
+#elif defined( __HAIKU__ )
     INIT_RDC( GPCMD_REPORT_KEY, 8 );
 
     rdc.command[ 10 ] = DVD_REPORT_ASF;
@@ -842,7 +842,7 @@ int ioctl_ReportKey1( int i_fd, int *pi_agid, uint8_t *p_key )
 
     memcpy( p_key, auth_info.keychal, DVD_KEY_SIZE );
 
-#elif defined( __BEOS__ )
+#elif defined( __HAIKU__ )
     INIT_RDC( GPCMD_REPORT_KEY, 12 );
 
     rdc.command[ 10 ] = DVD_REPORT_KEY1 | (*pi_agid << 6);
@@ -941,7 +941,7 @@ int ioctl_InvalidateAgid( int i_fd, int *pi_agid )
 
     i_ret = ioctl( i_fd, DVDIOCREPORTKEY, &auth_info );
 
-#elif defined( __BEOS__ )
+#elif defined( __HAIKU__ )
     INIT_RDC( GPCMD_REPORT_KEY, 0 );
 
     rdc.command[ 10 ] = DVDCSS_INVALIDATE_AGID | (*pi_agid << 6);
@@ -1028,7 +1028,7 @@ int ioctl_SendChallenge( int i_fd, int *pi_agid, uint8_t *p_challenge )
 
     i_ret = ioctl( i_fd, DVDIOCSENDKEY, &auth_info );
 
-#elif defined( __BEOS__ )
+#elif defined( __HAIKU__ )
     INIT_RDC( GPCMD_SEND_KEY, 16 );
 
     rdc.command[ 10 ] = DVD_SEND_CHALLENGE | (*pi_agid << 6);
@@ -1137,7 +1137,7 @@ int ioctl_SendKey2( int i_fd, int *pi_agid, uint8_t *p_key )
 
     i_ret = ioctl( i_fd, DVDIOCSENDKEY, &auth_info );
 
-#elif defined( __BEOS__ )
+#elif defined( __HAIKU__ )
     INIT_RDC( GPCMD_SEND_KEY, 12 );
 
     rdc.command[ 10 ] = DVD_SEND_KEY2 | (*pi_agid << 6);
@@ -1252,7 +1252,7 @@ int ioctl_ReportRPC( int i_fd, int *p_type, int *p_mask, int *p_scheme )
     *p_mask = auth_info.region; // ??
     *p_scheme = auth_info.rpc_scheme;
 
-#elif defined( __BEOS__ )
+#elif defined( __HAIKU__ )
     INIT_RDC( GPCMD_REPORT_KEY, 8 );
 
     rdc.command[ 10 ] = DVD_REPORT_RPC;
@@ -1348,11 +1348,11 @@ int ioctl_ReportRPC( int i_fd, int *p_type, int *p_mask, int *p_scheme )
 
 /* Local prototypes */
 
-#if defined( __BEOS__ )
+#if defined( __HAIKU__ )
 /*****************************************************************************
- * BeInitRDC: initialize a RDC structure for the BeOS kernel
+ * BeInitRDC: initialize a RDC structure for the Haiku kernel
  *****************************************************************************
- * This function initializes a BeOS raw device command structure for future
+ * This function initializes a Haiku raw device command structure for future
  * use, either a read command or a write command.
  *****************************************************************************/
 static void BeInitRDC( raw_device_command *p_rdc, int i_type )
