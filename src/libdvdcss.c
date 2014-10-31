@@ -370,6 +370,13 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
         char psz_tagfile[PATH_MAX + 1 + 12 + 1];
         int i_fd;
 
+        i_ret = mkdir( psz_cache, 0755 );
+        if( i_ret < 0 && errno != EEXIST )
+        {
+            print_error( dvdcss, "failed creating cache directory" );
+            goto nocache;
+        }
+
         sprintf( psz_tagfile, "%s/CACHEDIR.TAG", psz_cache );
         i_fd = open( psz_tagfile, O_RDWR|O_CREAT, 0644 );
         if( i_fd >= 0 )
@@ -483,18 +490,9 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
              psz_key[0] = 0;
         }
 
-        /* We have a disc name or ID, we can create the cache dir */
-        i = sprintf( dvdcss->psz_cachefile, "%s", psz_cache );
-        i_ret = mkdir( dvdcss->psz_cachefile, 0755 );
-        if( i_ret < 0 && errno != EEXIST )
-        {
-            print_error( dvdcss, "failed creating cache directory" );
-            dvdcss->psz_cachefile[0] = '\0';
-            goto nocache;
-        }
-
-        i += sprintf( dvdcss->psz_cachefile + i, "/%s-%s%s", psz_title,
-                      psz_serial, psz_key );
+        /* We have a disc name or ID, we can create the cache subdirectory. */
+        i = sprintf( dvdcss->psz_cachefile, "%s/%s-%s%s",
+                     psz_cache, psz_title, psz_serial, psz_key );
         i_ret = mkdir( dvdcss->psz_cachefile, 0755 );
         if( i_ret < 0 && errno != EEXIST )
         {
