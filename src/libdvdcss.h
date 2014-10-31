@@ -35,6 +35,14 @@
 #include "device.h"
 
 /*****************************************************************************
+ * libdvdcss method: used like init flags
+ *****************************************************************************/
+enum dvdcss_method {
+    DVDCSS_METHOD_KEY,
+    DVDCSS_METHOD_DISC,
+    DVDCSS_METHOD_TITLE,
+};
+/*****************************************************************************
  * The libdvdcss structure
  *****************************************************************************/
 struct dvdcss_s
@@ -51,7 +59,7 @@ struct dvdcss_s
     int ( * pf_readv ) ( dvdcss_t, struct iovec *, int );
 
     /* Decryption stuff */
-    int          i_method;
+    enum dvdcss_method i_method;
     css_t        css;
     int          b_ioctls;
     int          b_scrambled;
@@ -76,13 +84,6 @@ struct dvdcss_s
     int    i_raw_fd;
 #endif
 };
-
-/*****************************************************************************
- * libdvdcss method: used like init flags
- *****************************************************************************/
-#define DVDCSS_METHOD_KEY        0
-#define DVDCSS_METHOD_DISC       1
-#define DVDCSS_METHOD_TITLE      2
 
 /*****************************************************************************
  * Functions used across the library
