@@ -161,7 +161,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
 #endif
 
     /* Allocate the library structure. */
-    dvdcss_t dvdcss = malloc( sizeof( struct dvdcss_s ) );
+    dvdcss_t dvdcss = malloc( sizeof( *dvdcss ) );
     if( dvdcss == NULL )
     {
         return NULL;

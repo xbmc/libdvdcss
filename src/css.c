@@ -205,7 +205,7 @@ int dvdcss_title ( dvdcss_t dvdcss, int i_block )
          && p_title->i_startlb == i_block )
     {
         /* We've already cracked this key, nothing to do */
-        memcpy( dvdcss->css.p_title_key, p_title->p_key, sizeof(dvd_key_t) );
+        memcpy( dvdcss->css.p_title_key, p_title->p_key, sizeof(*p_title->p_key) );
         return 0;
     }
 
@@ -296,7 +296,7 @@ int dvdcss_title ( dvdcss_t dvdcss, int i_block )
     p_title = p_newtitle;
 
     /* Write in the new title and its key */
-    p_newtitle = malloc( sizeof( dvd_title_t ) );
+    p_newtitle = malloc( sizeof( *p_newtitle ) );
     if( p_newtitle == NULL )
     {
         return -1;
@@ -1086,7 +1086,7 @@ static int DecryptDiscKey( dvdcss_t dvdcss, const uint8_t *p_struct_disckey,
     unsigned int i, n = 0;
 
     /* Decrypt disc key with the above player keys */
-    for( n = 0; n < sizeof(player_keys) / sizeof(dvd_key_t); n++ )
+    for( n = 0; n < sizeof(player_keys) / sizeof(*player_keys); n++ )
     {
         PrintKey( dvdcss, "trying player key ", player_keys[n] );
 
@@ -1205,7 +1205,7 @@ static int CrackDiscKey( dvdcss_t dvdcss, uint8_t *p_disc_key )
     }
 
     /* Initializing our really big table */
-    BigTable = calloc( 16777216, sizeof(int) );
+    BigTable = calloc( 16777216, sizeof(*BigTable) );
     if( BigTable == NULL )
     {
         free( K1table );
