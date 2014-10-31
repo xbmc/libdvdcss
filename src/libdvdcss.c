@@ -763,14 +763,14 @@ LIBDVDCSS_EXPORT int dvdcss_readv ( dvdcss_t dvdcss, void *p_iovec,
  */
 LIBDVDCSS_EXPORT int dvdcss_close ( dvdcss_t dvdcss )
 {
-    dvd_title_t *p_title;
+    struct dvd_title *p_title;
     int i_ret;
 
     /* Free our list of keys */
     p_title = dvdcss->p_titles;
     while( p_title )
     {
-        dvd_title_t *p_tmptitle = p_title->p_next;
+        struct dvd_title *p_tmptitle = p_title->p_next;
         free( p_title );
         p_title = p_tmptitle;
     }

@@ -75,20 +75,20 @@ static void CryptKey        ( int, int, const uint8_t *, uint8_t * );
 static void DecryptKey      ( uint8_t,
                               const uint8_t *, const uint8_t *, uint8_t * );
 
-static int  DecryptDiscKey  ( dvdcss_t, const uint8_t *, dvd_key_t );
+static int  DecryptDiscKey  ( dvdcss_t, const uint8_t *, dvd_key );
 static int  CrackDiscKey    ( dvdcss_t, uint8_t * );
 
-static void DecryptTitleKey ( dvd_key_t, dvd_key_t );
+static void DecryptTitleKey ( dvd_key, dvd_key );
 static int  RecoverTitleKey ( int, const uint8_t *,
                               const uint8_t *, const uint8_t *, uint8_t * );
-static int  CrackTitleKey   ( dvdcss_t, int, int, dvd_key_t );
+static int  CrackTitleKey   ( dvdcss_t, int, int, dvd_key );
 
 static int  AttackPattern   ( const uint8_t[], uint8_t * );
 #if 0
 static int  AttackPadding   ( const uint8_t[] );
 #endif
 
-static int  dvdcss_titlekey    ( dvdcss_t, int , dvd_key_t );
+static int  dvdcss_titlekey ( dvdcss_t, int, dvd_key );
 
 /*****************************************************************************
  * dvdcss_test: check if the disc is encrypted or not
@@ -182,10 +182,10 @@ int dvdcss_test( dvdcss_t dvdcss )
  *****************************************************************************/
 int dvdcss_title ( dvdcss_t dvdcss, int i_block )
 {
-    dvd_title_t *p_title;
-    dvd_title_t *p_newtitle;
-    dvd_key_t    p_title_key;
-    int          i_fd, i_ret = -1, b_cache = 0;
+    struct dvd_title *p_title;
+    struct dvd_title *p_newtitle;
+    dvd_key p_title_key;
+    int i_fd, i_ret = -1, b_cache = 0;
 
     if( ! dvdcss->b_scrambled )
     {
@@ -335,7 +335,7 @@ int dvdcss_title ( dvdcss_t dvdcss, int i_block )
 int dvdcss_disckey( dvdcss_t dvdcss )
 {
     unsigned char p_buffer[ DVD_DISCKEY_SIZE ];
-    dvd_key_t p_disc_key;
+    dvd_key p_disc_key;
     int i;
 
     if( GetBusKey( dvdcss ) < 0 )
@@ -418,7 +418,7 @@ int dvdcss_disckey( dvdcss_t dvdcss )
 /*****************************************************************************
  * dvdcss_titlekey: get title key.
  *****************************************************************************/
-static int dvdcss_titlekey( dvdcss_t dvdcss, int i_pos, dvd_key_t p_title_key )
+static int dvdcss_titlekey( dvdcss_t dvdcss, int i_pos, dvd_key p_title_key )
 {
     static uint8_t p_garbage[ DVDCSS_BLOCK_SIZE ];  /* we never read it back */
     uint8_t p_key[ KEY_SIZE ];
@@ -536,7 +536,7 @@ static int dvdcss_titlekey( dvdcss_t dvdcss, int i_pos, dvd_key_t p_title_key )
  * sec : sector to unscramble
  * key : title key for this sector
  *****************************************************************************/
-int dvdcss_unscramble( dvd_key_t p_key, uint8_t *p_sec )
+int dvdcss_unscramble( dvd_key p_key, uint8_t *p_sec )
 {
     unsigned int    i_t1, i_t2, i_t3, i_t4, i_t5, i_t6;
     uint8_t        *p_end = p_sec + DVDCSS_BLOCK_SIZE;
@@ -592,9 +592,9 @@ static int GetBusKey( dvdcss_t dvdcss )
 {
     uint8_t   p_buffer[10];
     uint8_t   p_challenge[2*KEY_SIZE];
-    dvd_key_t p_key1;
-    dvd_key_t p_key2;
-    dvd_key_t p_key_check;
+    dvd_key   p_key1;
+    dvd_key   p_key2;
+    dvd_key   p_key_check;
     uint8_t   i_variant = 0;
     int       i_ret = -1;
     int       i;
@@ -1037,7 +1037,7 @@ static void DecryptKey( uint8_t invert, const uint8_t *p_key,
  * cracker. A copy of his article can be found here:
  * http://www-2.cs.cmu.edu/~dst/DeCSS/FrankStevenson/mail2.txt
  *****************************************************************************/
-static const dvd_key_t player_keys[] =
+static const dvd_key player_keys[] =
 {
     { 0x01, 0xaf, 0xe3, 0x12, 0x80 },
     { 0x12, 0x11, 0xca, 0x04, 0x3b },
@@ -1081,7 +1081,7 @@ static const dvd_key_t player_keys[] =
  * p_disc_key: result, the 5 byte disc key
  *****************************************************************************/
 static int DecryptDiscKey( dvdcss_t dvdcss, const uint8_t *p_struct_disckey,
-                           dvd_key_t p_disc_key )
+                           dvd_key p_disc_key )
 {
     uint8_t p_verify[KEY_SIZE];
     unsigned int i, n = 0;
@@ -1123,7 +1123,7 @@ static int DecryptDiscKey( dvdcss_t dvdcss, const uint8_t *p_struct_disckey,
  * p_disc_key: result, the 5 byte disc key
  * p_titlekey: the encrypted title key, gets overwritten by the decrypted key
  *****************************************************************************/
-static void DecryptTitleKey( dvd_key_t p_disc_key, dvd_key_t p_titlekey )
+static void DecryptTitleKey( dvd_key p_disc_key, dvd_key p_titlekey )
 {
     DecryptKey( 0xff, p_disc_key, p_titlekey, p_titlekey );
 }
@@ -1488,7 +1488,7 @@ static int i_tries = 0, i_success = 0;
  * i_pos is the starting sector, i_len is the maximum number of sectors to read
  *****************************************************************************/
 static int CrackTitleKey( dvdcss_t dvdcss, int i_pos, int i_len,
-                          dvd_key_t p_titlekey )
+                          dvd_key p_titlekey )
 {
     uint8_t       p_buf[ DVDCSS_BLOCK_SIZE ];
     const uint8_t p_packstart[4] = { 0x00, 0x00, 0x01, 0xba };

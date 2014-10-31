@@ -37,22 +37,22 @@
 
 #define KEY_SIZE 5
 
-typedef uint8_t dvd_key_t[KEY_SIZE];
+typedef uint8_t dvd_key[KEY_SIZE];
 
-typedef struct dvd_title_s
+typedef struct dvd_title
 {
-    int                 i_startlb;
-    dvd_key_t           p_key;
-    struct dvd_title_s *p_next;
-} dvd_title_t;
+    int               i_startlb;
+    dvd_key           p_key;
+    struct dvd_title *p_next;
+} dvd_title;
 
-typedef struct css_s
+typedef struct css
 {
     int             i_agid;      /* Current Authentication Grant ID. */
-    dvd_key_t       p_bus_key;   /* Current session key. */
-    dvd_key_t       p_disc_key;  /* This DVD disc's key. */
-    dvd_key_t       p_title_key; /* Current title key. */
-} css_t;
+    dvd_key         p_bus_key;   /* Current session key. */
+    dvd_key         p_disc_key;  /* This DVD disc's key. */
+    dvd_key         p_title_key; /* Current title key. */
+} css;
 
 /*****************************************************************************
  * Prototypes in css.c

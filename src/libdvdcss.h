@@ -60,10 +60,10 @@ struct dvdcss_s
 
     /* Decryption stuff */
     enum dvdcss_method i_method;
-    css_t        css;
+    struct css   css;
     int          b_ioctls;
     int          b_scrambled;
-    dvd_title_t *p_titles;
+    struct dvd_title *p_titles;
 
     /* Key cache directory and pointer to the filename */
     char   psz_cachefile[PATH_MAX];
