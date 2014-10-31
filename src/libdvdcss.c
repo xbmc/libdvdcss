@@ -478,12 +478,11 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
          * date and serial number, but different keys. */
         if( dvdcss->b_scrambled )
         {
-             psz_key[0] = '-';
              for( i = 0; i < KEY_SIZE; i++ )
              {
-                 sprintf( &psz_key[1+i*2], "%.2x", dvdcss->css.p_disc_key[i] );
+                 sprintf( &psz_key[i * 2], "%.2x", dvdcss->css.p_disc_key[i] );
              }
-             psz_key[1 + KEY_SIZE * 2] = '\0';
+             psz_key[KEY_SIZE * 2] = '\0';
         }
         else
         {
@@ -491,7 +490,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
         }
 
         /* We have a disc name or ID, we can create the cache subdirectory. */
-        i = sprintf( dvdcss->psz_cachefile, "%s/%s-%s%s",
+        i = sprintf( dvdcss->psz_cachefile, "%s/%s-%s-%s",
                      psz_cache, psz_title, psz_serial, psz_key );
         i_ret = mkdir( dvdcss->psz_cachefile, 0755 );
         if( i_ret < 0 && errno != EEXIST )
