@@ -50,6 +50,7 @@
 
 /* several type definitions */
 #   if defined( __MINGW32__ )
+#       undef lseek
 #       define lseek _lseeki64
 #       if !defined( _OFF_T_ )
 typedef long long _off_t;
@@ -61,6 +62,7 @@ typedef _off_t off_t;
 #   endif /* defined( __MINGW32__ ) */
 
 #   if defined( _MSC_VER )
+#       undef lseek
 #       define lseek _lseeki64
 #       if !defined( _OFF_T_DEFINED )
 typedef __int64 off_t;
