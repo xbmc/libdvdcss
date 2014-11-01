@@ -901,7 +901,7 @@ int ioctl_ReportKey1( int i_fd, const int *pi_agid, uint8_t *p_key )
 /*****************************************************************************
  * ioctl_InvalidateAgid: invalidate the current AGID
  *****************************************************************************/
-int ioctl_InvalidateAgid( int i_fd, const int *pi_agid )
+int ioctl_InvalidateAgid( int i_fd, int *pi_agid )
 {
     int i_ret;
 

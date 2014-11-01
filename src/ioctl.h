@@ -32,7 +32,7 @@ int ioctl_ReportAgid        ( int, int * );
 int ioctl_ReportChallenge   ( int, const int *, uint8_t * );
 int ioctl_ReportKey1        ( int, const int *, uint8_t * );
 int ioctl_ReportASF         ( int, int * );
-int ioctl_InvalidateAgid    ( int, const int * );
+int ioctl_InvalidateAgid    ( int, int * );
 int ioctl_SendChallenge     ( int, const int *, const uint8_t * );
 int ioctl_SendKey2          ( int, const int *, const uint8_t * );
 int ioctl_ReportRPC         ( int, int *, int *, int * );
