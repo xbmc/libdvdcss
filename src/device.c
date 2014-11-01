@@ -468,11 +468,8 @@ static int libc_open ( dvdcss_t dvdcss, const char *psz_device )
 #if defined( WIN32 )
 static int win2k_open ( dvdcss_t dvdcss, const char *psz_device )
 {
-    char psz_dvd[7];
-    if( snprintf( psz_dvd, sizeof(psz_dvd), "\\\\.\\%c:", psz_device[0] ) < 0)
-    {
-        goto error;
-    }
+    char psz_dvd[7] = "\\\\.\\\0:";
+    psz_dvd[4] = psz_device[0];
 
     /* To work around an M$ bug in IOCTL_DVD_READ_STRUCTURE, we need read
      * _and_ write access to the device (so we can make SCSI Pass Through
@@ -496,16 +493,13 @@ static int win2k_open ( dvdcss_t dvdcss, const char *psz_device )
 
     if( (HANDLE) dvdcss->i_fd == INVALID_HANDLE_VALUE )
     {
-        goto error;
+        print_error( dvdcss, "failed opening device" );
+        return -1;
     }
 
     dvdcss->i_pos = 0;
 
     return 0;
-
-error:
-    print_error( dvdcss, "failed opening device" );
-    return -1;
 }
 #endif /* defined( WIN32 ) */
 
