@@ -228,6 +228,9 @@ AS_IF([test "x$DOXYGEN" = "x"], [
 ])
 AM_CONDITIONAL([APIDOC], [test "x$DOXYGEN" != "x"])
 
+AC_PATH_PROG([GIT], [git])
+AM_CONDITIONAL([GIT], [test "x$GIT" != "x"])
+
 AC_SUBST(DVDCSS_LDFLAGS)
 AC_OUTPUT([
   Makefile
