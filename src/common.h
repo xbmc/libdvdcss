@@ -70,6 +70,7 @@ typedef __int64 off_t;
 #       else
 #           define off_t __int64
 #       endif
+#       define ssize_t SSIZE_T
 #       define stat _stati64
 #       define snprintf _snprintf
 #       define strdup _strdup
