@@ -604,9 +604,10 @@ LIBDVDCSS_EXPORT int dvdcss_read ( dvdcss_t dvdcss, void *p_buffer,
                                           int i_blocks,
                                           int i_flags )
 {
+    uint8_t *_p_buffer = p_buffer;
     int i_ret, i_index;
 
-    i_ret = dvdcss->pf_read( dvdcss, p_buffer, i_blocks );
+    i_ret = dvdcss->pf_read( dvdcss, _p_buffer, i_blocks );
 
     if( i_ret <= 0
          || !dvdcss->b_scrambled
@@ -621,14 +622,14 @@ LIBDVDCSS_EXPORT int dvdcss_read ( dvdcss_t dvdcss, void *p_buffer,
          * check that there are no encrypted blocks */
         for( i_index = i_ret; i_index; i_index-- )
         {
-            if( ((uint8_t*)p_buffer)[0x14] & 0x30 )
+            if( _p_buffer[0x14] & 0x30 )
             {
                 print_error( dvdcss, "no key but found encrypted block" );
                 /* Only return the initial range of unscrambled blocks? */
                 /* or fail completely? return 0; */
                 break;
             }
-            p_buffer = (uint8_t *)p_buffer + DVDCSS_BLOCK_SIZE;
+            _p_buffer = _p_buffer + DVDCSS_BLOCK_SIZE;
         }
     }
     else
@@ -636,9 +637,9 @@ LIBDVDCSS_EXPORT int dvdcss_read ( dvdcss_t dvdcss, void *p_buffer,
         /* Decrypt the blocks we managed to read */
         for( i_index = i_ret; i_index; i_index-- )
         {
-            dvdcss_unscramble( dvdcss->css.p_title_key, p_buffer );
-            ((uint8_t*)p_buffer)[0x14] &= 0x8f;
-            p_buffer = (uint8_t *)p_buffer + DVDCSS_BLOCK_SIZE;
+            dvdcss_unscramble( dvdcss->css.p_title_key, _p_buffer );
+            _p_buffer[0x14] &= 0x8f;
+            _p_buffer = _p_buffer + DVDCSS_BLOCK_SIZE;
         }
     }
 
