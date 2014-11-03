@@ -233,7 +233,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
     if( psz_cache == NULL || psz_cache[0] == '\0' )
     {
 #if defined(_WIN32_IE) && _WIN32_IE >= 0x500
-        char psz_home[MAX_PATH];
+        char psz_home[PATH_MAX];
 
         /* Cache our keys in
          * C:\Documents and Settings\$USER\Application Data\dvdcss\ */

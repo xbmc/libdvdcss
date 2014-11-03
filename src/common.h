@@ -44,10 +44,6 @@
 #if defined( WIN32 )
 #   include <io.h>                                             /* _lseeki64 */
 
-#   ifndef PATH_MAX
-#      define PATH_MAX MAX_PATH
-#   endif
-
 /* several type definitions */
 #   if defined( __MINGW32__ )
 #       undef lseek
