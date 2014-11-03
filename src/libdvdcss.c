@@ -186,6 +186,11 @@ static char *set_cache_directory( dvdcss_t dvdcss )
 {
     char *psz_cache = getenv( "DVDCSS_CACHE" );
 
+    if( psz_cache && !strcmp( psz_cache, "off" ) )
+    {
+        return NULL;
+    }
+
     if( psz_cache == NULL || psz_cache[0] == '\0' )
     {
 #if defined(_WIN32_IE) && _WIN32_IE >= 0x500
@@ -249,7 +254,7 @@ static char *set_cache_directory( dvdcss_t dvdcss )
     /* Sanity check psz_cache value. */
     if( psz_cache != NULL )
     {
-        if( psz_cache[0] == '\0' || !strcmp( psz_cache, "off" ) )
+        if( psz_cache[0] == '\0' )
         {
             return NULL;
         }
