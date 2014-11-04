@@ -260,22 +260,14 @@ static char *set_cache_directory( dvdcss_t dvdcss )
 #endif /* ! defined(_WIN32_IE) && _WIN32_IE >= 0x500 */
     }
 
-    /* Sanity check psz_cache value. */
-    if( psz_cache != NULL )
+    /* Check that there is enough space for the cache directory path and the
+     * block filename. The +1 are path separators and terminating null byte. */
+    if( strlen( psz_cache ) + 1 + DISC_TITLE_LENGTH + 1 +
+        MANUFACTURING_DATE_LENGTH + 1 + STRING_KEY_SIZE + 1 +
+        CACHE_FILENAME_LENGTH + 1 > PATH_MAX )
     {
-        if( psz_cache[0] == '\0' )
-        {
-            return NULL;
-        }
-        /* Check that there is enough space for the cache directory path and the
-         * block filename. The +1 are path separators and terminating null byte. */
-        else if( strlen( psz_cache ) + 1 + DISC_TITLE_LENGTH + 1 +
-                 MANUFACTURING_DATE_LENGTH + 1 + STRING_KEY_SIZE + 1 +
-                 CACHE_FILENAME_LENGTH + 1 > PATH_MAX )
-        {
-            print_error( dvdcss, "cache directory name is too long" );
-            return NULL;
-        }
+        print_error( dvdcss, "cache directory name is too long" );
+        return NULL;
     }
     return psz_cache;
 }
