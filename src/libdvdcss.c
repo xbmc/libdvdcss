@@ -420,6 +420,24 @@ static void create_cache_subdir( dvdcss_t dvdcss, const char *psz_cache )
                  dvdcss->psz_cachefile );
 }
 
+static void init_cache( dvdcss_t dvdcss )
+{
+    /* Set CSS key cache directory. */
+    const char *psz_cache = set_cache_directory( dvdcss );
+
+    /* If the cache is enabled, initialize the cache directory. */
+    if( psz_cache )
+    {
+        init_cache_dir( dvdcss, psz_cache );
+    }
+
+    /* If the cache is enabled, create a DVD-specific subdirectory. */
+    if( psz_cache )
+    {
+        create_cache_subdir( dvdcss, psz_cache );
+    }
+}
+
 /**
  * \brief Open a DVD device or directory and return a dvdcss instance.
  *
@@ -436,7 +454,6 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
 {
     int i_ret;
 
-    const char *psz_cache;
 #ifdef DVDCSS_RAW_OPEN
     const char *psz_raw_device = getenv( "DVDCSS_RAW_DEVICE" );
 #endif
@@ -466,9 +483,6 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
     {
         goto error;
     }
-
-    /* Set CSS key cache directory. */
-    psz_cache = set_cache_directory( dvdcss );
 
     /* Open device. */
     dvdcss_check_device( dvdcss );
@@ -518,17 +532,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
         }
     }
 
-    /* If the cache is enabled, initialize the cache directory. */
-    if( psz_cache )
-    {
-        init_cache_dir( dvdcss, psz_cache );
-    }
-
-    /* If the cache is enabled, extract a unique disc ID */
-    if( psz_cache )
-    {
-        create_cache_subdir( dvdcss, psz_cache );
-    }
+    init_cache( dvdcss );
 
 #ifdef DVDCSS_RAW_OPEN
     if( psz_raw_device != NULL )
