@@ -136,6 +136,15 @@
 #define mkdir(a, b) _mkdir(a)
 #endif
 
+
+#define STRING_KEY_SIZE (KEY_SIZE * 2)
+#define INTERESTING_SECTOR 16
+#define DISC_TITLE_OFFSET  40
+#define DISC_TITLE_LENGTH  32
+#define MANUFACTURING_DATE_OFFSET 813
+#define MANUFACTURING_DATE_LENGTH  16
+
+
 static void set_verbosity( dvdcss_t dvdcss )
 {
     const char *psz_verbose = getenv( "DVDCSS_VERBOSE" );
@@ -258,9 +267,10 @@ static char *set_cache_directory( dvdcss_t dvdcss )
         {
             return NULL;
         }
-        /* Check that we can add the ID directory and the block filename */
-        else if( strlen( psz_cache ) + 1 + 32 + 1 + (KEY_SIZE * 2) + 10 + 1
-                  > PATH_MAX )
+        /* Check that there is enough space for the cache directory path and the
+         * block filename. The +1 are path separators and terminating null byte. */
+        else if( strlen( psz_cache ) + 1 + DISC_TITLE_LENGTH + 1 +
+                 STRING_KEY_SIZE + CACHE_FILENAME_LENGTH + 1 > PATH_MAX )
         {
             print_error( dvdcss, "cache directory name is too long" );
             return NULL;
@@ -403,7 +413,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
     if( psz_cache )
     {
         uint8_t p_sector[DVDCSS_BLOCK_SIZE];
-        char psz_key[1 + KEY_SIZE * 2 + 1];
+        char psz_key[STRING_KEY_SIZE + 1];
         char *psz_title;
         uint8_t *psz_serial;
         int i;
@@ -433,8 +443,8 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
          *  - offset 40: disc title (32 uppercase chars)
          *  - offset 813: manufacturing date + serial no (16 digits) */
 
-        i_ret = dvdcss->pf_seek( dvdcss, 16 );
-        if( i_ret != 16 )
+        i_ret = dvdcss->pf_seek( dvdcss, INTERESTING_SECTOR );
+        if( i_ret != INTERESTING_SECTOR )
         {
             goto nocache;
         }
@@ -446,10 +456,10 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
         }
 
         /* Get the disc title */
-        psz_title = (char *)p_sector + 40;
-        psz_title[32] = '\0';
+        psz_title = (char *)p_sector + DISC_TITLE_OFFSET;
+        psz_title[DISC_TITLE_LENGTH] = '\0';
 
-        for( i = 0 ; i < 32 ; i++ )
+        for( i = 0; i < DISC_TITLE_LENGTH; i++ )
         {
             if( psz_title[i] <= ' ' )
             {
@@ -463,21 +473,21 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
         }
 
         /* Get the date + serial */
-        psz_serial = p_sector + 813;
-        psz_serial[16] = '\0';
+        psz_serial = p_sector + MANUFACTURING_DATE_OFFSET;
+        psz_serial[MANUFACTURING_DATE_LENGTH] = '\0';
 
         /* Check that all characters are digits, otherwise convert. */
-        for( i = 0 ; i < 16 ; i++ )
+        for( i = 0 ; i < MANUFACTURING_DATE_LENGTH ; i++ )
         {
             if( psz_serial[i] < '0' || psz_serial[i] > '9' )
             {
-                char psz_tmp[16 + 1];
+                char psz_tmp[MANUFACTURING_DATE_LENGTH + 1];
                 sprintf( psz_tmp,
                          "%.2x%.2x%.2x%.2x%.2x%.2x%.2x%.2x",
                          psz_serial[0], psz_serial[1], psz_serial[2],
                          psz_serial[3], psz_serial[4], psz_serial[5],
                          psz_serial[6], psz_serial[7] );
-                memcpy( psz_serial, psz_tmp, 16 );
+                memcpy( psz_serial, psz_tmp, MANUFACTURING_DATE_LENGTH );
                 break;
             }
         }
@@ -490,7 +500,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
              {
                  sprintf( &psz_key[i * 2], "%.2x", dvdcss->css.p_disc_key[i] );
              }
-             psz_key[KEY_SIZE * 2] = '\0';
+             psz_key[STRING_KEY_SIZE] = '\0';
         }
         else
         {

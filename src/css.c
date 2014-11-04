@@ -213,7 +213,8 @@ int dvdcss_title ( dvdcss_t dvdcss, int i_block )
     if( dvdcss->psz_cachefile[0] )
     {
         /* XXX: be careful, we use sprintf and not snprintf */
-        sprintf( dvdcss->psz_block, "%.10x", i_block );
+        sprintf( dvdcss->psz_block, "%." CACHE_FILENAME_LENGTH_STRING "x",
+                 i_block );
         i_fd = open( dvdcss->psz_cachefile, O_RDONLY );
         b_cache = 1;
 

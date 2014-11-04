@@ -32,6 +32,9 @@
 #include "common.h"
 #include "dvdcss/dvdcss.h"
 
+#define CACHE_FILENAME_LENGTH 10
+#define CACHE_FILENAME_LENGTH_STRING "10"
+
 #define KEY_SIZE 5
 
 typedef uint8_t dvd_key_t[KEY_SIZE];
