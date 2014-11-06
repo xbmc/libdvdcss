@@ -61,7 +61,7 @@
 #include "ioctl.h"
 #include "device.h"
 
-#define PSZ_KEY_SIZE (KEY_SIZE * 3)
+#define PSZ_KEY_SIZE (DVD_KEY_SIZE * 3)
 
 /*****************************************************************************
  * Local prototypes
@@ -303,7 +303,7 @@ int dvdcss_title ( dvdcss_t dvdcss, int i_block )
         return -1;
     }
     p_newtitle->i_startlb = i_block;
-    memcpy( p_newtitle->p_key, p_title_key, KEY_SIZE );
+    memcpy( p_newtitle->p_key, p_title_key, DVD_KEY_SIZE );
 
     /* Link it at the head of the (possibly empty) list */
     if( p_title == NULL )
@@ -318,7 +318,7 @@ int dvdcss_title ( dvdcss_t dvdcss, int i_block )
         p_title->p_next = p_newtitle;
     }
 
-    memcpy( dvdcss->css.p_title_key, p_title_key, KEY_SIZE );
+    memcpy( dvdcss->css.p_title_key, p_title_key, DVD_KEY_SIZE );
     return 0;
 }
 
@@ -363,7 +363,7 @@ int dvdcss_disckey( dvdcss_t dvdcss )
     /* Shuffle disc key using bus key */
     for( i = 0 ; i < DVD_DISCKEY_SIZE ; i++ )
     {
-        p_buffer[ i ] ^= dvdcss->css.p_bus_key[ 4 - (i % KEY_SIZE) ];
+        p_buffer[i] ^= dvdcss->css.p_bus_key[4 - (i % DVD_KEY_SIZE)];
     }
 
     /* Decrypt disc key */
@@ -383,14 +383,14 @@ int dvdcss_disckey( dvdcss_t dvdcss )
                                  "cracking title keys instead" );
 
             /* Fallback, but not to DISC as the disc key might be faulty */
-            memset( p_disc_key, 0, KEY_SIZE );
+            memset( p_disc_key, 0, DVD_KEY_SIZE );
             dvdcss->i_method = DVDCSS_METHOD_TITLE;
             break;
 
         case DVDCSS_METHOD_DISC:
 
             /* Crack Disc key to be able to use it */
-            memcpy( p_disc_key, p_buffer, KEY_SIZE );
+            memcpy( p_disc_key, p_buffer, DVD_KEY_SIZE );
             PrintKey( dvdcss, "cracking disc key ", p_disc_key );
             if( ! CrackDiscKey( dvdcss, p_disc_key ) )
             {
@@ -398,18 +398,18 @@ int dvdcss_disckey( dvdcss_t dvdcss )
                 break;
             }
             print_debug( dvdcss, "failed to crack the disc key" );
-            memset( p_disc_key, 0, KEY_SIZE );
+            memset( p_disc_key, 0, DVD_KEY_SIZE );
             dvdcss->i_method = DVDCSS_METHOD_TITLE;
             break;
 
         default:
 
             print_debug( dvdcss, "disc key needs not be decrypted" );
-            memset( p_disc_key, 0, KEY_SIZE );
+            memset( p_disc_key, 0, DVD_KEY_SIZE );
             break;
     }
 
-    memcpy( dvdcss->css.p_disc_key, p_disc_key, KEY_SIZE );
+    memcpy( dvdcss->css.p_disc_key, p_disc_key, DVD_KEY_SIZE );
 
     return 0;
 }
@@ -421,7 +421,7 @@ int dvdcss_disckey( dvdcss_t dvdcss )
 static int dvdcss_titlekey( dvdcss_t dvdcss, int i_pos, dvd_key p_title_key )
 {
     static uint8_t p_garbage[ DVDCSS_BLOCK_SIZE ];  /* we never read it back */
-    uint8_t p_key[ KEY_SIZE ];
+    uint8_t p_key[DVD_KEY_SIZE];
     int i, i_ret = 0;
 
     if( dvdcss->b_ioctls && ( dvdcss->i_method == DVDCSS_METHOD_KEY ||
@@ -480,9 +480,9 @@ static int dvdcss_titlekey( dvdcss_t dvdcss, int i_pos, dvd_key p_title_key )
         if( !( i_ret < 0 ) )
         {
             /* Decrypt title key using the bus key */
-            for( i = 0 ; i < KEY_SIZE ; i++ )
+            for( i = 0 ; i < DVD_KEY_SIZE ; i++ )
             {
-                p_key[ i ] ^= dvdcss->css.p_bus_key[ 4 - (i % KEY_SIZE) ];
+                p_key[i] ^= dvdcss->css.p_bus_key[4 - (i % DVD_KEY_SIZE)];
             }
 
             /* If p_key is all zero then there really wasn't any key present
@@ -500,7 +500,7 @@ static int dvdcss_titlekey( dvdcss_t dvdcss, int i_pos, dvd_key p_title_key )
             }
 
             /* All went well either there wasn't a key or we have it now. */
-            memcpy( p_title_key, p_key, KEY_SIZE );
+            memcpy( p_title_key, p_key, DVD_KEY_SIZE );
             PrintKey( dvdcss, "title key is ", p_title_key );
 
             return i_ret;
@@ -524,7 +524,7 @@ static int dvdcss_titlekey( dvdcss_t dvdcss, int i_pos, dvd_key p_title_key )
     /* For now, the read limit is 9GB / 2048 =  4718592 sectors. */
     i_ret = CrackTitleKey( dvdcss, i_pos, 4718592, p_key );
 
-    memcpy( p_title_key, p_key, KEY_SIZE );
+    memcpy( p_title_key, p_key, DVD_KEY_SIZE );
     PrintKey( dvdcss, "title key is ", p_title_key );
 
     return i_ret;
@@ -591,7 +591,7 @@ int dvdcss_unscramble( dvd_key p_key, uint8_t *p_sec )
 static int GetBusKey( dvdcss_t dvdcss )
 {
     uint8_t   p_buffer[10];
-    uint8_t   p_challenge[2*KEY_SIZE];
+    uint8_t   p_challenge[2 * DVD_KEY_SIZE];
     dvd_key   p_key1;
     dvd_key   p_key2;
     dvd_key   p_key_check;
@@ -657,7 +657,7 @@ static int GetBusKey( dvdcss_t dvdcss )
     }
 
     /* Send key1 to host */
-    for( i = 0 ; i < KEY_SIZE ; i++ )
+    for( i = 0 ; i < DVD_KEY_SIZE ; i++ )
     {
         p_key1[i] = p_buffer[4-i];
     }
@@ -666,7 +666,7 @@ static int GetBusKey( dvdcss_t dvdcss )
     {
         CryptKey( 0, i, p_challenge, p_key_check );
 
-        if( memcmp( p_key_check, p_key1, KEY_SIZE ) == 0 )
+        if( memcmp( p_key_check, p_key1, DVD_KEY_SIZE ) == 0 )
         {
             print_debug( dvdcss, "drive authenticated, using variant %d", i );
             i_variant = i;
@@ -699,7 +699,7 @@ static int GetBusKey( dvdcss_t dvdcss )
     CryptKey( 1, i_variant, p_challenge, p_key2 );
 
     /* Get key2 from host */
-    for( i = 0 ; i < KEY_SIZE ; ++i )
+    for( i = 0 ; i < DVD_KEY_SIZE ; ++i )
     {
         p_buffer[4-i] = p_key2[i];
     }
@@ -715,8 +715,8 @@ static int GetBusKey( dvdcss_t dvdcss )
     /* The drive has accepted us as authentic. */
     print_debug( dvdcss, "authentication established" );
 
-    memcpy( p_challenge, p_key1, KEY_SIZE );
-    memcpy( p_challenge + KEY_SIZE, p_key2, KEY_SIZE );
+    memcpy( p_challenge, p_key1, DVD_KEY_SIZE );
+    memcpy( p_challenge + DVD_KEY_SIZE, p_key2, DVD_KEY_SIZE );
 
     CryptKey( 2, i_variant, p_challenge, dvdcss->css.p_bus_key );
 
@@ -999,7 +999,7 @@ static void DecryptKey( uint8_t invert, const uint8_t *p_key,
                    p_css_tab4[( i_lfsr0 >> 24 ) & 0xff];
 
     i_combined = 0;
-    for( i = 0 ; i < KEY_SIZE ; ++i )
+    for( i = 0 ; i < DVD_KEY_SIZE ; ++i )
     {
         o_lfsr1     = p_css_tab2[i_lfsr1_hi] ^ p_css_tab3[i_lfsr1_lo];
         i_lfsr1_hi  = i_lfsr1_lo >> 1;
@@ -1083,7 +1083,7 @@ static const dvd_key player_keys[] =
 static int DecryptDiscKey( dvdcss_t dvdcss, const uint8_t *p_struct_disckey,
                            dvd_key p_disc_key )
 {
-    uint8_t p_verify[KEY_SIZE];
+    uint8_t p_verify[DVD_KEY_SIZE];
     unsigned int i, n = 0;
 
     /* Decrypt disc key with the above player keys */
@@ -1103,7 +1103,7 @@ static int DecryptDiscKey( dvdcss_t dvdcss, const uint8_t *p_struct_disckey,
             DecryptKey( 0, p_disc_key, p_struct_disckey, p_verify );
 
             /* If the position / player key pair worked then return. */
-            if( memcmp( p_disc_key, p_verify, KEY_SIZE ) == 0 )
+            if( memcmp( p_disc_key, p_verify, DVD_KEY_SIZE ) == 0 )
             {
                 return 0;
             }
@@ -1112,7 +1112,7 @@ static int DecryptDiscKey( dvdcss_t dvdcss, const uint8_t *p_struct_disckey,
 
     /* Have tried all combinations of positions and keys,
      * and we still didn't succeed. */
-    memset( p_disc_key, 0, KEY_SIZE );
+    memset( p_disc_key, 0, DVD_KEY_SIZE );
     return -1;
 }
 
@@ -1142,11 +1142,11 @@ static void DecryptTitleKey( dvd_key p_disc_key, dvd_key p_titlekey )
  */
 static int investigate( unsigned char *hash, unsigned char *ckey )
 {
-    unsigned char key[KEY_SIZE];
+    unsigned char key[DVD_KEY_SIZE];
 
     DecryptKey( 0, ckey, hash, key );
 
-    return memcmp( key, ckey, KEY_SIZE );
+    return memcmp( key, ckey, DVD_KEY_SIZE );
 }
 
 static int CrackDiscKey( dvdcss_t dvdcss, uint8_t *p_disc_key )
@@ -1327,7 +1327,7 @@ static int CrackDiscKey( dvdcss_t dvdcss, uint8_t *p_disc_key )
 
 end:
 
-    memcpy( p_disc_key, &C[0], KEY_SIZE );
+    memcpy( p_disc_key, &C[0], DVD_KEY_SIZE );
 
     free( K1table );
     free( BigTable );
@@ -1602,12 +1602,12 @@ static int CrackTitleKey( dvdcss_t dvdcss, int i_pos, int i_len,
 
     if( i_encrypted == 0 && i_reads > 0 )
     {
-        memset( p_titlekey, 0, KEY_SIZE );
+        memset( p_titlekey, 0, DVD_KEY_SIZE );
         print_debug( dvdcss, "no scrambled sectors found" );
         return 0;
     }
 
-    memset( p_titlekey, 0, KEY_SIZE );
+    memset( p_titlekey, 0, DVD_KEY_SIZE );
     return -1;
 }
 
@@ -1651,7 +1651,7 @@ static int AttackPattern( const uint8_t p_sec[ DVDCSS_BLOCK_SIZE ],
         int res;
 
         i_tries++;
-        memset( p_key, 0, KEY_SIZE );
+        memset( p_key, 0, DVD_KEY_SIZE );
         res = RecoverTitleKey( 0,  &p_sec[0x80],
                       &p_sec[ 0x80 - (i_best_plen / i_best_p) * i_best_p ],
                       &p_sec[0x54] /* key_seed */, p_key );

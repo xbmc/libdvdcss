@@ -85,6 +85,7 @@
 
 #include "dvdcss/dvdcss.h"
 #include "common.h"
+#include "css.h"
 #include "ioctl.h"
 
 #define DVD_CHALLENGE_SIZE 10

@@ -37,7 +37,6 @@ int ioctl_SendChallenge     ( int, const int *, const uint8_t * );
 int ioctl_SendKey2          ( int, const int *, const uint8_t * );
 int ioctl_ReportRPC         ( int, int *, int *, int * );
 
-#define DVD_KEY_SIZE 5
 #define DVD_DISCKEY_SIZE 2048
 
 /*****************************************************************************

@@ -137,7 +137,7 @@
 #endif
 
 
-#define STRING_KEY_SIZE (KEY_SIZE * 2)
+#define STRING_KEY_SIZE (DVD_KEY_SIZE * 2)
 #define INTERESTING_SECTOR 16
 #define DISC_TITLE_OFFSET  40
 #define DISC_TITLE_LENGTH  32
@@ -390,7 +390,7 @@ static void create_cache_subdir( dvdcss_t dvdcss, const char *psz_cache )
      * date and serial number, but different keys. */
     if( dvdcss->b_scrambled )
     {
-        for( i = 0; i < KEY_SIZE; i++ )
+        for( i = 0; i < DVD_KEY_SIZE; i++ )
         {
             sprintf( &psz_key[i * 2], "%.2x", dvdcss->css.p_disc_key[i] );
         }
@@ -520,7 +520,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
         }
     }
 
-    memset( dvdcss->css.p_disc_key, 0, KEY_SIZE );
+    memset( dvdcss->css.p_disc_key, 0, DVD_KEY_SIZE );
     /* If disc is CSS protected and the ioctls work, authenticate the drive */
     if( dvdcss->b_scrambled && dvdcss->b_ioctls )
     {

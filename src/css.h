@@ -35,9 +35,9 @@
 #define CACHE_FILENAME_LENGTH 10
 #define CACHE_FILENAME_LENGTH_STRING "10"
 
-#define KEY_SIZE 5
+#define DVD_KEY_SIZE 5
 
-typedef uint8_t dvd_key[KEY_SIZE];
+typedef uint8_t dvd_key[DVD_KEY_SIZE];
 
 typedef struct dvd_title
 {
