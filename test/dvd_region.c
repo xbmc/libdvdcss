@@ -143,7 +143,8 @@ static int set_region(int fd, int region)
   }
   printf("Setting drive region can only be done a finite " \
          "number of times, press Ctrl-C now to cancel!\n");
-  getchar();
+  /* Discard returned character, just wait for any key as confirmation. */
+  (void) getchar();
 
   region_mask = 0xff & ~(1 << (region - 1));
   printf("Setting region to %d( %x)\n", region, region_mask);
