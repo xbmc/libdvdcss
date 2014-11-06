@@ -262,7 +262,7 @@ static char *set_cache_directory( dvdcss_t dvdcss )
 
     /* Check that there is enough space for the cache directory path and the
      * block filename. The +1 are path separators and terminating null byte. */
-    if( strlen( psz_cache ) + 1 + DISC_TITLE_LENGTH + 1 +
+    if( psz_cache && strlen( psz_cache ) + 1 + DISC_TITLE_LENGTH + 1 +
         MANUFACTURING_DATE_LENGTH + 1 + STRING_KEY_SIZE + 1 +
         CACHE_FILENAME_LENGTH + 1 > PATH_MAX )
     {
