@@ -417,7 +417,7 @@ static void create_cache_subdir( dvdcss_t dvdcss )
     /* Pointer to the filename we will use. */
     dvdcss->psz_block = dvdcss->psz_cachefile + i;
 
-    print_debug( dvdcss, "using CSS key cache dir: %s",
+    print_debug( dvdcss, "Content Scrambling System (CSS) key cache dir: %s",
                  dvdcss->psz_cachefile );
     return;
 

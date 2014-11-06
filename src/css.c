@@ -96,7 +96,8 @@ static int  dvdcss_titlekey ( dvdcss_t, int, dvd_key );
  *   1: DVD is scrambled but can be read
  *   0: DVD is not scrambled and can be read
  *  -1: could not get "copyright" information
- *  -2: could not get RPC information (reading the disc might be possible)
+ *  -2: could not get RPC (Regional Playback Control) information
+ *      (reading the disc might be possible)
  *  -3: drive is RPC-II, region is not set, and DVD is scrambled: the RPC
  *      scheme will prevent us from reading the scrambled data
  *****************************************************************************/
@@ -140,7 +141,8 @@ int dvdcss_test( dvdcss_t dvdcss )
 
     if( i_ret < 0 )
     {
-        print_error( dvdcss, "css error: could not get RPC status. Assuming RPC-I drive." );
+        print_error( dvdcss, "css error: could not get RPC (Regional Playback "
+                     "Control) status. Assuming RPC-I drive." );
         i_type = i_mask = i_rpc = 0;
     }
 
@@ -148,7 +150,7 @@ int dvdcss_test( dvdcss_t dvdcss )
     {
         case 0: psz_rpc = "RPC-I"; break;
         case 1: psz_rpc = "RPC-II"; break;
-        default: psz_rpc = "unknown RPC scheme"; break;
+        default: psz_rpc = "unknown RPC (Regional Playback Control) scheme"; break;
     }
 
     switch( i_type )
@@ -244,14 +246,16 @@ int dvdcss_title ( dvdcss_t dvdcss, int i_block )
         }
     }
 
-    /* Crack or decrypt CSS title key for current VTS */
+    /* Crack or decrypt Content Scrambling System (CSS) title key
+     * for current Video Title Set (VTS). */
     if( i_ret < 0 )
     {
         i_ret = dvdcss_titlekey( dvdcss, i_block, p_title_key );
 
         if( i_ret < 0 )
         {
-            print_error( dvdcss, "fatal error in VTS CSS key" );
+            print_error( dvdcss, "fatal error in Video Title Set (VTS) "
+                                 "Content Scrambling System (CSS) key" );
             return i_ret;
         }
 
@@ -453,7 +457,7 @@ static int dvdcss_titlekey( dvdcss_t dvdcss, int i_pos, dvd_key p_title_key )
         {
             case -1:
                 /* An error getting the ASF status, something must be wrong. */
-                print_debug( dvdcss, "lost ASF requesting title key" );
+                print_debug( dvdcss, "lost authentication success flag (ASF), requesting title key" );
                 ioctl_InvalidateAgid( dvdcss->i_fd, &dvdcss->css.i_agid );
                 i_ret = -1;
                 break;
@@ -461,7 +465,7 @@ static int dvdcss_titlekey( dvdcss_t dvdcss, int i_pos, dvd_key p_title_key )
             case 0:
                 /* This might either be a title that has no key,
                  * or we encountered a region error. */
-                print_debug( dvdcss, "lost ASF requesting title key" );
+                print_debug( dvdcss, "lost authentication success flag (ASF), requesting title key" );
                 break;
 
             case 1:
@@ -532,8 +536,8 @@ static int dvdcss_titlekey( dvdcss_t dvdcss, int i_pos, dvd_key p_title_key )
 /*****************************************************************************
  * dvdcss_unscramble: does the actual descrambling of data
  *****************************************************************************
- * sec : sector to unscramble
- * key : title key for this sector
+ * sec: sector to unscramble
+ * key: title key for this sector
  *****************************************************************************/
 int dvdcss_unscramble( dvd_key p_key, uint8_t *p_sec )
 {
@@ -578,12 +582,12 @@ int dvdcss_unscramble( dvd_key p_key, uint8_t *p_sec )
 /* Following functions are local */
 
 /*****************************************************************************
- * GetBusKey : Go through the CSS Authentication process
+ * GetBusKey: Go through the Content Scrambling System (CSS) authentication process
  *****************************************************************************
  * It simulates the mutual authentication between logical unit and host,
  * and stops when a session key (called bus key) has been established.
  * Always do the full auth sequence. Some drives seem to lie and always
- * respond with ASF=1. For instance the old DVD-ROMs on Compaq Armada says
+ * respond with ASF=1. For instance the old DVD-ROMs on Compaq Armada say
  * that ASF=1 from the start and then later fail with a 'read of scrambled
  * block without authentication' error.
  *****************************************************************************/
@@ -598,12 +602,13 @@ static int GetBusKey( dvdcss_t dvdcss )
     int       i_ret = -1;
     int       i;
 
-    print_debug( dvdcss, "requesting AGID" );
+    print_debug( dvdcss, "requesting authentication grant ID (AGID)" );
     i_ret = ioctl_ReportAgid( dvdcss->i_fd, &dvdcss->css.i_agid );
 
     /* We might have to reset hung authentication processes in the drive
-     * by invalidating the corresponding AGID'.  As long as we haven't got
-     * an AGID, invalidate one (in sequence) and try again. */
+     * by invalidating the corresponding authentication grant ID (AGID)'.
+     * As long as we haven't got an AGID, invalidate one (in sequence)
+     * and try again. */
     for( i = 0; i_ret == -1 && i < 4 ; ++i )
     {
         print_debug( dvdcss, "ioctl ReportAgid failed, "
@@ -723,7 +728,7 @@ static int GetBusKey( dvdcss_t dvdcss )
 }
 
 /*****************************************************************************
- * PrintKey : debug function that dumps a key value
+ * PrintKey: debug function that dumps a key value
  *****************************************************************************/
 static void PrintKey( dvdcss_t dvdcss, const char *prefix, const uint8_t *data )
 {
@@ -732,9 +737,9 @@ static void PrintKey( dvdcss_t dvdcss, const char *prefix, const uint8_t *data )
 }
 
 /*****************************************************************************
- * GetASF : Get Authentication success flag
+ * GetASF: Get authentication success flag (ASF)
  *****************************************************************************
- * Returns :
+ * Returns:
  *  -1 on ioctl error,
  *  0 if the device needs to be authenticated,
  *  1 either.
@@ -752,22 +757,22 @@ static int GetASF( dvdcss_t dvdcss )
 
     if( i_asf )
     {
-        print_debug( dvdcss, "GetASF authenticated, ASF=1" );
+        print_debug( dvdcss, "authentication success flag set, ASF=1" );
     }
     else
     {
-        print_debug( dvdcss, "GetASF not authenticated, ASF=0" );
+        print_debug( dvdcss, "authentication success flag not set, ASF=0" );
     }
 
     return i_asf;
 }
 
 /*****************************************************************************
- * CryptKey : shuffles bits and unencrypt keys.
+ * CryptKey: shuffle bits and decrypt keys.
  *****************************************************************************
  * Used during authentication and disc key negotiation in GetBusKey.
- * i_key_type : 0->key1, 1->key2, 2->buskey.
- * i_variant : between 0 and 31.
+ * i_key_type: 0->key1, 1->key2, 2->buskey.
+ * i_variant: between 0 and 31.
  *****************************************************************************/
 static void CryptKey( int i_key_type, int i_variant,
                       const uint8_t *p_challenge, uint8_t *p_key )
@@ -1613,7 +1618,7 @@ static int CrackTitleKey( dvdcss_t dvdcss, int i_pos, int i_len,
 
     if( i_success > 0 /* b_stop_scanning */ )
     {
-        print_debug( dvdcss, "vts key initialized" );
+        print_debug( dvdcss, "Video Title Set (VTS) key initialized" );
         return 1;
     }
 

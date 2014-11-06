@@ -1203,7 +1203,7 @@ int ioctl_SendKey2( int i_fd, const int *pi_agid, const uint8_t *p_key )
 }
 
 /*****************************************************************************
- * ioctl_ReportRPC: get RPC status for the drive
+ * ioctl_ReportRPC: get RPC (Regional Playback Control) status for the drive
  *****************************************************************************/
 int ioctl_ReportRPC( int i_fd, int *p_type, int *p_mask, int *p_scheme )
 {

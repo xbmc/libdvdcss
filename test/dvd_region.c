@@ -205,13 +205,14 @@ static int print_region(int fd)
   printf("RPC Scheme: ");
   switch( rpc_scheme ) {
   case 0:
-    printf("The Logical Unit does not enforce Region " \
-           "Playback Controls( RPC)\n");
+    printf("The Logical Unit does not enforce Regional " \
+           "Playback Control (RPC).\n");
     break;
   case 1:
     printf("The Logical Unit _shall_ adhere to the "
            "specification and all requirements of the " \
-           "CSS license agreement concerning RPC\n");
+           "Content Scrambling System (CSS) license "
+           "agreement concerning RPC.\n");
     break;
   default:
     printf("Reserved( %x)\n", rpc_scheme);
