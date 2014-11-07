@@ -22,8 +22,6 @@
 
 #include <stdio.h>
 
-#include "dvdcss/dvdcss.h"
-
 #include "libdvdcss.h"
 
 /*****************************************************************************
