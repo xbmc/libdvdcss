@@ -13,7 +13,6 @@
 /* #undef HAVE_LINUX_DVD_STRUCT */
 #define HAVE_MEMORY_H 1
 /* #undef HAVE_OPENBSD_DVD_STRUCT */
-/* #undef HAVE_STDINT_H */
 #define HAVE_STDLIB_H 1
 #define HAVE_STRINGS_H 1
 #define HAVE_STRING_H 1

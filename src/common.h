@@ -26,21 +26,6 @@
 #ifndef DVDCSS_COMMON_H
 #define DVDCSS_COMMON_H
 
-/*****************************************************************************
- * Basic types definitions
- *****************************************************************************/
-#if defined( HAVE_STDINT_H )
-#   include <stdint.h>
-#elif defined( HAVE_INTTYPES_H )
-#   include <inttypes.h>
-#else
-    /* Fallback types (very x86-centric, sorry) */
-    typedef unsigned char       uint8_t;
-    typedef signed char         int8_t;
-    typedef unsigned int        uint32_t;
-    typedef signed int          int32_t;
-#endif
-
 #if defined( WIN32 )
 #   include <io.h>                                             /* _lseeki64 */
 

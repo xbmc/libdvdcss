@@ -29,7 +29,8 @@
 #ifndef DVDCSS_CSS_H
 #define DVDCSS_CSS_H
 
-#include "common.h"
+#include <stdint.h>
+
 #include "dvdcss/dvdcss.h"
 
 #define CACHE_FILENAME_LENGTH_STRING "10"
