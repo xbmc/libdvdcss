@@ -56,7 +56,7 @@ struct dvdcss_s
     /* File handling */
     int ( * pf_seek )  ( dvdcss_t, int );
     int ( * pf_read )  ( dvdcss_t, void *, int );
-    int ( * pf_readv ) ( dvdcss_t, struct iovec *, int );
+    int ( * pf_readv ) ( dvdcss_t, const struct iovec *, int );
 
     /* Decryption stuff */
     enum dvdcss_method i_method;
