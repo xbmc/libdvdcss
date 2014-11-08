@@ -66,7 +66,7 @@ stamp-doxygen: doc/doxygen.cfg src/libdvdcss.c src/dvdcss/dvdcss.h
 tools: test/csstest$(EXEEXT) test/dvd_region$(EXEEXT)
 
 clean-local:
-	-rm -Rf stamp-doxygen doc/html
+	-rm -Rf stamp-doxygen doc/doxygen_sqlite3.db doc/html
 
 install-apidoc:
 	$(MKDIR_P) $(DESTDIR)$(htmldir)
