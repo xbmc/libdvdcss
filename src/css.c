@@ -1164,7 +1164,7 @@ static int CrackDiscKey( dvdcss_t dvdcss, uint8_t *p_disc_key )
     unsigned int lfsr1a;                /* upper 9 bits of LFSR1 */
     unsigned int lfsr1b;                /* lower 8 bits of LFSR1 */
     unsigned int tmp, tmp2, tmp3, tmp4,tmp5;
-    int i,j;
+    int i, j, ret = 0;
     unsigned int nStepA;        /* iterator for LFSR1 start state */
     unsigned int nStepB;        /* iterator for possible B[0]     */
     unsigned int nTry;          /* iterator for K[1] possibilities */
@@ -1233,6 +1233,11 @@ static int CrackDiscKey( dvdcss_t dvdcss, uint8_t *p_disc_key )
         }
 
         j = ( out2[0] << 16 ) | ( out2[1] << 8 ) | out2[4];
+        if ( j >= BIGTABLESIZE )
+        {
+            ret = -1;
+            goto error;
+        }
         BigTable[j] = i;
     }
 
@@ -1288,6 +1293,11 @@ static int CrackDiscKey( dvdcss_t dvdcss, uint8_t *p_disc_key )
 
                 /* test first possible out2[4] */
                 tmp4 = ( out2[0] << 16 ) | ( out2[1] << 8 ) | out2[4];
+                if ( tmp4 >= BIGTABLESIZE )
+                {
+                    ret = -1;
+                    goto error;
+                }
                 tmp4 = BigTable[ tmp4 ];
                 C[2] = tmp4 & 0xff;
                 C[3] = ( tmp4 >> 8 ) & 0xff;
@@ -1308,6 +1318,11 @@ static int CrackDiscKey( dvdcss_t dvdcss, uint8_t *p_disc_key )
                 /* Test second possible out2[4] */
                 out2[4] = ( out2[4] + 0xff ) & 0xff;
                 tmp4 = ( out2[0] << 16 ) | ( out2[1] << 8 ) | out2[4];
+                if ( tmp4 >= BIGTABLESIZE )
+                {
+                    ret = -1;
+                    goto error;
+                }
                 tmp4 = BigTable[ tmp4 ];
                 C[2] = tmp4 & 0xff;
                 C[3] = ( tmp4 >> 8 ) & 0xff;
@@ -1329,13 +1344,13 @@ static int CrackDiscKey( dvdcss_t dvdcss, uint8_t *p_disc_key )
     }
 
 end:
-
     memcpy( p_disc_key, &C[0], DVD_KEY_SIZE );
 
+error:
     free( K1table );
     free( BigTable );
 
-    return 0;
+    return ret;
 }
 
 /*****************************************************************************
