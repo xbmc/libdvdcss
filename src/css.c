@@ -1135,7 +1135,10 @@ static void DecryptTitleKey( dvd_key p_disc_key, dvd_key p_titlekey )
  * This function uses a big amount of memory to crack the disc key from the
  * disc key hash, if player keys are not available.
  *****************************************************************************/
+#define K1TABLESIZE  65536
 #define K1TABLEWIDTH 10
+
+#define BIGTABLESIZE 16777216
 
 /*
  * Simple function to test if a candidate key produces the given hash
@@ -1175,7 +1178,7 @@ static int CrackDiscKey( dvdcss_t dvdcss, uint8_t *p_disc_key )
      */
 
     /* initialize lookup tables for k[1] */
-    K1table = calloc( 65536, K1TABLEWIDTH );
+    K1table = calloc( K1TABLESIZE, K1TABLEWIDTH );
     if( K1table == NULL )
     {
         return -1;
@@ -1206,7 +1209,7 @@ static int CrackDiscKey( dvdcss_t dvdcss, uint8_t *p_disc_key )
     }
 
     /* Initializing our really big table */
-    BigTable = calloc( 16777216, sizeof(*BigTable) );
+    BigTable = calloc( BIGTABLESIZE, sizeof(*BigTable) );
     if( BigTable == NULL )
     {
         free( K1table );
@@ -1217,7 +1220,7 @@ static int CrackDiscKey( dvdcss_t dvdcss, uint8_t *p_disc_key )
 
     print_debug( dvdcss, "initializing the big table" );
 
-    for( i = 0 ; i < 16777216 ; i++ )
+    for( i = 0 ; i < BIGTABLESIZE ; i++ )
     {
         tmp = (( i + i ) & 0x1fffff0 ) | 0x8 | ( i & 0x7 );
 
@@ -1238,7 +1241,7 @@ static int CrackDiscKey( dvdcss_t dvdcss, uint8_t *p_disc_key )
      */
     tmp5 = p_disc_key[0] ^ p_css_tab1[ p_disc_key[1] ];
 
-    for( nStepA = 0 ; nStepA < 65536 ; nStepA ++ )
+    for( nStepA = 0 ; nStepA < K1TABLESIZE ; nStepA ++ )
     {
         lfsr1a = 0x100 | ( nStepA >> 8 );
         lfsr1b = nStepA & 0xff;
