@@ -32,7 +32,6 @@
 #include "common.h"
 #include "dvdcss/dvdcss.h"
 
-#define CACHE_FILENAME_LENGTH 10
 #define CACHE_FILENAME_LENGTH_STRING "10"
 
 #define DVD_KEY_SIZE 5

@@ -136,6 +136,7 @@
 #define mkdir(a, b) _mkdir(a)
 #endif
 
+#define CACHE_TAG_NAME "CACHEDIR.TAG"
 
 #define STRING_KEY_SIZE (DVD_KEY_SIZE * 2)
 #define INTERESTING_SECTOR 16
@@ -261,10 +262,10 @@ static char *set_cache_directory( dvdcss_t dvdcss )
     }
 
     /* Check that there is enough space for the cache directory path and the
-     * block filename. The +1 are path separators and terminating null byte. */
+     * block filename. The +1s are path separators. */
     if( psz_cache && strlen( psz_cache ) + 1 + DISC_TITLE_LENGTH + 1 +
         MANUFACTURING_DATE_LENGTH + 1 + STRING_KEY_SIZE + 1 +
-        CACHE_FILENAME_LENGTH + 1 > PATH_MAX )
+        sizeof(CACHE_TAG_NAME) > PATH_MAX )
     {
         print_error( dvdcss, "cache directory name is too long" );
         return NULL;
@@ -279,7 +280,7 @@ static void init_cache_dir( dvdcss_t dvdcss, const char *psz_cache )
         "# This file is a cache directory tag created by libdvdcss.\r\n"
         "# For information about cache directory tags, see:\r\n"
         "#   http://www.brynosaurus.com/cachedir/\r\n";
-    char psz_tagfile[PATH_MAX + 1 + 12 + 1];
+    char psz_tagfile[PATH_MAX];
     int i_fd, i_ret;
 
     i_ret = mkdir( psz_cache, 0755 );
@@ -290,7 +291,7 @@ static void init_cache_dir( dvdcss_t dvdcss, const char *psz_cache )
         return;
     }
 
-    sprintf( psz_tagfile, "%s/CACHEDIR.TAG", psz_cache );
+    sprintf( psz_tagfile, "%s/" CACHE_TAG_NAME, psz_cache );
     i_fd = open( psz_tagfile, O_RDWR|O_CREAT, 0644 );
     if( i_fd >= 0 )
     {
