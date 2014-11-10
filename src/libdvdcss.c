@@ -320,19 +320,19 @@ static void create_cache_subdir( dvdcss_t dvdcss )
     i_ret = dvdcss->pf_seek( dvdcss, 0 );
     if( i_ret != 0 )
     {
-        return;
+        goto error;
     }
 
     i_ret = dvdcss->pf_read( dvdcss, p_sector, 1 );
     if( i_ret != 1 )
     {
-        return;
+        goto error;
     }
 
     if( p_sector[0] == 0x00 && p_sector[1] == 0x00
         && p_sector[2] == 0x01 && p_sector[3] == 0xba )
     {
-        return;
+        goto error;
     }
 
     /* The data we are looking for is at sector 16 (32768 bytes):
@@ -342,13 +342,13 @@ static void create_cache_subdir( dvdcss_t dvdcss )
     i_ret = dvdcss->pf_seek( dvdcss, INTERESTING_SECTOR );
     if( i_ret != INTERESTING_SECTOR )
     {
-        return;
+        goto error;
     }
 
     i_ret = dvdcss->pf_read( dvdcss, p_sector, 1 );
     if( i_ret != 1 )
     {
-        return;
+        goto error;
     }
 
     /* Get the disc title */
@@ -410,8 +410,7 @@ static void create_cache_subdir( dvdcss_t dvdcss )
     if( i_ret < 0 && errno != EEXIST )
     {
         print_error( dvdcss, "failed creating cache subdirectory" );
-        dvdcss->psz_cachefile[0] = '\0';
-        return;
+        goto error;
     }
     i += sprintf( dvdcss->psz_cachefile + i, "/");
 
@@ -420,6 +419,10 @@ static void create_cache_subdir( dvdcss_t dvdcss )
 
     print_debug( dvdcss, "using CSS key cache dir: %s",
                  dvdcss->psz_cachefile );
+    return;
+
+error:
+    dvdcss->psz_cachefile[0] = '\0';
 }
 
 static void init_cache( dvdcss_t dvdcss )
