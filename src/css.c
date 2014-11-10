@@ -205,7 +205,7 @@ int dvdcss_title ( dvdcss_t dvdcss, int i_block )
          && p_title->i_startlb == i_block )
     {
         /* We've already cracked this key, nothing to do */
-        memcpy( dvdcss->css.p_title_key, p_title->p_key, sizeof(*p_title->p_key) );
+        memcpy( dvdcss->css.p_title_key, p_title->p_key, sizeof(p_title->p_key) );
         return 0;
     }
 
