@@ -192,13 +192,13 @@ static int set_access_method( dvdcss_t dvdcss )
     return 0;
 }
 
-static char *set_cache_directory( dvdcss_t dvdcss )
+static int set_cache_directory( dvdcss_t dvdcss )
 {
     char *psz_cache = getenv( "DVDCSS_CACHE" );
 
     if( psz_cache && !strcmp( psz_cache, "off" ) )
     {
-        return NULL;
+        return -1;
     }
 
     if( psz_cache == NULL || psz_cache[0] == '\0' )
@@ -268,12 +268,12 @@ static char *set_cache_directory( dvdcss_t dvdcss )
         sizeof(CACHE_TAG_NAME) > PATH_MAX )
     {
         print_error( dvdcss, "cache directory name is too long" );
-        return NULL;
+        return -1;
     }
-    return psz_cache;
+    return 0;
 }
 
-static void init_cache_dir( dvdcss_t dvdcss, const char *psz_cache )
+static int init_cache_dir( dvdcss_t dvdcss )
 {
     static const char psz_tag[] =
         "Signature: 8a477f597d28d172789f06886806bc55\r\n"
@@ -283,15 +283,15 @@ static void init_cache_dir( dvdcss_t dvdcss, const char *psz_cache )
     char psz_tagfile[PATH_MAX];
     int i_fd, i_ret;
 
-    i_ret = mkdir( psz_cache, 0755 );
+    i_ret = mkdir( dvdcss->psz_cachefile, 0755 );
     if( i_ret < 0 && errno != EEXIST )
     {
         print_error( dvdcss, "failed creating cache directory" );
-        psz_cache = NULL;
-        return;
+        dvdcss->psz_cachefile[0] = '\0';
+        return -1;
     }
 
-    sprintf( psz_tagfile, "%s/" CACHE_TAG_NAME, psz_cache );
+    sprintf( psz_tagfile, "%s/" CACHE_TAG_NAME, dvdcss->psz_cachefile );
     i_fd = open( psz_tagfile, O_RDWR|O_CREAT, 0644 );
     if( i_fd >= 0 )
     {
@@ -303,9 +303,10 @@ static void init_cache_dir( dvdcss_t dvdcss, const char *psz_cache )
         }
         close( i_fd );
     }
+    return 0;
 }
 
-static void create_cache_subdir( dvdcss_t dvdcss, const char *psz_cache )
+static void create_cache_subdir( dvdcss_t dvdcss )
 {
     uint8_t p_sector[DVDCSS_BLOCK_SIZE];
     char psz_key[STRING_KEY_SIZE + 1];
@@ -404,7 +405,7 @@ static void create_cache_subdir( dvdcss_t dvdcss, const char *psz_cache )
 
     /* We have a disc name or ID, we can create the cache subdirectory. */
     i = sprintf( dvdcss->psz_cachefile, "%s/%s-%s-%s",
-                 psz_cache, psz_title, psz_serial, psz_key );
+                 dvdcss->psz_cachefile, psz_title, psz_serial, psz_key );
     i_ret = mkdir( dvdcss->psz_cachefile, 0755 );
     if( i_ret < 0 && errno != EEXIST )
     {
@@ -424,19 +425,21 @@ static void create_cache_subdir( dvdcss_t dvdcss, const char *psz_cache )
 static void init_cache( dvdcss_t dvdcss )
 {
     /* Set CSS key cache directory. */
-    const char *psz_cache = set_cache_directory( dvdcss );
+    int i_ret = set_cache_directory( dvdcss );
+    if ( i_ret < 0 )
+    {
+        return;
+    }
 
     /* If the cache is enabled, initialize the cache directory. */
-    if( psz_cache )
+    i_ret = init_cache_dir( dvdcss );
+    if ( i_ret < 0 )
     {
-        init_cache_dir( dvdcss, psz_cache );
+        return;
     }
 
     /* If the cache is enabled, create a DVD-specific subdirectory. */
-    if( psz_cache )
-    {
-        create_cache_subdir( dvdcss, psz_cache );
-    }
+    create_cache_subdir( dvdcss );
 }
 
 /**
