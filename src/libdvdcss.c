@@ -781,15 +781,10 @@ LIBDVDCSS_EXPORT int dvdcss_close ( dvdcss_t dvdcss )
 
     i_ret = dvdcss_close_device( dvdcss );
 
-    if( i_ret < 0 )
-    {
-        return i_ret;
-    }
-
     free( dvdcss->psz_device );
     free( dvdcss );
 
-    return 0;
+    return i_ret;
 }
 
 /**

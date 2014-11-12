@@ -426,13 +426,16 @@ int dvdcss_close_device ( dvdcss_t dvdcss )
     free( dvdcss->p_readv_buffer );
     dvdcss->p_readv_buffer   = NULL;
     dvdcss->i_readv_buf_size = 0;
-
-    return 0;
 #else
-    close( dvdcss->i_fd );
+    int i_ret = close( dvdcss->i_fd );
+    if( i_ret < 0 )
+    {
+        print_error( dvdcss, "Failed to close fd, data loss possible." );
+        return i_ret;
+    }
+#endif
 
     return 0;
-#endif
 }
 
 /* Following functions are local */
