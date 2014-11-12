@@ -473,6 +473,7 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
     }
 
     /* Initialize structure with default values. */
+    dvdcss->i_pos = 0;
     dvdcss->p_titles = NULL;
     dvdcss->psz_device = strdup( psz_target );
     dvdcss->psz_error = "no error";

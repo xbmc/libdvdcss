@@ -455,8 +455,6 @@ static int libc_open ( dvdcss_t dvdcss, const char *psz_device )
         return -1;
     }
 
-    dvdcss->i_pos = 0;
-
     return 0;
 }
 
