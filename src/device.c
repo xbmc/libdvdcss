@@ -392,9 +392,9 @@ int dvdcss_open_device ( dvdcss_t dvdcss )
 #ifdef DVDCSS_RAW_OPEN
 int dvdcss_raw_open ( dvdcss_t dvdcss, const char *psz_device )
 {
-    dvdcss->i_raw_fd = open( psz_device, 0 );
+    int i_fd = open( psz_device, 0 );
 
-    if( dvdcss->i_raw_fd == -1 )
+    if( i_fd == -1 )
     {
         print_debug( dvdcss, "cannot open %s (%s)",
                              psz_device, strerror(errno) );
@@ -403,7 +403,7 @@ int dvdcss_raw_open ( dvdcss_t dvdcss, const char *psz_device )
     }
     else
     {
-        dvdcss->i_read_fd = dvdcss->i_raw_fd;
+        dvdcss->i_fd = i_fd;
     }
 
     return 0;
@@ -431,14 +431,6 @@ int dvdcss_close_device ( dvdcss_t dvdcss )
 #else
     close( dvdcss->i_fd );
 
-#ifdef DVDCSS_RAW_OPEN
-    if( dvdcss->i_raw_fd >= 0 )
-    {
-        close( dvdcss->i_raw_fd );
-        dvdcss->i_raw_fd = -1;
-    }
-#endif
-
     return 0;
 #endif
 }
@@ -450,7 +442,7 @@ int dvdcss_close_device ( dvdcss_t dvdcss )
  *****************************************************************************/
 static int libc_open ( dvdcss_t dvdcss, const char *psz_device )
 {
-    dvdcss->i_fd = dvdcss->i_read_fd = open( psz_device, O_BINARY );
+    dvdcss->i_fd = open( psz_device, O_BINARY );
 
     if( dvdcss->i_fd == -1 )
     {
@@ -526,7 +518,7 @@ static int os2_open ( dvdcss_t dvdcss, const char *psz_device )
 
     setmode( hfile, O_BINARY );
 
-    dvdcss->i_fd = dvdcss->i_read_fd = hfile;
+    dvdcss->i_fd = hfile;
 
     dvdcss->i_pos = 0;
 
@@ -548,7 +540,7 @@ static int libc_seek( dvdcss_t dvdcss, int i_blocks )
     }
 
     i_seek = (off_t)i_blocks * (off_t)DVDCSS_BLOCK_SIZE;
-    i_seek = lseek( dvdcss->i_read_fd, i_seek, SEEK_SET );
+    i_seek = lseek( dvdcss->i_fd, i_seek, SEEK_SET );
 
     if( i_seek < 0 )
     {
@@ -599,7 +591,7 @@ static int libc_read ( dvdcss_t dvdcss, void *p_buffer, int i_blocks )
     off_t i_size, i_ret, i_ret_blocks;
 
     i_size = (off_t)i_blocks * (off_t)DVDCSS_BLOCK_SIZE;
-    i_ret = read( dvdcss->i_read_fd, p_buffer, i_size );
+    i_ret = read( dvdcss->i_fd, p_buffer, i_size );
 
     if( i_ret < 0 )
     {
@@ -708,7 +700,7 @@ static int libc_readv ( dvdcss_t dvdcss, const struct iovec *p_iovec,
     dvdcss->i_pos += i_total;
     return i_total;
 #else
-    int i_read = readv( dvdcss->i_read_fd, p_iovec, i_blocks );
+    int i_read = readv( dvdcss->i_fd, p_iovec, i_blocks );
 
     if( i_read < 0 )
     {

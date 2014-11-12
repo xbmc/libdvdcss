@@ -50,7 +50,6 @@ struct dvdcss_s
     /* File descriptor */
     char * psz_device;
     int    i_fd;
-    int    i_read_fd;
     int    i_pos;
 
     /* File handling */
@@ -79,10 +78,6 @@ struct dvdcss_s
     char * p_readv_buffer;
     int    i_readv_buf_size;
 #endif /* WIN32 */
-
-#ifdef DVDCSS_RAW_OPEN
-    int    i_raw_fd;
-#endif
 };
 
 /*****************************************************************************
