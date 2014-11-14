@@ -97,6 +97,7 @@
  */
 #include "config.h"
 
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -113,10 +114,6 @@
 
 #ifdef HAVE_UNISTD_H
 #   include <unistd.h>
-#endif
-
-#ifdef HAVE_LIMITS_H
-#   include <limits.h>
 #endif
 
 #if defined(_WIN32_IE) && _WIN32_IE >= 0x500

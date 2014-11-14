@@ -52,7 +52,7 @@ AC_C_CONST
 AC_C_INLINE
 AC_TYPE_SIZE_T
 
-AC_CHECK_HEADERS([unistd.h sys/param.h sys/uio.h limits.h pwd.h]dnl
+AC_CHECK_HEADERS([unistd.h sys/param.h sys/uio.h pwd.h]dnl
   [errno.h sys/types.h sys/stat.h fcntl.h io.h])
 
 AC_CHECK_DECL([O_BINARY], [],
