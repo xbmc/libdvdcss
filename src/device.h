@@ -44,10 +44,6 @@ struct iovec
 
 #include "dvdcss/dvdcss.h"
 
-#if !defined(WIN32) && !defined(__OS2__)
-#   define DVDCSS_RAW_OPEN
-#endif
-
 
 /*****************************************************************************
  * Device reading prototypes
@@ -56,10 +52,5 @@ int  dvdcss_use_ioctls   ( dvdcss_t );
 void dvdcss_check_device ( dvdcss_t );
 int  dvdcss_open_device  ( dvdcss_t );
 int  dvdcss_close_device ( dvdcss_t );
-
-/*****************************************************************************
- * Device reading prototypes, raw-device specific
- *****************************************************************************/
-int dvdcss_raw_open      ( dvdcss_t, const char * );
 
 #endif /* DVDCSS_DEVICE_H */

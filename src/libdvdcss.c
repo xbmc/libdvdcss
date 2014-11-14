@@ -458,10 +458,6 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
 {
     int i_ret;
 
-#ifdef DVDCSS_RAW_OPEN
-    const char *psz_raw_device = getenv( "DVDCSS_RAW_DEVICE" );
-#endif
-
     /* Allocate the library structure. */
     dvdcss_t dvdcss = malloc( sizeof( *dvdcss ) );
     if( dvdcss == NULL )
@@ -535,13 +531,6 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
     }
 
     init_cache( dvdcss );
-
-#ifdef DVDCSS_RAW_OPEN
-    if( psz_raw_device != NULL )
-    {
-        dvdcss_raw_open( dvdcss, psz_raw_device );
-    }
-#endif /* DVDCSS_RAW_OPEN */
 
     /* Seek to the beginning, just for safety. */
     dvdcss->pf_seek( dvdcss, 0 );

@@ -6,6 +6,7 @@ Changes since 1.3.0:
   * Replace BeOS support by Haiku support.
   * dvdcss_error() now returns "const char *" instad of "char *".
   * Drop support for MSVC versions before 2010.
+  * Raw device access now errors out if the device cannot be opened.
   * Miscellaneous cleanups to code, documentation, build system.
 
 

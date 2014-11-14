@@ -336,8 +336,11 @@ void dvdcss_check_device ( dvdcss_t dvdcss )
 
 int dvdcss_open_device ( dvdcss_t dvdcss )
 {
-    const char *psz_device = dvdcss->psz_device;
-
+    const char *psz_device = getenv( "DVDCSS_RAW_DEVICE" );
+    if( !psz_device )
+    {
+         psz_device = dvdcss->psz_device;
+    }
     print_debug( dvdcss, "opening target `%s'", psz_device );
 
 #if defined( WIN32 )
@@ -381,27 +384,6 @@ int dvdcss_open_device ( dvdcss_t dvdcss )
         return libc_open( dvdcss, psz_device );
     }
 }
-
-#ifdef DVDCSS_RAW_OPEN
-int dvdcss_raw_open ( dvdcss_t dvdcss, const char *psz_device )
-{
-    int i_fd = open( psz_device, 0 );
-
-    if( i_fd == -1 )
-    {
-        print_debug( dvdcss, "cannot open %s (%s)",
-                             psz_device, strerror(errno) );
-        print_error( dvdcss, "failed to open raw device, but continuing" );
-        return -1;
-    }
-    else
-    {
-        dvdcss->i_fd = i_fd;
-    }
-
-    return 0;
-}
-#endif /* DVDCSS_RAW_OPEN */
 
 int dvdcss_close_device ( dvdcss_t dvdcss )
 {
