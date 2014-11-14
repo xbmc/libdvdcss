@@ -140,7 +140,7 @@ static int set_region(int fd, int region)
     printf("Invalid region( %d)\n", region);
     return 1;
   }
-  printf("Setting drive region can only be done a finite " \
+  printf("Setting drive region can only be done a finite "
          "number of times, press Ctrl-C now to cancel!\n");
   /* Discard returned character, just wait for any key as confirmation. */
   (void) getchar();
@@ -177,11 +177,11 @@ static int print_region(int fd)
     printf("Drive region is set\n");
     break;
   case 2:
-    printf("Drive region is set, with additional " \
+    printf("Drive region is set, with additional "
            "restrictions required to make a change\n");
     break;
   case 3:
-    printf("Drive region has been set permanently, but " \
+    printf("Drive region has been set permanently, but "
            "may be reset by the vendor if necessary\n");
     break;
   default:
@@ -205,12 +205,12 @@ static int print_region(int fd)
   printf("RPC Scheme: ");
   switch( rpc_scheme ) {
   case 0:
-    printf("The Logical Unit does not enforce Regional " \
+    printf("The Logical Unit does not enforce Regional "
            "Playback Control (RPC).\n");
     break;
   case 1:
     printf("The Logical Unit _shall_ adhere to the "
-           "specification and all requirements of the " \
+           "specification and all requirements of the "
            "Content Scrambling System (CSS) license "
            "agreement concerning RPC.\n");
     break;
