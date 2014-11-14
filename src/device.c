@@ -410,27 +410,25 @@ int dvdcss_raw_open ( dvdcss_t dvdcss, const char *psz_device )
 int dvdcss_close_device ( dvdcss_t dvdcss )
 {
 #if defined( WIN32 )
-    if( dvdcss->b_file )
-    {
-        close( dvdcss->i_fd );
-    }
-    else
-    {
-        CloseHandle( (HANDLE) dvdcss->i_fd );
-    }
-
     /* Free readv temporary buffer */
     free( dvdcss->p_readv_buffer );
     dvdcss->p_readv_buffer   = NULL;
     dvdcss->i_readv_buf_size = 0;
-#else
-    int i_ret = close( dvdcss->i_fd );
-    if( i_ret < 0 )
+
+    if( !dvdcss->b_file )
     {
-        print_error( dvdcss, "Failed to close fd, data loss possible." );
-        return i_ret;
+        CloseHandle( (HANDLE) dvdcss->i_fd );
     }
+    else
 #endif
+    {
+        int i_ret = close( dvdcss->i_fd );
+        if( i_ret < 0 )
+        {
+            print_error( dvdcss, "Failed to close fd, data loss possible." );
+            return i_ret;
+        }
+    }
 
     return 0;
 }
