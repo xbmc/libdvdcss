@@ -87,10 +87,6 @@ static int win2k_readv ( dvdcss_t, const struct iovec *, int );
 
 #elif defined( __OS2__ )
 static int os2_open ( dvdcss_t, const char * );
-/* just use macros for libc */
-#   define os2_seek     libc_seek
-#   define os2_read     libc_read
-#   define os2_readv    libc_readv
 #endif
 
 int dvdcss_use_ioctls( dvdcss_t dvdcss )
@@ -370,9 +366,9 @@ int dvdcss_open_device ( dvdcss_t dvdcss )
         ( !psz_device[2] || ( psz_device[2] == '\\' && !psz_device[3] ) ) )
     {
         print_debug( dvdcss, "using OS/2 API for access" );
-        dvdcss->pf_seek  = os2_seek;
-        dvdcss->pf_read  = os2_read;
-        dvdcss->pf_readv = os2_readv;
+        dvdcss->pf_seek  = libc_seek;
+        dvdcss->pf_read  = libc_read;
+        dvdcss->pf_readv = libc_readv;
         return os2_open( dvdcss, psz_device );
     }
     else
