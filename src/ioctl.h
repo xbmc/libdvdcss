@@ -65,20 +65,6 @@ int ioctl_ReportRPC         ( int, int *, int *, int * );
     dvd.format = FORMAT; \
     dvd.buffer = &dvdbs; \
     dvd.bufferLength = sizeof(dvdbs);
-#elif defined( WIN32 )
-#define INIT_SPTD( TYPE, SIZE ) \
-    DWORD tmp; \
-    SCSI_PASS_THROUGH_DIRECT sptd = { 0 }; \
-    uint8_t p_buffer[ (SIZE) ]; \
-    sptd.Length = sizeof( SCSI_PASS_THROUGH_DIRECT ); \
-    sptd.DataBuffer = p_buffer; \
-    sptd.DataTransferLength = (SIZE); \
-    WinInitSPTD( &sptd, (TYPE) );
-#define SEND_SPTD( DEV, SPTD, TMP ) \
-    (DeviceIoControl( (HANDLE)(DEV), IOCTL_SCSI_PASS_THROUGH_DIRECT, \
-                      (SPTD), sizeof( SCSI_PASS_THROUGH_DIRECT ), \
-                      (SPTD), sizeof( SCSI_PASS_THROUGH_DIRECT ), \
-                      (TMP), NULL ) ? 0 : -1)
 #elif defined( __QNXNTO__ )
 #define INIT_CPT( TYPE, SIZE ) \
     CAM_PASS_THRU * p_cpt = { 0 }; \

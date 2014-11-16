@@ -169,7 +169,13 @@ int ioctl_ReadCopyright( int i_fd, int i_layer, int *pi_copyright )
     *pi_copyright = dvdbs.copyrightProtectionSystemType;
 
 #elif defined( WIN32 )
-    INIT_SPTD( GPCMD_READ_DVD_STRUCTURE, 8 );
+    DWORD tmp;
+    SCSI_PASS_THROUGH_DIRECT sptd = { 0 };
+    uint8_t p_buffer[8];
+    sptd.Length = sizeof( SCSI_PASS_THROUGH_DIRECT );
+    sptd.DataBuffer = p_buffer;
+    sptd.DataTransferLength = sizeof( p_buffer );
+    WinInitSPTD( &sptd, GPCMD_READ_DVD_STRUCTURE );
 
     /*  When using IOCTL_DVD_READ_STRUCTURE and
         DVD_COPYRIGHT_DESCRIPTOR, CopyrightProtectionType
@@ -180,7 +186,10 @@ int ioctl_ReadCopyright( int i_fd, int i_layer, int *pi_copyright )
     sptd.Cdb[ 6 ] = i_layer;
     sptd.Cdb[ 7 ] = DVD_STRUCT_COPYRIGHT;
 
-    i_ret = SEND_SPTD( i_fd, &sptd, &tmp );
+    i_ret = DeviceIoControl( (HANDLE) i_fd, IOCTL_SCSI_PASS_THROUGH_DIRECT,
+                             &sptd, sizeof( SCSI_PASS_THROUGH_DIRECT ),
+                             &sptd, sizeof( SCSI_PASS_THROUGH_DIRECT ),
+                             &tmp, NULL ) ? 0 : -1;
 
     if( i_ret == 0 )
     {

@@ -93,14 +93,23 @@ static int ioctl_SendRPC( int i_fd, int i_pdrc )
     i_ret = ioctl( i_fd, DKIOCDVDSENDKEY, &dvd );
 
 #elif defined( WIN32 )
-    INIT_SPTD( GPCMD_SEND_KEY, 8 );
+    DWORD tmp;
+    SCSI_PASS_THROUGH_DIRECT sptd = { 0 };
+    uint8_t p_buffer[8];
+    sptd.Length = sizeof( SCSI_PASS_THROUGH_DIRECT );
+    sptd.DataBuffer = p_buffer;
+    sptd.DataTransferLength = sizeof( p_buffer );
+    WinInitSPTD( &sptd, GPCMD_SEND_KEY );
 
     sptd.Cdb[ 10 ] = DVD_SEND_RPC;
 
     p_buffer[ 1 ] = 6;
     p_buffer[ 4 ] = i_pdrc;
 
-    i_ret = SEND_SPTD( i_fd, &sptd, &tmp );
+    i_ret = DeviceIoControl( (HANDLE) i_fd, IOCTL_SCSI_PASS_THROUGH_DIRECT,
+                             &sptd, sizeof( SCSI_PASS_THROUGH_DIRECT ),
+                             &sptd, sizeof( SCSI_PASS_THROUGH_DIRECT ),
+                             &tmp, NULL ) ? 0 : -1;
 
 #elif defined( __QNXNTO__ )
 
