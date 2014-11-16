@@ -26,6 +26,11 @@
 
 #include <limits.h>
 
+#ifdef WIN32
+#    include "config.h"
+#    include <windows.h>
+#endif
+
 #include "dvdcss/dvdcss.h"
 #include "css.h"
 #include "device.h"
@@ -70,7 +75,7 @@ struct dvdcss_s
     int    b_debug;
 
 #ifdef WIN32
-    int    b_file;
+    HANDLE p_handle;
     char * p_readv_buffer;
     int    i_readv_buf_size;
 #endif /* WIN32 */
