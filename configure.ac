@@ -106,17 +106,17 @@ case x"${host_os}" in
     ;;
   x*cygwin*)
     CFLAGS="${CFLAGS} -mwin32"
-    AC_DEFINE([_WIN32_IE], 0x0500, [Define to '0x0500' for IE 5.0 (and shell) APIs.])
+    AC_DEFINE([_WIN32_IE], 0x0501, [Define to '0x0501' for IE 5.01 (and shell) APIs.])
     ;;
   xos2*)
     LDFLAGS="-Zbin-files"
     ;;
   x*msvc*)
     SYS_MSVC=1
-    AC_DEFINE([_WIN32_IE], 0x0500, [Define to '0x0500' for IE 5.0 (and shell) APIs.])
+    AC_DEFINE([_WIN32_IE], 0x0501, [Define to '0x0500' for IE 5.01 (and shell) APIs.])
     ;;
   x*mingw* | *wince* | *mingwce*)
-    AC_DEFINE([_WIN32_IE], 0x0500, [Define to '0x0500' for IE 5.0 (and shell) APIs.])
+    AC_DEFINE([_WIN32_IE], 0x0501, [Define to '0x0500' for IE 5.01 (and shell) APIs.])
     ;;
   x*)
     ;;

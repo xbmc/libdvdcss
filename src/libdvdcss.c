@@ -31,7 +31,7 @@
  * are:
  * \li portability: Currently supported platforms are GNU/Linux, FreeBSD,
  *     NetBSD, OpenBSD, Haiku, Mac OS X, Solaris, QNX, OS/2, and Windows
- *     NT 4.0 SP4 (with IE 5.0) or later.
+ *     2000 or later.
  * \li adaptability: Unlike most similar projects, libdvdcss does not require
  *     the region of your drive to be set and will try its best to read from
  *     the disc even in the case of a region mismatch.
@@ -116,7 +116,7 @@
 #   include <unistd.h>
 #endif
 
-#if defined(_WIN32_IE) && _WIN32_IE >= 0x500
+#ifdef WIN32
 #   include <shlobj.h>
 #endif
 
@@ -200,7 +200,7 @@ static int set_cache_directory( dvdcss_t dvdcss )
 
     if( psz_cache == NULL || psz_cache[0] == '\0' )
     {
-#if defined(_WIN32_IE) && _WIN32_IE >= 0x500
+#ifdef WIN32
         char psz_home[PATH_MAX];
 
         /* Cache our keys in
@@ -255,7 +255,7 @@ static int set_cache_directory( dvdcss_t dvdcss )
             dvdcss->psz_cachefile[PATH_MAX - 1] = '\0';
             psz_cache = dvdcss->psz_cachefile;
         }
-#endif /* ! defined(_WIN32_IE) && _WIN32_IE >= 0x500 */
+#endif /* ! defined( WIN32 ) */
     }
 
     /* Check that there is enough space for the cache directory path and the
