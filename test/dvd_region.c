@@ -198,8 +198,6 @@ static int print_region(int fd)
     break;
   }
 
-  // printf("%d vendor resets available\n", ai->lrpcs.vra);
-  // printf("%d user controlled changes available\n", ai->lrpcs.ucca);
   printf("Region: ");
   if( region_mask)
     while(region_mask) {

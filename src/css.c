@@ -72,7 +72,7 @@ static void DecryptKey      ( uint8_t,
                               const uint8_t *, const uint8_t *, uint8_t * );
 
 static int  DecryptDiscKey  ( dvdcss_t, const uint8_t *, dvd_key );
-static int  CrackDiscKey    ( dvdcss_t, uint8_t * );
+static int  CrackDiscKey    ( uint8_t * );
 
 static void DecryptTitleKey ( dvd_key, dvd_key );
 static int  RecoverTitleKey ( int, const uint8_t *,
@@ -403,7 +403,7 @@ int dvdcss_disckey( dvdcss_t dvdcss )
             /* Crack Disc key to be able to use it */
             memcpy( p_disc_key, p_buffer, DVD_KEY_SIZE );
             PrintKey( dvdcss, "cracking disc key ", p_disc_key );
-            if( ! CrackDiscKey( dvdcss, p_disc_key ) )
+            if( ! CrackDiscKey( p_disc_key ) )
             {
                 PrintKey( dvdcss, "cracked disc key is ", p_disc_key );
                 break;
@@ -1164,7 +1164,7 @@ static int investigate( unsigned char *hash, unsigned char *ckey )
     return memcmp( key, ckey, DVD_KEY_SIZE );
 }
 
-static int CrackDiscKey( dvdcss_t dvdcss, uint8_t *p_disc_key )
+static int CrackDiscKey( uint8_t *p_disc_key )
 {
     unsigned char B[5] = { 0,0,0,0,0 }; /* Second Stage of mangle cipher */
     unsigned char C[5] = { 0,0,0,0,0 }; /* Output Stage of mangle cipher
@@ -1206,12 +1206,6 @@ static int CrackDiscKey( dvdcss_t dvdcss, uint8_t *p_disc_key )
             tmp3 = j ^ tmp2 ^ i; /* C[1] */
             tmp4 = K1table[ K1TABLEWIDTH * ( 256 * j + tmp3 ) ]; /* count of entries  here */
             tmp4++;
-/*
-            if( tmp4 == K1TABLEWIDTH )
-            {
-                print_debug( dvdcss, "Table disaster %d", tmp4 );
-            }
-*/
             if( tmp4 < K1TABLEWIDTH )
             {
                 K1table[ K1TABLEWIDTH * ( 256 * j + tmp3 ) +    tmp4 ] = i;
@@ -1229,8 +1223,6 @@ static int CrackDiscKey( dvdcss_t dvdcss, uint8_t *p_disc_key )
     }
 
     tmp3 = 0;
-
-    print_debug( dvdcss, "initializing the big table" );
 
     for( i = 0 ; i < BIGTABLESIZE ; i++ )
     {
