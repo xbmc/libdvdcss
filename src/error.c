@@ -20,19 +20,47 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *****************************************************************************/
 
+#include <stdarg.h>
 #include <stdio.h>
 
 #include "libdvdcss.h"
 
+static void print_message( const char *prefix, const char *psz_string,
+                           va_list args )
+{
+    fprintf( stderr, "libdvdcss %s: ", prefix );
+    vfprintf( stderr, psz_string, args );
+    fprintf( stderr, "\n" );
+}
+
 /*****************************************************************************
  * Error messages
  *****************************************************************************/
-void print_error( dvdcss_t dvdcss, const char *psz_string )
+void print_error( dvdcss_t dvdcss, const char *psz_string, ... )
 {
     if( dvdcss->b_errors )
     {
-        fprintf( stderr, "libdvdcss error: %s\n", psz_string );
+        va_list args;
+
+        va_start( args, psz_string );
+        print_message("error", psz_string, args);
+        va_end( args );
     }
 
     dvdcss->psz_error = psz_string;
+}
+
+/*****************************************************************************
+ * Debug messages
+ *****************************************************************************/
+void print_debug( const dvdcss_t dvdcss, const char *psz_string, ... )
+{
+    if( dvdcss->b_debug )
+    {
+        va_list args;
+
+        va_start( args, psz_string );
+        print_message("debug", psz_string, args );
+        va_end( args );
+    }
 }

@@ -84,14 +84,7 @@ struct dvdcss_s
 /*****************************************************************************
  * Functions used across the library
  *****************************************************************************/
-#define print_debug( dvdcss, ... ) \
-    if( dvdcss->b_debug ) \
-    { \
-        fprintf( stderr, "libdvdcss debug: " ); \
-        fprintf( stderr, __VA_ARGS__ ); \
-        fprintf( stderr, "\n" ); \
-    }
-
-void print_error ( dvdcss_t, const char * );
+void print_error ( dvdcss_t, const char *, ... );
+void print_debug ( const dvdcss_t, const char *, ... );
 
 #endif /* DVDCSS_LIBDVDCSS_H */
