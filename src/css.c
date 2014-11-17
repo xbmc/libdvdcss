@@ -101,7 +101,9 @@ static int  dvdcss_titlekey ( dvdcss_t, int, dvd_key );
 int dvdcss_test( dvdcss_t dvdcss )
 {
     const char *psz_type, *psz_rpc;
-    int i_ret, i_copyright, i_type, i_mask, i_rpc;
+    char psz_region[16];
+    char *p_region = psz_region;
+    int i_ret, i_copyright, i_type, i_mask, i_rpc, i_region;
 
     i_ret = ioctl_ReadCopyright( dvdcss->i_fd, 0 /* i_layer */, &i_copyright );
 
@@ -159,8 +161,17 @@ int dvdcss_test( dvdcss_t dvdcss )
         default: psz_type = "unknown status"; break;
     }
 
-    print_debug( dvdcss, "drive region mask 0x%x, %s, %s",
-                         i_mask, psz_rpc, psz_type );
+    for( i_region = 0; i_region < 8; i_region++ )
+    {
+        if( !( i_mask & ( 1 << i_region ) ) )
+        {
+            sprintf(p_region, " %d", i_region + 1);
+            p_region += 2;
+        }
+    }
+
+    print_debug( dvdcss, "drive region(s)%s, region mask 0x%x, %s, %s",
+                 psz_region, i_mask, psz_rpc, psz_type );
 
     if( i_copyright && i_rpc == 1 && i_type == 0 )
     {
