@@ -182,8 +182,8 @@ static int set_access_method( dvdcss_t dvdcss )
     }
     else
     {
-        print_error( dvdcss, "unknown decrypt method, please choose "
-                     "from 'title', 'key' or 'disc'" );
+        print_error( dvdcss, "unknown decryption method %s, please choose "
+                     "from 'title', 'key' or 'disc'", psz_method );
         return -1;
     }
     return 0;

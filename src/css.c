@@ -124,7 +124,7 @@ int dvdcss_test( dvdcss_t dvdcss )
     if( i_ret < 0 )
     {
         /* Since it's the first ioctl we try to issue, we add a notice */
-        print_error( dvdcss, "css error: could not get \"copyright\""
+        print_error( dvdcss, "CSS error: could not get \"copyright\""
                      " information, make sure there is a DVD in the drive,"
                      " and that you have used the correct device node." );
 
@@ -138,7 +138,7 @@ int dvdcss_test( dvdcss_t dvdcss )
 
     if( i_ret < 0 )
     {
-        print_error( dvdcss, "css error: could not get RPC (Regional Playback "
+        print_error( dvdcss, "CSS error: could not get RPC (Regional Playback "
                      "Control) status. Assuming RPC-I drive." );
         i_type = i_mask = i_rpc = 0;
     }
@@ -164,7 +164,7 @@ int dvdcss_test( dvdcss_t dvdcss )
 
     if( i_copyright && i_rpc == 1 && i_type == 0 )
     {
-        print_error( dvdcss, "css error: drive will prevent access to "
+        print_error( dvdcss, "CSS error: drive will prevent access to "
                              "scrambled data" );
         return -3;
     }
@@ -354,8 +354,8 @@ int dvdcss_disckey( dvdcss_t dvdcss )
     if( GetASF( dvdcss ) != 1 )
     {
         /* Region mismatch (or region not set) is the most likely source. */
-        print_error( dvdcss,
-                     "ASF not 1 after reading disc key (region mismatch?)" );
+        print_error( dvdcss, "authentication success flag (ASF) not 1 after "
+                             "reading disc key (region mismatch?)" );
         ioctl_InvalidateAgid( dvdcss->i_fd, &dvdcss->css.i_agid );
         return -1;
     }
@@ -404,7 +404,7 @@ int dvdcss_disckey( dvdcss_t dvdcss )
 
         default:
 
-            print_debug( dvdcss, "disc key needs not be decrypted" );
+            print_debug( dvdcss, "disc key does not need to be decrypted" );
             memset( p_disc_key, 0, DVD_KEY_SIZE );
             break;
     }
@@ -608,8 +608,8 @@ static int GetBusKey( dvdcss_t dvdcss )
      * and try again. */
     for( i = 0; i_ret == -1 && i < 4 ; ++i )
     {
-        print_debug( dvdcss, "ioctl ReportAgid failed, "
-                             "invalidating AGID %d", i );
+        print_debug( dvdcss, "ioctl ReportAgid failed, invalidating "
+                             "authentication grant ID (AGID) %d", i );
 
         /* This is really _not good_, should be handled by the OS.
          * Invalidating an AGID could make another process fail somewhere
@@ -617,7 +617,7 @@ static int GetBusKey( dvdcss_t dvdcss )
         dvdcss->css.i_agid = i;
         ioctl_InvalidateAgid( dvdcss->i_fd, &dvdcss->css.i_agid );
 
-        print_debug( dvdcss, "requesting AGID" );
+        print_debug( dvdcss, "requesting authentication grant ID (AGID)" );
         i_ret = ioctl_ReportAgid( dvdcss->i_fd, &dvdcss->css.i_agid );
     }
 
@@ -1544,7 +1544,7 @@ static int CrackTitleKey( dvdcss_t dvdcss, int i_pos, int i_len,
             else if( !b_read_error )
             {
                 print_debug( dvdcss, "read error at block %i, resorting to "
-                                     "secret arcanes to recover", i_pos );
+                                     "arcane secrets to recover", i_pos );
 
                 /* Reset the drive before trying to continue */
                 dvdcss_close_device( dvdcss );
@@ -1556,12 +1556,12 @@ static int CrackTitleKey( dvdcss_t dvdcss, int i_pos, int i_len,
             break;
         }
 
-        /* Stop when we find a non MPEG stream block.
+        /* Stop when we find a non-MPEG stream block.
          * (We must have reached the end of the stream).
          * For now, allow all blocks that begin with a start code. */
         if( memcmp( p_buf, p_packstart, 3 ) )
         {
-            print_debug( dvdcss, "non MPEG block found at block %i "
+            print_debug( dvdcss, "block %i is a non-MPEG block "
                                  "(end of title)", i_pos );
             break;
         }

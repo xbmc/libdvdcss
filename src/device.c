@@ -371,7 +371,7 @@ int dvdcss_open_device ( dvdcss_t dvdcss )
     else
 #endif /* defined( WIN32 ) || defined( __OS2__ ) */
     {
-        print_debug( dvdcss, "using libc for access" );
+        print_debug( dvdcss, "using libc API for access" );
         dvdcss->pf_seek  = libc_seek;
         dvdcss->pf_read  = libc_read;
         dvdcss->pf_readv = libc_readv;
@@ -416,9 +416,8 @@ static int libc_open ( dvdcss_t dvdcss, const char *psz_device )
 
     if( dvdcss->i_fd == -1 )
     {
-        print_debug( dvdcss, "cannot open %s (%s)",
-                             psz_device, strerror(errno) );
-        print_error( dvdcss, "failed to open device" );
+        print_error( dvdcss, "failed to open device %s (%s)",
+                     psz_device, strerror(errno) );
         return -1;
     }
 
@@ -451,7 +450,7 @@ static int win2k_open ( dvdcss_t dvdcss, const char *psz_device )
 
     if( dvdcss->p_handle == INVALID_HANDLE_VALUE )
     {
-        print_error( dvdcss, "failed opening device" );
+        print_error( dvdcss, "failed to open device %s", psz_device );
         return -1;
     }
 
@@ -478,7 +477,7 @@ static int os2_open ( dvdcss_t dvdcss, const char *psz_device )
 
     if( rc )
     {
-        print_error( dvdcss, "failed to open device" );
+        print_error( dvdcss, "failed to open device %s", psz_device );
         return -1;
     }
 
@@ -702,7 +701,7 @@ static int win2k_readv ( dvdcss_t dvdcss, const struct iovec *p_iovec,
         dvdcss->p_readv_buffer = malloc( dvdcss->i_readv_buf_size );
         if( !dvdcss->p_readv_buffer )
         {
-            print_error( dvdcss, " failed (readv)" );
+            print_error( dvdcss, "scatter input (readv) failed" );
             dvdcss->i_pos = -1;
             return -1;
         }
