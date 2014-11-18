@@ -553,13 +553,10 @@ int ioctl_ReportAgid( int i_fd, int *pi_agid )
     *pi_agid = dvdbs.grantID;
 
 #elif defined( WIN32 )
-    ULONG id;
     DWORD tmp = 0;
 
-    i_ret = DeviceIoControl( (HANDLE) i_fd, IOCTL_DVD_START_SESSION,
-                    &tmp, 4, &id, sizeof( id ), &tmp, NULL ) ? 0 : -1;
-
-    *pi_agid = id;
+    i_ret = DeviceIoControl( (HANDLE) i_fd, IOCTL_DVD_START_SESSION, &tmp, 4,
+                             pi_agid, sizeof( *pi_agid ), &tmp, NULL ) ? 0 : -1;
 
 #elif defined( __QNXNTO__ )
 
