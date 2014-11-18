@@ -107,30 +107,29 @@ int dvdcss_test( dvdcss_t dvdcss )
 
     i_ret = ioctl_ReadCopyright( dvdcss->i_fd, 0 /* i_layer */, &i_copyright );
 
-#ifdef WIN32
     if( i_ret < 0 )
     {
+#ifdef WIN32
         /* Maybe we didn't have enough privileges to read the copyright
          * (see ioctl_ReadCopyright comments).
          * Apparently, on unencrypted DVDs dvdcss_disckey() always fails, so
          * we can check this as a workaround. */
-        i_ret = 0;
-        i_copyright = 1;
         if( dvdcss_disckey( dvdcss ) < 0 )
         {
             i_copyright = 0;
         }
-    }
-#endif /* WIN32 */
-
-    if( i_ret < 0 )
-    {
+        else
+        {
+            i_copyright = 1;
+        }
+#else
         /* Since it's the first ioctl we try to issue, we add a notice */
         print_error( dvdcss, "CSS error: could not get \"copyright\""
                      " information, make sure there is a DVD in the drive,"
                      " and that you have used the correct device node." );
 
         return -1;
+#endif /* WIN32 */
     }
 
     print_debug( dvdcss, "disc reports copyright information 0x%x",
