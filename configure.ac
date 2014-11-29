@@ -104,7 +104,7 @@ case x"${host_os}" in
   xdarwin*)
     CFLAGS="${CFLAGS} -no-cpp-precomp"
     ;;
-  x*cygwin*)
+  x*cygwin* | x*msys*)
     CFLAGS="${CFLAGS} -mwin32"
     AC_DEFINE([_WIN32_IE], 0x0501, [Define to '0x0501' for IE 5.01 (and shell) APIs.])
     ;;
