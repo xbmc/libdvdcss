@@ -79,7 +79,7 @@ static int libc_seek  ( dvdcss_t, int );
 static int libc_read  ( dvdcss_t, void *, int );
 static int libc_readv ( dvdcss_t, const struct iovec *, int );
 
-#ifdef WIN32
+#ifdef _WIN32
 static int win2k_open  ( dvdcss_t, const char * );
 static int win2k_seek  ( dvdcss_t, int );
 static int win2k_read  ( dvdcss_t, void *, int );
@@ -91,7 +91,7 @@ static int os2_open ( dvdcss_t, const char * );
 
 int dvdcss_use_ioctls( dvdcss_t dvdcss )
 {
-#if defined( WIN32 )
+#if defined( _WIN32 )
     if( dvdcss->p_handle )
     {
         return 0;
@@ -146,7 +146,7 @@ int dvdcss_use_ioctls( dvdcss_t dvdcss )
 
 void dvdcss_check_device ( dvdcss_t dvdcss )
 {
-#if defined( WIN32 )
+#if defined( _WIN32 )
     DWORD drives;
     int i;
 #elif defined( DARWIN_DVD_IOCTL )
@@ -188,7 +188,7 @@ void dvdcss_check_device ( dvdcss_t dvdcss )
         return;
     }
 
-#if defined( WIN32 )
+#if defined( _WIN32 )
     drives = GetLogicalDrives();
 
     for( i = 0; drives; i++ )
@@ -343,18 +343,18 @@ int dvdcss_open_device ( dvdcss_t dvdcss )
     }
     print_debug( dvdcss, "opening target `%s'", psz_device );
 
-#if defined( WIN32 )
+#if defined( _WIN32 )
     dvdcss->p_handle         = NULL;
     dvdcss->p_readv_buffer   = NULL;
     dvdcss->i_readv_buf_size = 0;
-#endif /* defined( WIN32 ) */
+#endif /* defined( _WIN32 ) */
 
-#if defined( WIN32 ) || defined( __OS2__ )
+#if defined( _WIN32 ) || defined( __OS2__ )
     /* If device is "X:" or "X:\", we are not actually opening a file. */
     if( psz_device[0] && psz_device[1] == ':' &&
        ( !psz_device[2] || ( psz_device[2] == '\\' && !psz_device[3] ) ) )
     {
-#if defined( WIN32 )
+#if defined( _WIN32 )
         print_debug( dvdcss, "using Win2K API for access" );
         dvdcss->pf_seek  = win2k_seek;
         dvdcss->pf_read  = win2k_read;
@@ -366,10 +366,10 @@ int dvdcss_open_device ( dvdcss_t dvdcss )
         dvdcss->pf_read  = libc_read;
         dvdcss->pf_readv = libc_readv;
         return os2_open( dvdcss, psz_device );
-#endif /* ! ( defined( WIN32 ) || defined( __OS2__ ) ) */
+#endif /* ! ( defined( _WIN32 ) || defined( __OS2__ ) ) */
     }
     else
-#endif /* defined( WIN32 ) || defined( __OS2__ ) */
+#endif /* defined( _WIN32 ) || defined( __OS2__ ) */
     {
         print_debug( dvdcss, "using libc API for access" );
         dvdcss->pf_seek  = libc_seek;
@@ -381,7 +381,7 @@ int dvdcss_open_device ( dvdcss_t dvdcss )
 
 int dvdcss_close_device ( dvdcss_t dvdcss )
 {
-#if defined( WIN32 )
+#if defined( _WIN32 )
     /* Free readv temporary buffer */
     free( dvdcss->p_readv_buffer );
     dvdcss->p_readv_buffer   = NULL;
@@ -424,7 +424,7 @@ static int libc_open ( dvdcss_t dvdcss, const char *psz_device )
     return 0;
 }
 
-#if defined( WIN32 )
+#if defined( _WIN32 )
 static int win2k_open ( dvdcss_t dvdcss, const char *psz_device )
 {
     char psz_dvd[7] = "\\\\.\\\0:";
@@ -458,7 +458,7 @@ static int win2k_open ( dvdcss_t dvdcss, const char *psz_device )
 
     return 0;
 }
-#endif /* defined( WIN32 ) */
+#endif /* defined( _WIN32 ) */
 
 #ifdef __OS2__
 static int os2_open ( dvdcss_t dvdcss, const char *psz_device )
@@ -519,7 +519,7 @@ static int libc_seek( dvdcss_t dvdcss, int i_blocks )
     return dvdcss->i_pos;
 }
 
-#if defined( WIN32 )
+#if defined( _WIN32 )
 static int win2k_seek( dvdcss_t dvdcss, int i_blocks )
 {
     LARGE_INTEGER li_seek;
@@ -545,7 +545,7 @@ static int win2k_seek( dvdcss_t dvdcss, int i_blocks )
 
     return dvdcss->i_pos;
 }
-#endif /* defined( WIN32 ) */
+#endif /* defined( _WIN32 ) */
 
 /*****************************************************************************
  * Read commands.
@@ -586,7 +586,7 @@ static int libc_read ( dvdcss_t dvdcss, void *p_buffer, int i_blocks )
     return i_ret_blocks;
 }
 
-#if defined( WIN32 )
+#if defined( _WIN32 )
 static int win2k_read ( dvdcss_t dvdcss, void *p_buffer, int i_blocks )
 {
     DWORD i_bytes;
@@ -602,7 +602,7 @@ static int win2k_read ( dvdcss_t dvdcss, void *p_buffer, int i_blocks )
     dvdcss->i_pos += i_bytes;
     return i_bytes;
 }
-#endif /* defined( WIN32 ) */
+#endif /* defined( _WIN32 ) */
 
 /*****************************************************************************
  * Readv commands.
@@ -610,7 +610,7 @@ static int win2k_read ( dvdcss_t dvdcss, void *p_buffer, int i_blocks )
 static int libc_readv ( dvdcss_t dvdcss, const struct iovec *p_iovec,
                         int i_blocks )
 {
-#if defined( WIN32 )
+#if defined( _WIN32 )
     int i_index, i_len, i_total = 0;
     unsigned char *p_base;
     int i_bytes;
@@ -677,7 +677,7 @@ static int libc_readv ( dvdcss_t dvdcss, const struct iovec *p_iovec,
 #endif
 }
 
-#if defined( WIN32 )
+#if defined( _WIN32 )
 /*****************************************************************************
  * win2k_readv: vectored read using ReadFile for Win2K
  *****************************************************************************/
@@ -743,4 +743,4 @@ static int win2k_readv ( dvdcss_t dvdcss, const struct iovec *p_iovec,
     dvdcss->i_pos += i_blocks_read;
     return i_blocks_read;
 }
-#endif /* defined( WIN32 ) */
+#endif /* defined( _WIN32 ) */

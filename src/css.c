@@ -109,7 +109,7 @@ int dvdcss_test( dvdcss_t dvdcss )
 
     if( i_ret < 0 )
     {
-#ifdef WIN32
+#ifdef _WIN32
         /* Maybe we didn't have enough privileges to read the copyright
          * (see ioctl_ReadCopyright comments).
          * Apparently, on unencrypted DVDs dvdcss_disckey() always fails, so
@@ -129,7 +129,7 @@ int dvdcss_test( dvdcss_t dvdcss )
                      " and that you have used the correct device node." );
 
         return -1;
-#endif /* WIN32 */
+#endif /* _WIN32 */
     }
 
     print_debug( dvdcss, "disc reports copyright information 0x%x",

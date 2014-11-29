@@ -37,7 +37,7 @@
 #include <string.h>                                    /* memcpy(), memset() */
 #include <sys/types.h>
 
-#if defined( WIN32 )
+#if defined( _WIN32 )
 #   include <windows.h>
 #   include <winioctl.h>
 #elif defined ( __OS2__ )
@@ -98,7 +98,7 @@ static void BeInitRDC ( raw_device_command *, int );
 #elif defined( SOLARIS_USCSI )
 static void SolarisInitUSCSI( struct uscsi_cmd *p_sc, int i_type );
 static int SolarisSendUSCSI( int fd, struct uscsi_cmd *p_sc );
-#elif defined( WIN32 )
+#elif defined( _WIN32 )
 static void WinInitSPTD ( SCSI_PASS_THROUGH_DIRECT *, int );
 #elif defined( __QNXNTO__ )
 static void QNXInitCPT ( CAM_PASS_THRU *, int );
@@ -168,7 +168,7 @@ int ioctl_ReadCopyright( int i_fd, int i_layer, int *pi_copyright )
 
     *pi_copyright = dvdbs.copyrightProtectionSystemType;
 
-#elif defined( WIN32 )
+#elif defined( _WIN32 )
     DWORD tmp;
     SCSI_PASS_THROUGH_DIRECT sptd = { 0 };
     uint8_t p_buffer[8];
@@ -304,7 +304,7 @@ int ioctl_ReadDiscKey( int i_fd, const int *pi_agid, uint8_t *p_key )
 
     memcpy( p_key, dvdbs.discKeyStructures, DVD_DISCKEY_SIZE );
 
-#elif defined( WIN32 )
+#elif defined( _WIN32 )
     DWORD tmp;
     uint8_t buffer[DVD_DISK_KEY_LENGTH] = { 0 };
     PDVD_COPY_PROTECT_KEY key = (PDVD_COPY_PROTECT_KEY) &buffer;
@@ -436,7 +436,7 @@ int ioctl_ReadTitleKey( int i_fd, const int *pi_agid, int i_pos, uint8_t *p_key 
 
     memcpy( p_key, dvdbs.titleKeyValue, DVD_KEY_SIZE );
 
-#elif defined( WIN32 )
+#elif defined( _WIN32 )
     DWORD tmp;
     uint8_t buffer[DVD_TITLE_KEY_LENGTH] = { 0 };
     PDVD_COPY_PROTECT_KEY key = (PDVD_COPY_PROTECT_KEY) &buffer;
@@ -552,7 +552,7 @@ int ioctl_ReportAgid( int i_fd, int *pi_agid )
 
     *pi_agid = dvdbs.grantID;
 
-#elif defined( WIN32 )
+#elif defined( _WIN32 )
     DWORD tmp = 0;
 
     i_ret = DeviceIoControl( (HANDLE) i_fd, IOCTL_DVD_START_SESSION, &tmp, 4,
@@ -646,7 +646,7 @@ int ioctl_ReportChallenge( int i_fd, const int *pi_agid, uint8_t *p_challenge )
 
     memcpy( p_challenge, dvdbs.challengeKeyValue, DVD_CHALLENGE_SIZE );
 
-#elif defined( WIN32 )
+#elif defined( _WIN32 )
     DWORD tmp;
     uint8_t buffer[DVD_CHALLENGE_KEY_LENGTH] = { 0 };
     PDVD_COPY_PROTECT_KEY key = (PDVD_COPY_PROTECT_KEY) &buffer;
@@ -752,7 +752,7 @@ int ioctl_ReportASF( int i_fd, int *pi_asf )
 
     *pi_asf = dvdbs.successFlag;
 
-#elif defined( WIN32 )
+#elif defined( _WIN32 )
     DWORD tmp;
     uint8_t buffer[DVD_ASF_LENGTH] = { 0 };
     PDVD_COPY_PROTECT_KEY key = (PDVD_COPY_PROTECT_KEY) &buffer;
@@ -864,7 +864,7 @@ int ioctl_ReportKey1( int i_fd, const int *pi_agid, uint8_t *p_key )
 
     memcpy( p_key, dvdbs.key1Value, DVD_KEY_SIZE );
 
-#elif defined( WIN32 )
+#elif defined( _WIN32 )
     DWORD tmp;
     uint8_t buffer[DVD_BUS_KEY_LENGTH] = { 0 };
     PDVD_COPY_PROTECT_KEY key = (PDVD_COPY_PROTECT_KEY) &buffer;
@@ -957,7 +957,7 @@ int ioctl_InvalidateAgid( int i_fd, int *pi_agid )
 
     i_ret = ioctl( i_fd, DKIOCDVDSENDKEY, &dvd );
 
-#elif defined( WIN32 )
+#elif defined( _WIN32 )
     DWORD tmp;
 
     i_ret = DeviceIoControl( (HANDLE) i_fd, IOCTL_DVD_END_SESSION,
@@ -1054,7 +1054,7 @@ int ioctl_SendChallenge( int i_fd, const int *pi_agid, const uint8_t *p_challeng
 
     i_ret = ioctl( i_fd, DKIOCDVDSENDKEY, &dvd );
 
-#elif defined( WIN32 )
+#elif defined( _WIN32 )
     DWORD tmp;
     uint8_t buffer[DVD_CHALLENGE_KEY_LENGTH] = { 0 };
     PDVD_COPY_PROTECT_KEY key = (PDVD_COPY_PROTECT_KEY) &buffer;
@@ -1163,7 +1163,7 @@ int ioctl_SendKey2( int i_fd, const int *pi_agid, const uint8_t *p_key )
 
     i_ret = ioctl( i_fd, DKIOCDVDSENDKEY, &dvd );
 
-#elif defined( WIN32 )
+#elif defined( _WIN32 )
     DWORD tmp;
     uint8_t buffer[DVD_BUS_KEY_LENGTH] = { 0 };
     PDVD_COPY_PROTECT_KEY key = (PDVD_COPY_PROTECT_KEY) &buffer;
@@ -1280,7 +1280,7 @@ int ioctl_ReportRPC( int i_fd, int *p_type, int *p_mask, int *p_scheme )
     *p_mask = dvdbs.driveRegion;
     *p_scheme = dvdbs.rpcScheme;
 
-#elif defined( WIN32 )
+#elif defined( _WIN32 )
     DWORD tmp;
     uint8_t buffer[DVD_RPC_KEY_LENGTH] = { 0 };
     PDVD_COPY_PROTECT_KEY key = (PDVD_COPY_PROTECT_KEY) &buffer;
@@ -1470,7 +1470,7 @@ static int SolarisSendUSCSI( int i_fd, struct uscsi_cmd *p_sc )
 }
 #endif /* defined( SOLARIS_USCSI ) */
 
-#if defined( WIN32 )
+#if defined( _WIN32 )
 /*****************************************************************************
  * WinInitSPTD: initialize a sptd structure
  *****************************************************************************
@@ -1500,7 +1500,7 @@ static void WinInitSPTD( SCSI_PASS_THROUGH_DIRECT *p_sptd, int i_type )
 
     p_sptd->TimeOutValue = 2;
 }
-#endif /* defined( WIN32 ) */
+#endif /* defined( _WIN32 ) */
 
 #if defined( __QNXNTO__ )
 /*****************************************************************************

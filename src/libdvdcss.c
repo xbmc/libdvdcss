@@ -116,7 +116,7 @@
 #   include <unistd.h>
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 #   include <shlobj.h>
 #endif
 
@@ -200,7 +200,7 @@ static int set_cache_directory( dvdcss_t dvdcss )
 
     if( psz_cache == NULL || psz_cache[0] == '\0' )
     {
-#ifdef WIN32
+#ifdef _WIN32
         char psz_home[PATH_MAX];
 
         /* Cache our keys in
@@ -255,7 +255,7 @@ static int set_cache_directory( dvdcss_t dvdcss )
             dvdcss->psz_cachefile[PATH_MAX - 1] = '\0';
             psz_cache = dvdcss->psz_cachefile;
         }
-#endif /* ! defined( WIN32 ) */
+#endif /* ! defined( _WIN32 ) */
     }
 
     /* Check that there is enough space for the cache directory path and the

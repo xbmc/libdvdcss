@@ -123,9 +123,9 @@ typedef union dvd_authinfo dvd_authinfo;
 /*****************************************************************************
  * Win32-ioctl-specific
  *****************************************************************************/
-#if defined( WIN32 )
+#if defined( _WIN32 )
 
-#define WIN32_LEAN_AND_MEAN
+#define _WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <winioctl.h>
 
@@ -245,7 +245,7 @@ typedef struct SCSI_PASS_THROUGH_DIRECT
     UCHAR Cdb[16];
 } SCSI_PASS_THROUGH_DIRECT, *PSCSI_PASS_THROUGH_DIRECT;
 
-#endif /* defined( WIN32 ) */
+#endif /* defined( _WIN32 ) */
 
 /*****************************************************************************
  * OS/2-ioctl-specific

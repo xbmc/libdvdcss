@@ -26,7 +26,7 @@
 #ifndef DVDCSS_COMMON_H
 #define DVDCSS_COMMON_H
 
-#if defined( WIN32 )
+#if defined( _WIN32 )
 #   include <io.h>                                             /* _lseeki64 */
 
 /* several type definitions */
@@ -60,7 +60,7 @@ typedef __int64 off_t;
 #       define write _write
 #   endif /* defined( _MSC_VER ) */
 
-#endif /* defined( WIN32 ) */
+#endif /* defined( _WIN32 ) */
 
 #ifdef __ANDROID__
 # undef  lseek

@@ -92,7 +92,7 @@ static int ioctl_SendRPC( int i_fd, int i_pdrc )
 
     i_ret = ioctl( i_fd, DKIOCDVDSENDKEY, &dvd );
 
-#elif defined( WIN32 )
+#elif defined( _WIN32 )
     DWORD tmp;
     SCSI_PASS_THROUGH_DIRECT sptd = { 0 };
     uint8_t p_buffer[8];

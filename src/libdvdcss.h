@@ -26,7 +26,7 @@
 
 #include <limits.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 #    include "config.h"
 #    include <windows.h>
 #endif
@@ -74,11 +74,11 @@ struct dvdcss_s
     int    b_errors;
     int    b_debug;
 
-#ifdef WIN32
+#ifdef _WIN32
     HANDLE p_handle;
     char * p_readv_buffer;
     int    i_readv_buf_size;
-#endif /* WIN32 */
+#endif /* _WIN32 */
 };
 
 /*****************************************************************************
