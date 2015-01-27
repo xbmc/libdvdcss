@@ -512,17 +512,17 @@ static int libc_seek( dvdcss_t dvdcss, int i_blocks )
         return i_blocks;
     }
 
-    i_seek = i_blocks * DVDCSS_BLOCK_SIZE;
+    i_seek = (off_t)i_blocks * (off_t)DVDCSS_BLOCK_SIZE;
     i_seek = lseek( dvdcss->i_fd, i_seek, SEEK_SET );
 
     if( i_seek < 0 )
     {
         print_error( dvdcss, "seek error" );
         dvdcss->i_pos = -1;
-        return (int) i_seek;
+        return i_seek;
     }
 
-    dvdcss->i_pos = (int) (i_seek / DVDCSS_BLOCK_SIZE);
+    dvdcss->i_pos = i_seek / DVDCSS_BLOCK_SIZE;
 
     return dvdcss->i_pos;
 }
@@ -550,7 +550,7 @@ static int win2k_seek( dvdcss_t dvdcss, int i_blocks )
         return -1;
     }
 
-    dvdcss->i_pos = (int) (li_seek.QuadPart / DVDCSS_BLOCK_SIZE);
+    dvdcss->i_pos = li_seek.QuadPart / DVDCSS_BLOCK_SIZE;
 
     return dvdcss->i_pos;
 }
@@ -561,9 +561,9 @@ static int win2k_seek( dvdcss_t dvdcss, int i_blocks )
  *****************************************************************************/
 static int libc_read ( dvdcss_t dvdcss, void *p_buffer, int i_blocks )
 {
-    ssize_t i_size, i_ret, i_ret_blocks;
+    off_t i_size, i_ret, i_ret_blocks;
 
-    i_size = i_blocks * DVDCSS_BLOCK_SIZE;
+    i_size = (off_t)i_blocks * (off_t)DVDCSS_BLOCK_SIZE;
     i_ret = read( dvdcss->i_fd, p_buffer, i_size );
 
     if( i_ret < 0 )
