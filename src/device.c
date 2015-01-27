@@ -92,7 +92,7 @@ static int os2_open ( dvdcss_t, const char * );
 int dvdcss_use_ioctls( dvdcss_t dvdcss )
 {
 #if defined( _WIN32 )
-    if( dvdcss->p_handle )
+    if( dvdcss->b_file )
     {
         return 0;
     }
@@ -344,32 +344,38 @@ int dvdcss_open_device ( dvdcss_t dvdcss )
     print_debug( dvdcss, "opening target `%s'", psz_device );
 
 #if defined( _WIN32 )
-    dvdcss->p_handle         = NULL;
+    dvdcss->b_file = 1;
+    /* If device is "X:" or "X:\", we are not actually opening a file. */
+    if (psz_device[0] && psz_device[1] == ':' &&
+       (!psz_device[2] || (psz_device[2] == '\\' && !psz_device[3])))
+        dvdcss->b_file = 0;
+
+    /* Initialize readv temporary buffer */
     dvdcss->p_readv_buffer   = NULL;
     dvdcss->i_readv_buf_size = 0;
-#endif /* defined( _WIN32 ) */
 
-#if defined( _WIN32 ) || defined( __OS2__ )
-    /* If device is "X:" or "X:\", we are not actually opening a file. */
-    if( psz_device[0] && psz_device[1] == ':' &&
-       ( !psz_device[2] || ( psz_device[2] == '\\' && !psz_device[3] ) ) )
+    if( !dvdcss->b_file )
     {
-#if defined( _WIN32 )
         print_debug( dvdcss, "using Win2K API for access" );
         dvdcss->pf_seek  = win2k_seek;
         dvdcss->pf_read  = win2k_read;
         dvdcss->pf_readv = win2k_readv;
         return win2k_open( dvdcss, psz_device );
+    }
+    else
 #elif defined( __OS2__ )
+    /* If device is "X:" or "X:\", we are not actually opening a file. */
+    if( psz_device[0] && psz_device[1] == ':' &&
+        ( !psz_device[2] || ( psz_device[2] == '\\' && !psz_device[3] ) ) )
+    {
         print_debug( dvdcss, "using OS/2 API for access" );
         dvdcss->pf_seek  = libc_seek;
         dvdcss->pf_read  = libc_read;
         dvdcss->pf_readv = libc_readv;
         return os2_open( dvdcss, psz_device );
-#endif /* ! ( defined( _WIN32 ) || defined( __OS2__ ) ) */
     }
     else
-#endif /* defined( _WIN32 ) || defined( __OS2__ ) */
+#endif
     {
         print_debug( dvdcss, "using libc API for access" );
         dvdcss->pf_seek  = libc_seek;
@@ -387,9 +393,9 @@ int dvdcss_close_device ( dvdcss_t dvdcss )
     dvdcss->p_readv_buffer   = NULL;
     dvdcss->i_readv_buf_size = 0;
 
-    if( dvdcss->p_handle )
+    if( !dvdcss->b_file )
     {
-        CloseHandle( dvdcss->p_handle );
+        CloseHandle( (HANDLE) dvdcss->i_fd );
     }
     else
 #endif
@@ -438,17 +444,19 @@ static int win2k_open ( dvdcss_t dvdcss, const char *psz_device )
      * won't send back the right result).
      * (See Microsoft Q241374: Read and Write Access Required for SCSI
      * Pass Through Requests) */
-    dvdcss->p_handle = CreateFile( psz_dvd, GENERIC_READ | GENERIC_WRITE,
-                                   FILE_SHARE_READ | FILE_SHARE_WRITE,
-                                   NULL, OPEN_EXISTING,
-                                   FILE_FLAG_RANDOM_ACCESS, NULL );
+    dvdcss->i_fd = (int)
+                CreateFile( psz_dvd, GENERIC_READ | GENERIC_WRITE,
+                            FILE_SHARE_READ | FILE_SHARE_WRITE,
+                            NULL, OPEN_EXISTING,
+                            FILE_FLAG_RANDOM_ACCESS, NULL );
 
-    if( dvdcss->p_handle == INVALID_HANDLE_VALUE )
-        dvdcss->p_handle = CreateFile( psz_dvd, GENERIC_READ, FILE_SHARE_READ,
-                                       NULL, OPEN_EXISTING,
-                                       FILE_FLAG_RANDOM_ACCESS, NULL );
+    if( (HANDLE) dvdcss->i_fd == INVALID_HANDLE_VALUE )
+        dvdcss->i_fd = (int)
+                    CreateFile( psz_dvd, GENERIC_READ, FILE_SHARE_READ,
+                                NULL, OPEN_EXISTING,
+                                FILE_FLAG_RANDOM_ACCESS, NULL );
 
-    if( dvdcss->p_handle == INVALID_HANDLE_VALUE )
+    if( (HANDLE) dvdcss->i_fd == INVALID_HANDLE_VALUE )
     {
         print_error( dvdcss, "failed to open device %s", psz_device );
         return -1;
@@ -532,7 +540,8 @@ static int win2k_seek( dvdcss_t dvdcss, int i_blocks )
 
     li_seek.QuadPart = (LONGLONG)i_blocks * DVDCSS_BLOCK_SIZE;
 
-    li_seek.LowPart = SetFilePointer( dvdcss->p_handle, li_seek.LowPart,
+    li_seek.LowPart = SetFilePointer( (HANDLE) dvdcss->i_fd,
+                                      li_seek.LowPart,
                                       &li_seek.HighPart, FILE_BEGIN );
     if( (li_seek.LowPart == INVALID_SET_FILE_POINTER)
         && GetLastError() != NO_ERROR)
@@ -591,8 +600,9 @@ static int win2k_read ( dvdcss_t dvdcss, void *p_buffer, int i_blocks )
 {
     DWORD i_bytes;
 
-    if( !ReadFile( dvdcss->p_handle, p_buffer,i_blocks * DVDCSS_BLOCK_SIZE,
-                   &i_bytes, NULL ) )
+    if( !ReadFile( (HANDLE) dvdcss->i_fd, p_buffer,
+              i_blocks * DVDCSS_BLOCK_SIZE,
+              &i_bytes, NULL ) )
     {
         dvdcss->i_pos = -1;
         return -1;
@@ -714,7 +724,7 @@ static int win2k_readv ( dvdcss_t dvdcss, const struct iovec *p_iovec,
 
     if( i_blocks_total <= 0 ) return 0;
 
-    if( !ReadFile( dvdcss->p_handle, dvdcss->p_readv_buffer,
+    if( !ReadFile( (HANDLE)dvdcss->i_fd, dvdcss->p_readv_buffer,
                    i_blocks_total, &i_bytes, NULL ) )
     {
         /* The read failed... too bad.
