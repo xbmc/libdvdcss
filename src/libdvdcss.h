@@ -74,6 +74,9 @@ struct dvdcss_s
     char * p_readv_buffer;
     int    i_readv_buf_size;
 #endif /* _WIN32 */
+
+    void                *p_stream;
+    dvdcss_stream_cb    *p_stream_cb;
 };
 
 /*****************************************************************************

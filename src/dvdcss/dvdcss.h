@@ -31,12 +31,25 @@
 #define DVDCSS_DVDCSS_H 1
 #endif
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /** Library instance handle, to be used for each library call. */
 typedef struct dvdcss_s* dvdcss_t;
+
+/** Set of callbacks to access DVDs in custom ways. */
+typedef struct dvdcss_stream_cb
+{
+    /** custom seek callback */
+    int ( *pf_seek )  ( void *p_stream, uint64_t i_pos);
+    /** custom read callback */
+    int ( *pf_read )  ( void *p_stream, void *buffer, int i_read);
+    /** custom vectored read callback */
+    int ( *pf_readv ) ( void *p_stream, const void *p_iovec, int i_blocks);
+} dvdcss_stream_cb;
 
 
 /** The block size of a DVD. */
@@ -73,6 +86,8 @@ typedef struct dvdcss_s* dvdcss_t;
  * Exported prototypes.
  */
 LIBDVDCSS_EXPORT dvdcss_t dvdcss_open  ( const char *psz_target );
+LIBDVDCSS_EXPORT dvdcss_t dvdcss_open_stream( void *p_stream,
+                                              dvdcss_stream_cb *p_stream_cb );
 LIBDVDCSS_EXPORT int      dvdcss_close ( dvdcss_t );
 LIBDVDCSS_EXPORT int      dvdcss_seek  ( dvdcss_t,
                                int i_blocks,

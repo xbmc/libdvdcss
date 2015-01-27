@@ -143,6 +143,8 @@
 #define MANUFACTURING_DATE_LENGTH  16
 
 
+static dvdcss_t dvdcss_open_common ( const char *psz_target, void *p_stream,
+                                     dvdcss_stream_cb *p_stream_cb );
 static void set_verbosity( dvdcss_t dvdcss )
 {
     const char *psz_verbose = getenv( "DVDCSS_VERBOSE" );
@@ -456,6 +458,27 @@ static void init_cache( dvdcss_t dvdcss )
  */
 LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
 {
+    return dvdcss_open_common( psz_target, NULL, NULL );
+}
+
+/**
+ * \brief Open a DVD device using dvdcss_stream_cb.
+ *
+ * \param p_stream a private handle used by p_stream_cb
+ * \param p_stream_cb a struct containing seek and read functions
+ * \return a handle to a dvdcss instance or NULL on error.
+ *
+ * \see dvdcss_open()
+ */
+LIBDVDCSS_EXPORT dvdcss_t dvdcss_open_stream ( void *p_stream,
+                                               dvdcss_stream_cb *p_stream_cb )
+{
+    return dvdcss_open_common( NULL, p_stream, p_stream_cb );
+}
+
+static dvdcss_t dvdcss_open_common ( const char *psz_target, void *p_stream,
+                                     dvdcss_stream_cb *p_stream_cb )
+{
     int i_ret;
 
     /* Allocate the library structure. */
@@ -465,6 +488,10 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
         return NULL;
     }
 
+    if( psz_target == NULL &&
+      ( p_stream == NULL || p_stream_cb == NULL ) )
+        return NULL;
+
     /* Initialize structure with default values. */
     dvdcss->i_pos = 0;
     dvdcss->p_titles = NULL;
@@ -472,6 +499,9 @@ LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
     dvdcss->psz_error = "no error";
     dvdcss->i_method = DVDCSS_METHOD_KEY;
     dvdcss->psz_cachefile[0] = '\0';
+
+    dvdcss->p_stream = p_stream;
+    dvdcss->p_stream_cb = p_stream_cb;
 
     /* Set library verbosity from DVDCSS_VERBOSE environment variable. */
     set_verbosity( dvdcss );
