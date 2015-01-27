@@ -578,10 +578,11 @@ static int libc_read ( dvdcss_t dvdcss, void *p_buffer, int i_blocks )
     /* Handle partial reads */
     if( i_ret != i_size )
     {
-        int i_seek;
+        int i_seek, i_set_pos;
 
+        i_set_pos = dvdcss->i_pos + i_ret_blocks;
         dvdcss->i_pos = -1;
-        i_seek = libc_seek( dvdcss, i_ret_blocks );
+        i_seek = libc_seek( dvdcss, i_set_pos );
         if( i_seek < 0 )
         {
             return i_seek;
