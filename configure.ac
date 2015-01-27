@@ -1,4 +1,4 @@
-AC_INIT(libdvdcss, 1.3.0, , , https://www.videolan.org/developers/libdvdcss.html)
+AC_INIT(libdvdcss, 1.4.0, , , https://www.videolan.org/developers/libdvdcss.html)
 AC_CONFIG_SRCDIR([src/libdvdcss.c])
 
 AC_PREREQ(2.50)
