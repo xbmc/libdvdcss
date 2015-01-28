@@ -495,7 +495,7 @@ static dvdcss_t dvdcss_open_common ( const char *psz_target, void *p_stream,
     /* Initialize structure with default values. */
     dvdcss->i_pos = 0;
     dvdcss->p_titles = NULL;
-    dvdcss->psz_device = strdup( psz_target );
+    dvdcss->psz_device = psz_target ? strdup( psz_target ) : NULL;
     dvdcss->psz_error = "no error";
     dvdcss->i_method = DVDCSS_METHOD_KEY;
     dvdcss->psz_cachefile[0] = '\0';

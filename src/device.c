@@ -190,7 +190,7 @@ void dvdcss_check_device ( dvdcss_t dvdcss )
 #endif
 
     /* If the device name is non-NULL or stream is set, return. */
-    if( dvdcss->psz_device[0] || dvdcss->p_stream )
+    if( (dvdcss->psz_device && dvdcss->psz_device[0]) || dvdcss->p_stream )
     {
         return;
     }
