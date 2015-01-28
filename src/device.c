@@ -546,7 +546,7 @@ static int libc_seek( dvdcss_t dvdcss, int i_blocks )
 
 static int stream_seek( dvdcss_t dvdcss, int i_blocks )
 {
-    off_t i_seek = i_blocks * DVDCSS_BLOCK_SIZE;
+    off_t i_seek = (off_t) i_blocks * (off_t) DVDCSS_BLOCK_SIZE;
 
     if( !dvdcss->p_stream_cb->pf_seek )
         return -1;
@@ -642,7 +642,7 @@ static int stream_read ( dvdcss_t dvdcss, void *p_buffer, int i_blocks )
 {
     off_t i_size, i_ret, i_ret_blocks;
 
-    i_size = i_blocks * DVDCSS_BLOCK_SIZE;
+    i_size = (off_t)i_blocks * (off_t)DVDCSS_BLOCK_SIZE;
 
     if( !dvdcss->p_stream_cb->pf_read )
         return -1;
