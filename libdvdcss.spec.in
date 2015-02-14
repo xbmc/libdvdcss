@@ -18,7 +18,7 @@
 
 Name:           %{name}
 Version:        %{version}
-Release:        %{release}
+Release:        %{release}%{?dist}
 Summary:        Library for accessing DVDs like block devices with transparent decryption
 Source:         %{name}-%{version}.tar.bz2
 License:        GPL
@@ -90,6 +90,7 @@ package installed.
 %files -n %{libname}
 %defattr(-,root,root)
 %doc AUTHORS COPYING NEWS
+%{_docdir}/libdvdcss
 %{_libdir}/*.so.*
 
 %files -n %{libname}-devel
@@ -98,6 +99,7 @@ package installed.
 %{_libdir}/*.a
 %{_libdir}/*.so
 %{_libdir}/*.la
+%{_libdir}/pkgconfig/*
 %{_includedir}/*
 
 %changelog
