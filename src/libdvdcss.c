@@ -493,6 +493,7 @@ static dvdcss_t dvdcss_open_common ( const char *psz_target, void *p_stream,
         return NULL;
 
     /* Initialize structure with default values. */
+    dvdcss->i_fd = -1;
     dvdcss->i_pos = 0;
     dvdcss->p_titles = NULL;
     dvdcss->psz_device = psz_target ? strdup( psz_target ) : NULL;
