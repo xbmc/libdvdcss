@@ -505,7 +505,9 @@ static dvdcss_t dvdcss_open_common ( const char *psz_target, void *p_stream,
 
     if( psz_target == NULL &&
       ( p_stream == NULL || p_stream_cb == NULL ) )
-        return NULL;
+    {
+        goto error;
+    }
 
     /* Initialize structure with default values. */
     dvdcss->i_fd = -1;
