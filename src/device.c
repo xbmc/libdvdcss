@@ -350,6 +350,12 @@ int dvdcss_open_device ( dvdcss_t dvdcss )
     }
     print_debug( dvdcss, "opening target `%s'", psz_device );
 
+#if defined( _WIN32 )
+    /* Initialize readv temporary buffer */
+    dvdcss->p_readv_buffer   = NULL;
+    dvdcss->i_readv_buf_size = 0;
+#endif
+
     /* if callback functions are initialized */
     if( dvdcss->p_stream )
     {
@@ -366,10 +372,6 @@ int dvdcss_open_device ( dvdcss_t dvdcss )
     if (psz_device[0] && psz_device[1] == ':' &&
        (!psz_device[2] || (psz_device[2] == '\\' && !psz_device[3])))
         dvdcss->b_file = 0;
-
-    /* Initialize readv temporary buffer */
-    dvdcss->p_readv_buffer   = NULL;
-    dvdcss->i_readv_buf_size = 0;
 
     if( !dvdcss->b_file )
     {
