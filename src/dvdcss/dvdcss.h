@@ -33,6 +33,8 @@
 
 #include <stdint.h>
 
+#include "version.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

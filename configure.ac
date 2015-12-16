@@ -1,4 +1,10 @@
-AC_INIT(libdvdcss, 1.3.99, , , https://www.videolan.org/developers/libdvdcss.html)
+dnl library version number
+m4_define([dvdcss_major], 1)
+m4_define([dvdcss_minor], 3)
+m4_define([dvdcss_micro], 99)
+m4_define([dvdcss_version],[dvdcss_major.dvdcss_minor.dvdcss_micro])
+
+AC_INIT(libdvdcss, dvdcss_version, , , https://www.videolan.org/developers/libdvdcss.html)
 AC_CONFIG_SRCDIR([src/libdvdcss.c])
 
 AC_PREREQ(2.50)
@@ -231,10 +237,19 @@ AM_CONDITIONAL([APIDOC], [test "x$DOXYGEN" != "x"])
 AC_PATH_PROG([GIT], [git])
 AM_CONDITIONAL([GIT], [test "x$GIT" != "x"])
 
+dnl export library version number
+DVDCSS_VERSION_MAJOR=dvdcss_major()
+DVDCSS_VERSION_MINOR=dvdcss_minor()
+DVDCSS_VERSION_MICRO=dvdcss_micro()
+AC_SUBST(DVDCSS_VERSION_MAJOR)
+AC_SUBST(DVDCSS_VERSION_MINOR)
+AC_SUBST(DVDCSS_VERSION_MICRO)
+
 AC_SUBST(DVDCSS_LDFLAGS)
 AC_OUTPUT([
   Makefile
   libdvdcss.spec
   doc/doxygen.cfg
   src/libdvdcss.pc
+  src/dvdcss/version.h
 ])

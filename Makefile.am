@@ -1,4 +1,5 @@
 ACLOCAL_AMFLAGS = -I m4
+AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src/dvdcss
 
 EXTRA_DIST = msvc libdvdcss.spec INSTALL
 
@@ -46,7 +47,9 @@ test_dvd_region_LDADD = libdvdcss.la
 test_dvd_region_CFLAGS = -I $(top_srcdir)/src
 
 pkgincludedir = $(includedir)/dvdcss
-pkginclude_HEADERS = src/dvdcss/dvdcss.h
+pkginclude_HEADERS = \
+	src/dvdcss/dvdcss.h \
+	src/dvdcss/version.h
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = src/libdvdcss.pc
