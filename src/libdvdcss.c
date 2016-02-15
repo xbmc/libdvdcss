@@ -274,6 +274,11 @@ static int set_cache_directory( dvdcss_t dvdcss )
         }
 #endif /* ! defined( _WIN32 ) */
     }
+    else
+    {
+      snprintf( dvdcss->psz_cachefile, PATH_MAX, "%s", psz_cache );
+      dvdcss->psz_cachefile[PATH_MAX - 1] = '\0';
+    }
 
     /* Check that there is enough space for the cache directory path and the
      * block filename. The +1s are path separators. */
