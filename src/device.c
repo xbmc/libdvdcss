@@ -625,6 +625,8 @@ static int libc_read ( dvdcss_t dvdcss, void *p_buffer, int i_blocks )
       i_ret += i_r;
     }
 
+    i_ret_blocks = i_ret / DVDCSS_BLOCK_SIZE;
+
     /* Handle partial reads */
     if( i_ret != i_size )
     {
