@@ -406,6 +406,11 @@ int dvdcss_open_device ( dvdcss_t dvdcss )
 
 int dvdcss_close_device ( dvdcss_t dvdcss )
 {
+    if( dvdcss->p_stream )
+    {
+        return 0;
+    }
+
 #if defined( _WIN32 )
     /* Free readv temporary buffer */
     free( dvdcss->p_readv_buffer );
