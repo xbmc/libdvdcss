@@ -305,7 +305,7 @@ static int init_cache_dir( dvdcss_t dvdcss )
     i_ret = mkdir( dvdcss->psz_cachefile, 0755 );
     if( i_ret < 0 && errno != EEXIST )
     {
-        print_error( dvdcss, "failed creating cache directory" );
+        print_error( dvdcss, "failed creating cache directory '%s'", dvdcss->psz_cachefile );
         dvdcss->psz_cachefile[0] = '\0';
         return -1;
     }
