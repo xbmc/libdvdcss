@@ -234,7 +234,7 @@ static int set_cache_directory( dvdcss_t dvdcss )
 
         /* Try looking in password file for home dir. */
         p_pwd = getpwuid(getuid());
-        if( p_pwd && p_pwd[ 0 ] )
+        if( p_pwd && p_pwd->pw_dir && p_pwd->pw_dir[ 0 ] )
         {
             psz_home = p_pwd->pw_dir;
         }
