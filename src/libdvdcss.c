@@ -433,8 +433,9 @@ static void create_cache_subdir( dvdcss_t dvdcss )
     }
 
     /* We have a disc name or ID, we can create the cache subdirectory. */
-    i = sprintf( dvdcss->psz_cachefile, "%s/%s-%s-%s",
-                 dvdcss->psz_cachefile, psz_title, psz_serial, psz_key );
+    i = strlen( dvdcss->psz_cachefile );
+    i += sprintf( dvdcss->psz_cachefile + i, "/%s-%s-%s",
+                  psz_title, psz_serial, psz_key );
     i_ret = exists_or_mkdir( dvdcss->psz_cachefile, 0755 );
     if( i_ret < 0 && errno != EEXIST )
     {
