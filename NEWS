@@ -1,3 +1,9 @@
+Changes between 1.4.0 and 1.4.1:
+--------------------------------
+  * Fix crashes in cache directory creation
+  * Fix cases where the cache directory was not used
+
+
 Changes between 1.3.99 and 1.4.0:
 ---------------------------------
   * Add key caching on Android
