@@ -89,6 +89,12 @@ static int win2k_seek  ( dvdcss_t, int );
 static int win2k_read  ( dvdcss_t, void *, int );
 static int win2k_readv ( dvdcss_t, const struct iovec *, int );
 
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)
+extern char* uwp_getenv(const char* n);
+size_t uwp_cachepath(char *buffer, size_t cch);
+#define getenv uwp_getenv
+#endif
+
 #elif defined( __OS2__ )
 static int os2_open ( dvdcss_t, const char * );
 #endif
@@ -195,7 +201,8 @@ void dvdcss_check_device ( dvdcss_t dvdcss )
         return;
     }
 
-#if defined( _WIN32 )
+#if defined( _WIN32 ) 
+#if !defined(WINAPI_FAMILY) || (WINAPI_FAMILY != WINAPI_FAMILY_APP)
     drives = GetLogicalDrives();
 
     for( i = 0; drives; i++ )
@@ -227,6 +234,7 @@ void dvdcss_check_device ( dvdcss_t dvdcss )
         dvdcss->psz_device = strdup( psz_device );
         return;
     }
+#endif
 #elif defined( DARWIN_DVD_IOCTL )
 
     kern_result = IOMasterPort( MACH_PORT_NULL, &master_port );
@@ -421,7 +429,7 @@ int dvdcss_close_device ( dvdcss_t dvdcss )
     {
         CloseHandle( (HANDLE) dvdcss->i_fd );
     }
-    else
+    else if( !dvdcss->p_stream )
 #endif
     {
         int i_ret = close( dvdcss->i_fd );
@@ -455,6 +463,64 @@ static int libc_open ( dvdcss_t dvdcss, const char *psz_device )
 }
 
 #if defined( _WIN32 )
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)
+HANDLE WINAPI CreateFileW(LPCWSTR lpFileName,
+  DWORD dwDesiredAccess,
+  DWORD dwShareMode,
+  LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+  DWORD dwCreationDisposition,
+  DWORD dwFlagsAndAttributes,
+  HANDLE hTemplateFile)
+{
+  CREATEFILE2_EXTENDED_PARAMETERS createExParams;
+  createExParams.dwSize = sizeof(CREATEFILE2_EXTENDED_PARAMETERS);
+  createExParams.dwFileAttributes = dwFlagsAndAttributes & 0xFFFF;
+  createExParams.dwFileFlags = dwFlagsAndAttributes & 0xFFF00000;
+  createExParams.dwSecurityQosFlags = dwFlagsAndAttributes & 0x000F00000;
+  createExParams.lpSecurityAttributes = lpSecurityAttributes;
+  createExParams.hTemplateFile = hTemplateFile;
+  return CreateFile2(lpFileName, dwDesiredAccess, dwShareMode, dwCreationDisposition, &createExParams);
+}
+extern size_t uwp_Utf8ToW(const char* src, wchar_t* buffer, int maxlen);
+
+static int win2k_open(dvdcss_t dvdcss, const char *psz_device)
+{
+  char psz_dvd[7] = "\\\\.\\\0:";
+  psz_dvd[4] = psz_device[0];
+  wchar_t pathW[7];
+  uwp_Utf8ToW(psz_dvd, pathW, 8);
+
+  /* To work around an M$ bug in IOCTL_DVD_READ_STRUCTURE, we need read
+  * _and_ write access to the device (so we can make SCSI Pass Through
+  * Requests). Unfortunately this is only allowed if you have
+  * administrator privileges so we allow for a fallback method with
+  * only read access to the device (in this case ioctl_ReadCopyright()
+  * won't send back the right result).
+  * (See Microsoft Q241374: Read and Write Access Required for SCSI
+  * Pass Through Requests) */
+  dvdcss->i_fd = (int)
+    CreateFileW(pathW, GENERIC_READ | GENERIC_WRITE,
+      FILE_SHARE_READ | FILE_SHARE_WRITE,
+      NULL, OPEN_EXISTING,
+      FILE_FLAG_RANDOM_ACCESS, NULL);
+
+  if ((HANDLE)dvdcss->i_fd == INVALID_HANDLE_VALUE)
+    dvdcss->i_fd = (int)
+    CreateFileW(pathW, GENERIC_READ, FILE_SHARE_READ,
+      NULL, OPEN_EXISTING,
+      FILE_FLAG_RANDOM_ACCESS, NULL);
+
+  if ((HANDLE)dvdcss->i_fd == INVALID_HANDLE_VALUE)
+  {
+    print_error(dvdcss, "failed to open device %s", psz_device);
+    return -1;
+  }
+
+  dvdcss->i_pos = 0;
+
+  return 0;
+}
+#else
 static int win2k_open ( dvdcss_t dvdcss, const char *psz_device )
 {
     char psz_dvd[7] = "\\\\.\\\0:";
@@ -490,6 +556,7 @@ static int win2k_open ( dvdcss_t dvdcss, const char *psz_device )
 
     return 0;
 }
+#endif
 #endif /* defined( _WIN32 ) */
 
 #ifdef __OS2__

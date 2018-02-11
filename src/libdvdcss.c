@@ -143,6 +143,12 @@
 #define MANUFACTURING_DATE_OFFSET 813
 #define MANUFACTURING_DATE_LENGTH  16
 
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)
+extern char* uwp_getenv(const char* n);
+size_t uwp_cachepath(char *buffer, size_t cch);
+#define getenv uwp_getenv
+#endif
+
 static int exists_or_mkdir( const char *path, int perm )
 {
     /* mkdir() may return an error if making the directory would fail,
@@ -215,11 +221,14 @@ static int set_cache_directory( dvdcss_t dvdcss )
     {
 #ifdef _WIN32
         char psz_home[PATH_MAX];
-
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)
+        if (uwp_cachepath(psz_home, PATH_MAX))
+#else
         /* Cache our keys in
          * C:\Documents and Settings\$USER\Application Data\dvdcss\ */
         if (SHGetFolderPathA (NULL, CSIDL_APPDATA | CSIDL_FLAG_CREATE,
                               NULL, SHGFP_TYPE_CURRENT, psz_home ) == S_OK)
+#endif
         {
             snprintf( dvdcss->psz_cachefile, PATH_MAX, "%s\\dvdcss", psz_home );
             dvdcss->psz_cachefile[PATH_MAX - 1] = '\0';
