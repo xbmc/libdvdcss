@@ -522,6 +522,7 @@ static dvdcss_t dvdcss_open_common ( const char *psz_target, void *p_stream,
     if( psz_target == NULL &&
       ( p_stream == NULL || p_stream_cb == NULL ) )
     {
+        dvdcss->psz_device = NULL;
         goto error;
     }
 
