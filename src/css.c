@@ -101,7 +101,7 @@ static int  dvdcss_titlekey ( dvdcss_t, int, dvd_key );
 int dvdcss_test( dvdcss_t dvdcss )
 {
     const char *psz_type, *psz_rpc;
-    char psz_region[16];
+    char psz_region[17];
     char *p_region = psz_region;
     int i_ret, i_copyright, i_type, i_mask, i_rpc, i_region;
 
@@ -160,6 +160,7 @@ int dvdcss_test( dvdcss_t dvdcss )
         default: psz_type = "unknown status"; break;
     }
 
+    *p_region = '\0';
     for( i_region = 0; i_region < 8; i_region++ )
     {
         if( !( i_mask & ( 1 << i_region ) ) )
