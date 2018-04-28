@@ -70,13 +70,13 @@ size_t uwp_cachepath(char *buffer, size_t cch)
 {
   try
   {
-    Platform::String^ path = Package::Current->InstalledLocation->Path;
+    Platform::String^ path = Windows::Storage::ApplicationData::Current->LocalFolder->Path;
     path = Platform::String::Concat(path, "\\dvdcss");
 
     std::string utf8path = WideToUtf8(std::wstring(path->Data()));
 
-    strncpy(buffer, utf8path.c_str(), cch);
-    return path->Length();
+    strncpy(buffer, utf8path.c_str(), min(cch, path->Length()));
+    return min(cch, path->Length());
   }
   catch (Platform::Exception^)
   {
@@ -96,19 +96,15 @@ char* uwp_getenv(const char* n)
   // check key
   if (!name.empty())
   {
-    std::wstring Wname(Utf8ToWide(name));
-    Platform::String^ key = ref new Platform::String(Wname.c_str());
+    uint32_t valLen = GetEnvironmentVariableA(name.c_str(), nullptr, 0);
+    if (!valLen)
+      return nullptr;
 
-    ApplicationDataContainer^ localSettings = ApplicationData::Current->LocalSettings;
-    auto values = localSettings->Values;
+    std::string value(valLen, 0);
+    GetEnvironmentVariableA(name.c_str(), const_cast<char*>(value.c_str()), valLen);
 
-    if (values->HasKey(key))
-    {
-      auto value = safe_cast<Platform::String^>(values->Lookup(key));
-      std::string result = WideToUtf8(std::wstring(value->Data()));
-      sEnvironment[name] = result;
-      return (char*)(sEnvironment[name].c_str());
-    }
+    sEnvironment[name] = value;
+    return const_cast<char*>(sEnvironment[name].c_str());
   }
   return nullptr;
 }

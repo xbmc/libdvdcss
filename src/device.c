@@ -208,7 +208,6 @@ void dvdcss_check_device ( dvdcss_t dvdcss )
     }
 
 #if defined( _WIN32 ) 
-#if !defined(WINAPI_FAMILY) || (WINAPI_FAMILY != WINAPI_FAMILY_APP)
     drives = GetLogicalDrives();
 
     for( i = 0; drives; i++ )
@@ -224,7 +223,7 @@ void dvdcss_check_device ( dvdcss_t dvdcss )
         drives &= ~cur;
 
         sprintf( psz_device, "%c:\\", 'A' + i );
-        i_ret = GetDriveType( psz_device );
+        i_ret = GetDriveTypeA( psz_device );
         if( i_ret != DRIVE_CDROM )
         {
             continue;
@@ -240,7 +239,6 @@ void dvdcss_check_device ( dvdcss_t dvdcss )
         dvdcss->psz_device = strdup( psz_device );
         return;
     }
-#endif
 #elif defined( DARWIN_DVD_IOCTL )
 
     kern_result = IOMasterPort( MACH_PORT_NULL, &master_port );
