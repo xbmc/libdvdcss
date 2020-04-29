@@ -38,13 +38,19 @@ Building libdvdcss for Windows
 
 There are two alternative ways to build libdvdcss for Windows.
 
-- on a Linux host with the mingw.org or mingw-w64 cross-compilers:
+- on a host with the mingw-w64 cross-compilers:
 
-  Tell configure about the compiler to use. If you run, for example, Debian or
-  Ubuntu with the mingw32 packages installed, it would be:
+ Tell configure about the compiler to use. If you run, for example, Debian,
+ Ubuntu, or Cygwin under Windows with the necessary mingw64 packages
+ installed, it would be:
 
-  ./configure --host=i586-mingw32msvc
+ for a 32-bit target platform:
+  ./configure --host=i686-w64-mingw32
   make
+
+ or for a 64-bit target platform:
+  ./configure --host=x86_64-w64-mingw32
+  make 
 
 - natively on Windows with MSYS + MinGW (www.mingw.org):
 
