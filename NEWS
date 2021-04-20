@@ -1,6 +1,7 @@
 Changes between 1.4.2 and 1.4.3:
 --------------------------------
 
+  * Fix opening non-ASCII paths in Windows
   * Fix potential buffer overflow if PATH_MAX is reached
 
 

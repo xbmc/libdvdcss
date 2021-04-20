@@ -1,7 +1,7 @@
 dnl library version number
 m4_define([dvdcss_major], 1)
 m4_define([dvdcss_minor], 4)
-m4_define([dvdcss_micro], 2)
+m4_define([dvdcss_micro], 3)
 m4_define([dvdcss_version],[dvdcss_major.dvdcss_minor.dvdcss_micro])
 
 AC_INIT(libdvdcss, dvdcss_version, , , https://www.videolan.org/developers/libdvdcss.html)
