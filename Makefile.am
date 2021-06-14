@@ -3,7 +3,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src/dvdcss
 
 EXTRA_DIST = msvc libdvdcss.spec INSTALL
 
-dist_doc_DATA = AUTHORS COPYING NEWS README ChangeLog
+dist_doc_DATA = AUTHORS COPYING NEWS README.md ChangeLog
 
 MAINTAINERCLEANFILES = ChangeLog
 
