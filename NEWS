@@ -36,7 +36,7 @@ Changes between 1.3.0 and 1.3.99:
   * Replace BeOS support by Haiku support.
   * Add dvdcss_open_stream() to public API. This allows installing custom
     callback functions for accessing DVD, e.g. over the network.
-  * dvdcss_error() now returns "const char *" instad of "char *".
+  * dvdcss_error() now returns "const char *" instead of "char *".
   * Drop support for MSVC versions before 2010.
   * Raw device access now errors out if the device cannot be opened.
   * Miscellaneous cleanups to code, documentation, build system.

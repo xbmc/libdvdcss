@@ -221,7 +221,7 @@ CC_FLAG_VISIBILITY([
 AM_CONDITIONAL(SYS_MSVC, test "${SYS_MSVC}" = "1")
 
 AC_ARG_ENABLE([doc],
-  AS_HELP_STRING([--disable-doc], [Disable building (with Doxygen) and intalling API documentation @<:@default=auto@:@>]))
+  AS_HELP_STRING([--disable-doc], [Disable building (with Doxygen) and installing API documentation @<:@default=auto@:@>]))
 
 AS_IF([test "x$enable_doc" != "xno"], [
   AC_PATH_PROG([DOXYGEN], [doxygen])
