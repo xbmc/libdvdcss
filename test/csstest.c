@@ -12,6 +12,8 @@
 
 #include <dvdcss/dvdcss.h>
 
+#define DVDCSS_DSI_PES 0x400
+
 static int  isscrambled( unsigned char * );
 static void dumpsector ( unsigned char * );
 
@@ -67,7 +69,7 @@ int main( int i_argc, char *ppsz_argv[] )
     }
 
     /* Print the sector */
-    printf( "requested sector: " );
+    printf( "requested sector:\t" );
     dumpsector( p_buffer );
 
     /* Check if sector was encrypted */
@@ -93,7 +95,7 @@ int main( int i_argc, char *ppsz_argv[] )
         }
 
         /* Print the decrypted sector */
-        printf( "unscrambled sector: " );
+        printf( "unscrambled sector:\t" );
         dumpsector( p_buffer );
     }
     else
@@ -113,14 +115,21 @@ static int isscrambled( unsigned char *p_buffer )
     return p_buffer[ 0x14 ] & 0x30;
 }
 
+static void dumpmem( unsigned char *p_buffer, int sz )
+{
+    for( ; sz ; sz--, p_buffer++ )
+        printf( "%.2x", *p_buffer );
+}
+
 /* Print parts of a 2048 bytes buffer */
 static void dumpsector( unsigned char *p_buffer )
 {
-    int i_amount = 4;
-    for( ; i_amount ; i_amount--, p_buffer++ ) printf( "%.2x", *p_buffer );
+    /* print pack header and first PES bytes up to flags */
+    dumpmem( &p_buffer[0], 21 );
     printf( "..." );
-    i_amount = 22;
-    p_buffer += 200;
-    for( ; i_amount ; i_amount--, p_buffer++ ) printf( "%.2x", *p_buffer );
-    printf( "...\n" );
+    /* print DSI up to block number */
+    dumpmem( &p_buffer[DVDCSS_DSI_PES], 17 );
+    printf( "..." );
+    dumpmem( &p_buffer[DVDCSS_BLOCK_SIZE - 8], 8 );
+    printf( "\n" );
 }
