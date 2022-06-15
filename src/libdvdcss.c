@@ -459,7 +459,7 @@ static void create_cache_subdir( dvdcss_t dvdcss )
     /* Pointer to the filename we will use. */
     dvdcss->psz_block = dvdcss->psz_cachefile + i;
 
-    print_debug( dvdcss, "Content Scrambling System (CSS) key cache dir: %s",
+    print_error( dvdcss, "Content Scrambling System (CSS) key cache dir: %s",
                  dvdcss->psz_cachefile );
     return;
 
@@ -499,9 +499,9 @@ static void init_cache( dvdcss_t dvdcss )
  * calls. \e libdvdcss checks whether ioctls can be performed on the disc,
  * and when possible, the disc key is retrieved.
  */
-LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target )
+LIBDVDCSS_EXPORT dvdcss_t dvdcss_open ( const char *psz_target, void *p_stream, dvdcss_stream_cb *p_stream_cb)
 {
-    return dvdcss_open_common( psz_target, NULL, NULL );
+    return dvdcss_open_common( psz_target, p_stream, p_stream_cb );
 }
 
 /**
@@ -531,12 +531,12 @@ static dvdcss_t dvdcss_open_common ( const char *psz_target, void *p_stream,
         return NULL;
     }
 
-    if( psz_target == NULL &&
+    /*if( psz_target == NULL &&
       ( p_stream == NULL || p_stream_cb == NULL ) )
     {
         dvdcss->psz_device = NULL;
         goto error;
-    }
+    }*/
 
     /* Initialize structure with default values. */
     dvdcss->i_fd = -1;
@@ -550,6 +550,10 @@ static dvdcss_t dvdcss_open_common ( const char *psz_target, void *p_stream,
     dvdcss->p_stream = p_stream;
     dvdcss->p_stream_cb = p_stream_cb;
 
+    if (p_stream == NULL)
+        fprintf( stdout, "pstream null");
+    else
+        fprintf( stdout, "pstream not null");
     /* Set library verbosity from DVDCSS_VERBOSE environment variable. */
     set_verbosity( dvdcss );
 
@@ -576,20 +580,20 @@ static dvdcss_t dvdcss_open_common ( const char *psz_target, void *p_stream,
 
         if( i_ret == -3 )
         {
-            print_debug( dvdcss, "scrambled disc on a region-free RPC-II "
+            print_error( dvdcss, "scrambled disc on a region-free RPC-II "
                                  "drive: possible failure, but continuing "
                                  "anyway" );
         }
         else if( i_ret < 0 )
         {
             /* Disable the CSS ioctls and hope that it works? */
-            print_debug( dvdcss,
+            print_error( dvdcss,
                          "could not check whether the disc was scrambled" );
             dvdcss->b_ioctls = 0;
         }
         else
         {
-            print_debug( dvdcss, i_ret ? "disc is scrambled"
+            print_error( dvdcss, i_ret ? "disc is scrambled"
                                        : "disc is unscrambled" );
             dvdcss->b_scrambled = i_ret;
         }
@@ -603,7 +607,7 @@ static dvdcss_t dvdcss_open_common ( const char *psz_target, void *p_stream,
 
         if( i_ret < 0 )
         {
-            print_debug( dvdcss, "could not get disc key" );
+            print_error( dvdcss, "could not get disc key" );
         }
     }
 

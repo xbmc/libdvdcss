@@ -132,7 +132,7 @@ int dvdcss_test( dvdcss_t dvdcss )
 #endif /* _WIN32 */
     }
 
-    print_debug( dvdcss, "disc reports copyright information 0x%x",
+    print_error( dvdcss, "disc reports copyright information 0x%x",
                          i_copyright );
 
     i_ret = ioctl_ReportRPC( dvdcss->i_fd, &i_type, &i_mask, &i_rpc);
@@ -170,7 +170,7 @@ int dvdcss_test( dvdcss_t dvdcss )
         }
     }
 
-    print_debug( dvdcss, "drive region(s)%s, region mask 0x%x, %s, %s",
+    print_error( dvdcss, "drive region(s)%s, region mask 0x%x, %s, %s",
                  psz_region, i_mask, psz_rpc, psz_type );
 
     if( i_copyright && i_rpc == 1 && i_type == 0 )
@@ -269,7 +269,7 @@ int dvdcss_title ( dvdcss_t dvdcss, int i_block )
 
         if( i_ret == 0 )
         {
-            print_debug( dvdcss, "unencrypted title" );
+            print_error( dvdcss, "unencrypted title" );
             /* We cache this anyway, so we don't need to check again. */
         }
     }
@@ -389,7 +389,7 @@ int dvdcss_disckey( dvdcss_t dvdcss )
                 PrintKey( dvdcss, "decrypted disc key is ", p_disc_key );
                 break;
             }
-            print_debug( dvdcss, "failed to decrypt the disc key, "
+            print_error( dvdcss, "failed to decrypt the disc key, "
                                  "faulty drive/kernel? "
                                  "cracking title keys instead" );
 
@@ -408,14 +408,14 @@ int dvdcss_disckey( dvdcss_t dvdcss )
                 PrintKey( dvdcss, "cracked disc key is ", p_disc_key );
                 break;
             }
-            print_debug( dvdcss, "failed to crack the disc key" );
+            print_error( dvdcss, "failed to crack the disc key" );
             memset( p_disc_key, 0, DVD_KEY_SIZE );
             dvdcss->i_method = DVDCSS_METHOD_TITLE;
             break;
 
         default:
 
-            print_debug( dvdcss, "disc key does not need to be decrypted" );
+            print_error( dvdcss, "disc key does not need to be decrypted" );
             memset( p_disc_key, 0, DVD_KEY_SIZE );
             break;
     }
@@ -442,7 +442,7 @@ static int dvdcss_titlekey( dvdcss_t dvdcss, int i_pos, dvd_key p_title_key )
          * read the title key and decrypt it.
          */
 
-        print_debug( dvdcss, "getting title key at block %i the classic way",
+        print_error( dvdcss, "getting title key at block %i the classic way",
                              i_pos );
 
         /* We need to authenticate again every time to get a new session key */
@@ -455,7 +455,7 @@ static int dvdcss_titlekey( dvdcss_t dvdcss, int i_pos, dvd_key p_title_key )
         if( ioctl_ReadTitleKey( dvdcss->i_fd, &dvdcss->css.i_agid,
                                 i_pos, p_key ) < 0 )
         {
-            print_debug( dvdcss,
+            print_error( dvdcss,
                          "ioctl ReadTitleKey failed (region mismatch?)" );
             i_ret = -1;
         }
@@ -465,7 +465,7 @@ static int dvdcss_titlekey( dvdcss_t dvdcss, int i_pos, dvd_key p_title_key )
         {
             case -1:
                 /* An error getting the ASF status, something must be wrong. */
-                print_debug( dvdcss, "lost authentication success flag (ASF), requesting title key" );
+                print_error( dvdcss, "lost authentication success flag (ASF), requesting title key" );
                 ioctl_InvalidateAgid( dvdcss->i_fd, &dvdcss->css.i_agid );
                 i_ret = -1;
                 break;
@@ -473,7 +473,7 @@ static int dvdcss_titlekey( dvdcss_t dvdcss, int i_pos, dvd_key p_title_key )
             case 0:
                 /* This might either be a title that has no key,
                  * or we encountered a region error. */
-                print_debug( dvdcss, "lost authentication success flag (ASF), requesting title key" );
+                print_error( dvdcss, "lost authentication success flag (ASF), requesting title key" );
                 break;
 
             case 1:
@@ -518,7 +518,7 @@ static int dvdcss_titlekey( dvdcss_t dvdcss, int i_pos, dvd_key p_title_key )
         }
 
         /* The title key request failed */
-        print_debug( dvdcss, "resetting drive and cracking title key" );
+        print_error( dvdcss, "resetting drive and cracking title key" );
 
         /* Read an unscrambled sector and reset the drive */
         dvdcss->pf_seek( dvdcss, 0 );
@@ -610,7 +610,7 @@ static int GetBusKey( dvdcss_t dvdcss )
     int       i_ret = -1;
     int       i;
 
-    print_debug( dvdcss, "requesting authentication grant ID (AGID)" );
+    print_error( dvdcss, "requesting authentication grant ID (AGID)" );
     i_ret = ioctl_ReportAgid( dvdcss->i_fd, &dvdcss->css.i_agid );
 
     /* We might have to reset hung authentication processes in the drive
@@ -619,7 +619,7 @@ static int GetBusKey( dvdcss_t dvdcss )
      * and try again. */
     for( i = 0; i_ret == -1 && i < 4 ; ++i )
     {
-        print_debug( dvdcss, "ioctl ReportAgid failed, invalidating "
+        print_error( dvdcss, "ioctl ReportAgid failed, invalidating "
                              "authentication grant ID (AGID) %d", i );
 
         /* This is really _not good_, should be handled by the OS.
@@ -628,7 +628,7 @@ static int GetBusKey( dvdcss_t dvdcss )
         dvdcss->css.i_agid = i;
         ioctl_InvalidateAgid( dvdcss->i_fd, &dvdcss->css.i_agid );
 
-        print_debug( dvdcss, "requesting authentication grant ID (AGID)" );
+        print_error( dvdcss, "requesting authentication grant ID (AGID)" );
         i_ret = ioctl_ReportAgid( dvdcss->i_fd, &dvdcss->css.i_agid );
     }
 
@@ -680,7 +680,7 @@ static int GetBusKey( dvdcss_t dvdcss )
 
         if( memcmp( p_key_check, p_key1, DVD_KEY_SIZE ) == 0 )
         {
-            print_debug( dvdcss, "drive authenticated, using variant %d", i );
+            print_error( dvdcss, "drive authenticated, using variant %d", i );
             i_variant = i;
             break;
         }
@@ -725,7 +725,7 @@ static int GetBusKey( dvdcss_t dvdcss )
     }
 
     /* The drive has accepted us as authentic. */
-    print_debug( dvdcss, "authentication established" );
+    print_error( dvdcss, "authentication established" );
 
     memcpy( p_challenge, p_key1, DVD_KEY_SIZE );
     memcpy( p_challenge + DVD_KEY_SIZE, p_key2, DVD_KEY_SIZE );
@@ -740,7 +740,7 @@ static int GetBusKey( dvdcss_t dvdcss )
  *****************************************************************************/
 static void PrintKey( dvdcss_t dvdcss, const char *prefix, const uint8_t *data )
 {
-    print_debug( dvdcss, "%s%02x:%02x:%02x:%02x:%02x", prefix,
+    print_error( dvdcss, "%s%02x:%02x:%02x:%02x:%02x", prefix,
                  data[0], data[1], data[2], data[3], data[4] );
 }
 
@@ -765,11 +765,11 @@ static int GetASF( dvdcss_t dvdcss )
 
     if( i_asf )
     {
-        print_debug( dvdcss, "authentication success flag set, ASF=1" );
+        print_error( dvdcss, "authentication success flag set, ASF=1" );
     }
     else
     {
-        print_debug( dvdcss, "authentication success flag not set, ASF=0" );
+        print_error( dvdcss, "authentication success flag not set, ASF=0" );
     }
 
     return i_asf;
@@ -1520,7 +1520,7 @@ static int CrackTitleKey( dvdcss_t dvdcss, int i_pos, int i_len,
     int b_read_error = 0;
     int i_ret;
 
-    print_debug( dvdcss, "cracking title key at block %i", i_pos );
+    print_error( dvdcss, "cracking title key at block %i", i_pos );
 
     i_tries = 0;
     i_success = 0;
@@ -1542,11 +1542,11 @@ static int CrackTitleKey( dvdcss_t dvdcss, int i_pos, int i_len,
         {
             if( i_ret == 0 )
             {
-                print_debug( dvdcss, "read returned 0 (end of device?)" );
+                print_error( dvdcss, "read returned 0 (end of device?)" );
             }
             else if( !b_read_error )
             {
-                print_debug( dvdcss, "read error at block %i, resorting to "
+                print_error( dvdcss, "read error at block %i, resorting to "
                                      "arcane secrets to recover", i_pos );
 
                 /* Reset the drive before trying to continue */
@@ -1564,13 +1564,13 @@ static int CrackTitleKey( dvdcss_t dvdcss, int i_pos, int i_len,
          * For now, allow all blocks that begin with a start code. */
         if( memcmp( p_buf, p_packstart, 3 ) )
         {
-            print_debug( dvdcss, "block %i is a non-MPEG block "
+            print_error( dvdcss, "block %i is a non-MPEG block "
                                  "(end of title)", i_pos );
             break;
         }
 
         if( p_buf[0x0d] & 0x07 )
-            print_debug( dvdcss, "stuffing in pack header" );
+            print_error( dvdcss, "stuffing in pack header" );
 
         /* PES_scrambling_control does not exist in a system_header,
          * a padding_stream or a private_stream2 (and others?). */
@@ -1599,7 +1599,7 @@ static int CrackTitleKey( dvdcss_t dvdcss, int i_pos, int i_len,
         /* Emit a progress indication now and then. */
         if( !( i_reads & 0xfff ) )
         {
-            print_debug( dvdcss, "at block %i, still cracking...", i_pos );
+            print_error( dvdcss, "at block %i, still cracking...", i_pos );
         }
 
         /* Stop after 2000 blocks if we haven't seen any encrypted blocks. */
@@ -1609,23 +1609,23 @@ static int CrackTitleKey( dvdcss_t dvdcss, int i_pos, int i_len,
 
     if( !b_stop_scanning )
     {
-        print_debug( dvdcss, "end of title reached" );
+        print_error( dvdcss, "end of title reached" );
     }
 
     /* Print some statistics. */
-    print_debug( dvdcss, "successful attempts %d/%d, scrambled blocks %d/%d",
+    print_error( dvdcss, "successful attempts %d/%d, scrambled blocks %d/%d",
                          i_success, i_tries, i_encrypted, i_reads );
 
     if( i_success > 0 /* b_stop_scanning */ )
     {
-        print_debug( dvdcss, "Video Title Set (VTS) key initialized" );
+        print_error( dvdcss, "Video Title Set (VTS) key initialized" );
         return 1;
     }
 
     if( i_encrypted == 0 && i_reads > 0 )
     {
         memset( p_titlekey, 0, DVD_KEY_SIZE );
-        print_debug( dvdcss, "no scrambled sectors found" );
+        print_error( dvdcss, "no scrambled sectors found" );
         return 0;
     }
 

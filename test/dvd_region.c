@@ -269,7 +269,7 @@ int main(int argc, char *argv[])
     return -1;
   }
 
-  if( !(dvdcss = dvdcss_open(device_name)) ) {
+  if( !(dvdcss = dvdcss_open(device_name, NULL, NULL)) ) {
     usage();
     return 1;
   }

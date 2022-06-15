@@ -40,7 +40,7 @@ int main( int i_argc, char *ppsz_argv[] )
     i_sector = atoi( ppsz_argv[2] );
 
     /* Initialize libdvdcss */
-    dvdcss = dvdcss_open( ppsz_argv[1] );
+    dvdcss = dvdcss_open( ppsz_argv[1], NULL, NULL);
     if( dvdcss == NULL )
     {
         printf( "argh ! couldn't open DVD (%s)\n", ppsz_argv[1] );

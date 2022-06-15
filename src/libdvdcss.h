@@ -83,6 +83,6 @@ struct dvdcss_s
  * Functions used across the library
  *****************************************************************************/
 void print_error ( dvdcss_t, const char *, ... );
-void print_debug ( const dvdcss_t, const char *, ... );
+void print_error ( const dvdcss_t, const char *, ... );
 
 #endif /* DVDCSS_LIBDVDCSS_H */

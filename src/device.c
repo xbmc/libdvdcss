@@ -226,7 +226,7 @@ void dvdcss_check_device ( dvdcss_t dvdcss )
 
         /* FIXME: we want to differentiate between CD and DVD drives
          * using DeviceIoControl() */
-        print_debug( dvdcss, "defaulting to drive `%s'", psz_device );
+        print_error( dvdcss, "defaulting to drive `%s'", psz_device );
         free( dvdcss->psz_device );
         dvdcss->psz_device = strdup( psz_device );
         return;
@@ -286,7 +286,7 @@ void dvdcss_check_device ( dvdcss_t dvdcss )
                                 sizeof(psz_buf) - i_pathlen,
                                 kCFStringEncodingASCII ) )
         {
-            print_debug( dvdcss, "defaulting to drive `%s'", psz_buf );
+            print_error( dvdcss, "defaulting to drive `%s'", psz_buf );
             CFRelease( psz_path );
             IOObjectRelease( next_media );
             IOObjectRelease( media_iterator );
@@ -320,7 +320,7 @@ void dvdcss_check_device ( dvdcss_t dvdcss )
 
                 psz_dvd[0] += i;
 
-                print_debug( dvdcss, "defaulting to drive `%s'", psz_dvd );
+                print_error( dvdcss, "defaulting to drive `%s'", psz_dvd );
                 free( dvdcss->psz_device );
                 dvdcss->psz_device = strdup( psz_dvd );
                 return;
@@ -333,7 +333,7 @@ void dvdcss_check_device ( dvdcss_t dvdcss )
         i_fd = open( ppsz_devices[i], 0 );
         if( i_fd != -1 )
         {
-            print_debug( dvdcss, "defaulting to drive `%s'", ppsz_devices[i] );
+            print_error( dvdcss, "defaulting to drive `%s'", ppsz_devices[i] );
             close( i_fd );
             free( dvdcss->psz_device );
             dvdcss->psz_device = strdup( ppsz_devices[i] );
@@ -352,7 +352,7 @@ int dvdcss_open_device ( dvdcss_t dvdcss )
     {
          psz_device = dvdcss->psz_device;
     }
-    print_debug( dvdcss, "opening target `%s'", psz_device );
+    print_error( dvdcss, "opening target `%s'", psz_device );
 
 #if defined( _WIN32 )
     /* Initialize readv temporary buffer */
@@ -361,9 +361,9 @@ int dvdcss_open_device ( dvdcss_t dvdcss )
 #endif
 
     /* if callback functions are initialized */
-    if( dvdcss->p_stream )
+    if( dvdcss->p_stream_cb )
     {
-        print_debug( dvdcss, "using stream API for access" );
+        fprintf( stdout, "libdvdcss using stream read");
         dvdcss->pf_seek  = stream_seek;
         dvdcss->pf_read  = stream_read;
         dvdcss->pf_readv = stream_readv;
@@ -379,7 +379,7 @@ int dvdcss_open_device ( dvdcss_t dvdcss )
 
     if( !dvdcss->b_file )
     {
-        print_debug( dvdcss, "using Win2K API for access" );
+        print_error( dvdcss, "using Win2K API for access" );
         dvdcss->pf_seek  = win2k_seek;
         dvdcss->pf_read  = win2k_read;
         dvdcss->pf_readv = win2k_readv;
@@ -391,7 +391,7 @@ int dvdcss_open_device ( dvdcss_t dvdcss )
     if( psz_device[0] && psz_device[1] == ':' &&
         ( !psz_device[2] || ( psz_device[2] == '\\' && !psz_device[3] ) ) )
     {
-        print_debug( dvdcss, "using OS/2 API for access" );
+        print_error( dvdcss, "using OS/2 API for access" );
         dvdcss->pf_seek  = libc_seek;
         dvdcss->pf_read  = libc_read;
         dvdcss->pf_readv = libc_readv;
@@ -400,7 +400,7 @@ int dvdcss_open_device ( dvdcss_t dvdcss )
     else
 #endif
     {
-        print_debug( dvdcss, "using libc API for access" );
+        fprintf( stdout, "libdvdcss using libc");
         dvdcss->pf_seek  = libc_seek;
         dvdcss->pf_read  = libc_read;
         dvdcss->pf_readv = libc_readv;
